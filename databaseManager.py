@@ -1,4 +1,5 @@
 import sqlite3
+import yaml
 from contextlib import closing
 
 class DatabaseManager:
@@ -9,6 +10,12 @@ class DatabaseManager:
         self.createTables()
 
     def createTables(self):
+
+        with open("FixedData\Defaults\DefaultKeyVals") as stream:
+            try:
+                defaultKeyVals = yaml.safe_load(stream)
+            except yaml.YAMLerror as exception:
+                print(exception)
 
         with closing(self.DatabaseConnection.cursor()) as cursor:
             cursor.execute("""
@@ -43,7 +50,11 @@ class DatabaseManager:
                 PrimarySponsor INT,
                 SecondarySponsor1 INT,
                 SecondarySponsor2 INT,
-                SecondarySponsor3 INT
+                SecondarySponsor3 INT,
+                Wins SMALLINT,
+                Podiums SMALLINT,
+                Starts SMALLINT,
+                Finishes SMALLINT
                 )
             """)
             cursor.execute("""
@@ -59,16 +70,30 @@ class DatabaseManager:
                 Aggressiveness TINYINT,
                 Defending TINYINT,
                 ContractCost SMALLINT,
-                EventCost SMALLINT
+                EventCost SMALLINT,
+                Races SMALLINT,
+                Wins SMALLINT,
+                Podiums SMALLINT
                 )
             """)
 
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS KeyVal (
+                Key TEXT PRIMARY KEY,
+                Value BLOB
+                )
+            """)
+            for key, value in defaultKeyVals: #Inserts any keys and default values if they dont already exist
+                cursor.execute(f"""
+                    INSERT IGNORE INTO KeyVal VALUES 
+                    ({key}, {value})
+                """)
+
     def dropAllTables(self):
         with closing(self.DatabaseConnection.cursor()) as cursor:
-            cursor.execute("""
-            """)
+            cursor.execute(#TODO)
 
-    def getActiveTeamsByOwner(self, ownerID):
+    def getOwnerTeam(self, ownerID):
 
         with closing(self.DatabaseConnection.cursor()) as cursor:
             cursor.execute("""
@@ -77,3 +102,16 @@ class DatabaseManager:
                 AND IsActive = True
             """)
             return cursor.fetchone()
+
+    def getAvailableTeamSlots(self):
+
+        with closing(self.DatabaseConnection.cursor()) as cursor:
+            cursor.execute("""
+                SELECT COUNT(*) FROM TeamData
+                WHERE IsActive
+            """)
+
+    def getDrivers(self):
+
+        with closing(self.DatabaseConnection.cursor()) as cursor:
+            cursor.execute("SELECT * FROM Drivers")
