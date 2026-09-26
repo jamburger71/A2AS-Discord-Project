@@ -13,7 +13,10 @@ def ordinalConv(n):
 
 def groupReturnsByN(n, iteratedList, defaultFillVal=None):
     args = [iter(iteratedList)] * n
-    return zip_longest(fillvalue=defaultFillVal, *args)
+    return list(zip_longest(fillvalue=defaultFillVal, *args))
 
 def getTrackData(trackName):
     return json.loads(open(f"FixedData\TrackData\{trackName}"))
+
+def convertToPounds(amount: int) -> str:
+    return f"£{amount:,}"
