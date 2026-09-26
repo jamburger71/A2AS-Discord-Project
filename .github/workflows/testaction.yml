@@ -1,6 +1,5 @@
 name: "Test Application"
 description: "Test Action for learning github actions"
-author: "Jay Kirkham"
 
 on: push
 jobs:
