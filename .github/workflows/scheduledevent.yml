@@ -1,0 +1,12 @@
+name: "Test Scheduler"
+
+on:
+  schedule:
+    - cron: '*/30 * * * *' # Every 30 mins
+jobs:
+  run:
+    name: "Hello World Echo"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Echo Hello World
+        run: echo "Hello World"
