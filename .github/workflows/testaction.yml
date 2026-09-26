@@ -1,0 +1,14 @@
+name: "Test Application"
+description: "Test Action for learning github actions"
+author: "Jay Kirkham"
+
+on: push
+jobs:
+  build:
+    name: "Hello World Action"
+    runs-on: ubuntu-latest
+    steps:
+      - uses@: actions/checkout@v3
+      - uses: ./action-a
+      with:
+        who-to-greet: "Jay Kirky"
