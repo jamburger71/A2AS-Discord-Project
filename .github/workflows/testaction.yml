@@ -3,11 +3,10 @@ description: "Test Action for learning github actions"
 
 on: push
 jobs:
-  build:
+  run:
     name: "Hello World Action"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: ./action-a
         with:
           who-to-greet: "Jay Kirky"
