@@ -3,11 +3,11 @@ from discord import app_commands
 from discord.ext import commands # type: ignore
 import logging
 
-from src.helpers import getMetadata, convertToPounds, groupReturnsByN
-from src.databaseManager import DatabaseManager
-from src.enums import *
-from src.areyousure import areYouSure
-from src.pagecontroller import pagecontroller
+from helpers import getMetadata, convertToPounds, groupReturnsByN
+from databaseManager import DatabaseManager
+from enums import *
+from areyousure import areYouSure
+from pagecontroller import pagecontroller
 
 metadata = getMetadata()
 
@@ -301,23 +301,19 @@ async def alldrivers(interaction: discord.Interaction, availableonly: bool = Fal
     if len(drivers) == 0:
         await interaction.response.send_message("No drivers found.")
     else:
-        currentPage = 1
-        totalPages = (len(drivers) + 9) // 10
-        embed = discord.Embed(title="All Drivers", description=f"Page {currentPage} of {totalPages}")
         pages = groupReturnsByN(10, drivers)
-        view = pagecontroller(pages=pages, interaction=interaction, nextPageFunc=updateDriverPage)
+        currentPage = 1
+        embed = discord.Embed(title="All Drivers", description=f"Page {currentPage} of {len(pages)}")
+        view = pagecontroller(pages=pages, currentPage=currentPage, interaction=interaction, nextPageFunc=nextPage)
         await interaction.response.send_message(embed=embed, view=view)
 
-async def updateDriverPage(args: tuple, interaction: discord.Interaction):
-    currentPage = args[0]
-    pages = args[1]
-    drivers = databaseManager.getAllDrivers()
-    totalPages = (len(drivers) + 9) // 10
+async def nextPage(interaction: discord.Interaction, lastMessage: discord.Message, pages: list, currentPage: int):
+    totalPages = len(pages)
     embed = discord.Embed(title="All Drivers", description=f"Page {currentPage + 1} of {totalPages}")
     driverList = pages[currentPage]
     for driver in driverList:
         if driver is not None:
             embed.add_field(name=f"{driver[1]} {driver[2]}", value=f"ID: {driver[0]}, Code: {driver[3]}, Nationality: {driver[4]}, Age: {driver[5]}", inline=False)
-    await interaction.response.edit_message(embed=embed)
+    await interaction.response.send_message(embed=embed)
 
 bot.run(metadata["BotToken"])

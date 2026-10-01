@@ -1,6 +1,6 @@
 import discord
 
-from src.databaseManager import DatabaseManager
+from databaseManager import DatabaseManager
 
 class areYouSure(discord.ui.View):
     def __init__(self, args: tuple, confirmFunc, denyFunc, databaseManager: DatabaseManager):
