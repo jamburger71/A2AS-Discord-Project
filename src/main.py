@@ -176,7 +176,7 @@ async def getdriver(interaction: discord.Interaction, driverid: str):
     qualipace = "Qualifying Pace",
     racepace = "Race Pace",
     wetpace = "Wet Weather Pace",
-    tyremarket = "Tyre Management",
+    tyremanagement = "Tyre Management",
     aggressiveness = "Aggressiveness",
     defending = "Defending",
     contractcost = "Contract Cost"
@@ -184,20 +184,17 @@ async def getdriver(interaction: discord.Interaction, driverid: str):
 async def insertnewdriver(
     interaction: discord.Interaction, 
     drivername: str, 
-    lastname: str, 
-    threecode: str, 
+    lastname: str,
     nationality: str, 
     age: int, 
     qualipace: int, 
     racepace: int,
     wetpace: int, 
-    tyremarket: int, 
+    tyremanagement: int, 
     aggressiveness: int, 
     defending: int, 
     contractcost: int):
-    if len(threecode) != 3:
-        await interaction.response.send_message(f"Three-letter code must be exactly 3 characters long. Please try again.")
-    elif age < 16:
+    if age < 16:
         await interaction.response.send_message(f"Driver age must be at least 16. Infants are not allowed.")
     elif not (0 <= qualipace <= 100):
         await interaction.response.send_message(f"Qualifying pace must be between 0 and 100. Please try again.")
@@ -205,17 +202,20 @@ async def insertnewdriver(
         await interaction.response.send_message(f"Race pace must be between 0 and 100. Please try again.")
     elif not (0 <= wetpace <= 100):
         await interaction.response.send_message(f"Wet weather pace must be between 0 and 100. Please try again.")
-    elif not (0 <= tyremarket <= 100):
+    elif not (0 <= tyremanagement <= 100):
         await interaction.response.send_message(f"Tyre management must be between 0 and 100. Please try again.")
     elif not (0 <= aggressiveness <= 100):
         await interaction.response.send_message(f"Aggressiveness must be between 0 and 100. Please try again.")
     elif not (0 <= defending <= 100):
         await interaction.response.send_message(f"Defending must be between 0 and 100. Please try again.")
-    elif databaseManager.getDriver(threecode) is not None:
-        await interaction.response.send_message(f"Driver three-letter code already exists. Please try something else.")
     else:
-        databaseManager.insertDriver(drivername, lastname, threecode, nationality, age, qualipace, racepace, wetpace, tyremarket, aggressiveness, defending, contractcost)
+        threecode = lastname[:3].upper()
+        while databaseManager.getDriver(threecode) is not None:
+            threecode = f"{threecode[:-1]}{chr(ord(threecode[-1]) + 1)}"
+        databaseManager.insertDriver(drivername, lastname, threecode, nationality, age, qualipace, racepace, wetpace, tyremanagement, aggressiveness, defending, contractcost)
         await interaction.response.send_message(f"{drivername} {lastname} has been registered successfully.")
+
+    
             
 @bot.tree.command(name="removedriver")
 @app_commands.describe(driverid = "Driver ID or Three-Letter Code")
@@ -305,6 +305,9 @@ async def alldrivers(interaction: discord.Interaction, availableonly: bool = Fal
         currentPage = 1
         embed = discord.Embed(title="All Drivers", description=f"Page {currentPage} of {len(pages)}")
         view = pagecontroller(pages=pages, currentPage=currentPage, interaction=interaction, nextPageFunc=nextPage)
+        for driver in pages[currentPage - 1]:
+            if driver is not None:
+                embed.add_field(name=f"{driver[1]} {driver[2]}", value=f"ID: {driver[0]}, Code: {driver[3]}, Nationality: {driver[4]}, Age: {driver[5]}", inline=False)
         await interaction.response.send_message(embed=embed, view=view)
 
 async def nextPage(interaction: discord.Interaction, lastMessage: discord.Message, pages: list, currentPage: int):
@@ -314,6 +317,7 @@ async def nextPage(interaction: discord.Interaction, lastMessage: discord.Messag
     for driver in driverList:
         if driver is not None:
             embed.add_field(name=f"{driver[1]} {driver[2]}", value=f"ID: {driver[0]}, Code: {driver[3]}, Nationality: {driver[4]}, Age: {driver[5]}", inline=False)
+    await lastMessage.delete()
     await interaction.response.send_message(embed=embed)
 
 bot.run(metadata["BotToken"])
