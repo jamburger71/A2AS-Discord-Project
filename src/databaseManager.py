@@ -1,6 +1,7 @@
 import logging
 import sqlite3
 import yaml
+import os
 from contextlib import closing
 
 class DatabaseManager:
@@ -9,6 +10,7 @@ class DatabaseManager:
 
         self.DatabaseConnection = sqlite3.connect(databaseName)
         self.createTables()
+        self.databaseName = databaseName
         self.setDefaults(False)
 
     def createTables(self):
@@ -82,6 +84,14 @@ class DatabaseManager:
                 )
             """)
 
+    def checkTableExists(tableName: str) -> bool:
+        with closing(self.DatabaseConnection.cursor()) as cursor:
+            cursor.execute("""
+                SELECT 1 FROM sqlite_master 
+                WHERE type = 'table'
+                AND name = ?""", (tableName))
+            return cursor.fetchone() is not None
+    
     def setDefaults(self, overwrite: bool = False):
 
         with open("FixedData\\Defaults\\DefaultKeyVals.yaml") as stream:
@@ -115,6 +125,9 @@ class DatabaseManager:
             cursor.execute("DROP TABLE IF EXISTS DriverData")
             self.setDefaults(True)
 
+    def deleteDatabase(self):
+        os.remove(f"{self.databaseName}.db")
+    
     def getOwnerTeam(self, ownerID) -> tuple | None:
 
         logging.info(f"Getting team for ownerID: {ownerID}")
