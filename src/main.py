@@ -181,6 +181,7 @@ async def getdriver(interaction: discord.Interaction, driverid: str):
     defending = "Defending",
     contractcost = "Contract Cost"
 )
+@app_commands.checks.has_role("Moderator")
 async def insertnewdriver(
     interaction: discord.Interaction, 
     drivername: str, 
@@ -219,6 +220,7 @@ async def insertnewdriver(
             
 @bot.tree.command(name="removedriver")
 @app_commands.describe(driverid = "Driver ID or Three-Letter Code")
+@app_commands.checks.has_role("Moderator")
 async def removedriver(interaction: discord.Interaction, driverid: str):
     if driverid.isdigit():
         driverid = int(driverid) # type: ignore
