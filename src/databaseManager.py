@@ -76,7 +76,6 @@ class DatabaseManager:
                 Podiums SMALLINT DEFAULT 0
                 )
             """)
-
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS KeyVal (
                 Key TEXT PRIMARY KEY,
@@ -84,12 +83,12 @@ class DatabaseManager:
                 )
             """)
 
-    def checkTableExists(tableName: str) -> bool:
+    def checkTableExists(self, tableName: str) -> bool:
         with closing(self.DatabaseConnection.cursor()) as cursor:
             cursor.execute("""
                 SELECT 1 FROM sqlite_master 
                 WHERE type = 'table'
-                AND name = ?""", (tableName))
+                AND name = ?""", (tableName,))
             return cursor.fetchone() is not None
     
     def setDefaults(self, overwrite: bool = False):
@@ -104,7 +103,7 @@ class DatabaseManager:
                         else:
                             cursor.execute("INSERT OR REPLACE INTO KeyVal (Key, Value) VALUES (?, ?)", (key, value))
             except yaml.YAMLError as exception:
-                print(exception)
+                logging.error(exception)
 
     def getKeyVal(self, key: str):
 
@@ -126,11 +125,11 @@ class DatabaseManager:
             self.setDefaults(True)
 
     def deleteDatabase(self):
-        os.remove(f"{self.databaseName}.db")
+        self.DatabaseConnection.close()
+        os.remove(f"{self.databaseName}")
     
     def getOwnerTeam(self, ownerID) -> tuple | None:
 
-        logging.info(f"Getting team for ownerID: {ownerID}")
         with closing(self.DatabaseConnection.cursor()) as cursor:
             cursor.execute(f"""
                 SELECT * FROM TeamData
@@ -226,7 +225,6 @@ class DatabaseManager:
 
         with closing(self.DatabaseConnection.cursor()) as cursor:
             driverID = self.getNextDriverID(increment=True)
-            print(f"Inserting driver with ID: {driverID}")
             cursor.execute("""
                 INSERT INTO DriverData (DriverID, FirstName, LastName, ThreeLetterCode, Nationality, Age, QualiPace, RacePace, WetPace, TyreManagement, Aggressiveness, Defending, ContractCost)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -271,7 +269,6 @@ class DatabaseManager:
         driverID = self.getKeyVal("NextDriverID")
         if increment:
             self.updateKeyVal("NextDriverID", driverID + 1)
-        print(f"Next driver ID: {driverID}")
         return driverID
 
     def checkDriverAvailability(self, driverID: int | str) -> bool:
