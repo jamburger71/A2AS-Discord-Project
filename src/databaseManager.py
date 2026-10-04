@@ -7,7 +7,10 @@ from pathlib import Path
 
 class DatabaseManager:
 
-    def __init__(self, databaseName: str):
+    def __init__(self, databaseName: str | None):
+
+        if databaseName is None:
+            raise ValueError("Database name cannot be None")
 
         self.DatabaseConnection = sqlite3.connect(databaseName)
         self.createTables()

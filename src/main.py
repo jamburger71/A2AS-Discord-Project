@@ -3,13 +3,15 @@ from discord import app_commands
 from discord.ext import commands # type: ignore
 import logging
 
-from helpers import getMetadata, convertToPounds, groupReturnsByN
+from helpers import convertToPounds, groupReturnsByN
 from databaseManager import DatabaseManager
 from enums import *
 from areyousure import areYouSure
 from pagecontroller import pagecontroller
+import os
+from dotenv import load_dotenv
 
-metadata = getMetadata()
+load_dotenv()
 
 logHandler = logging.FileHandler(filename="discord.log", encoding="utf-8", mode='w')
 
@@ -17,7 +19,7 @@ intents = discord.Intents.default()
 intents.members = True
 intents.message_content = True
 
-databaseManager = DatabaseManager(databaseName = metadata["DBName"])
+databaseManager = DatabaseManager(databaseName=os.getenv("DB_NAME"))
 
 bot = commands.Bot(command_prefix="/", description="A2AS Personal Assistant", intents=intents) # type: ignore
 
