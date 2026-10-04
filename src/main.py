@@ -324,4 +324,4 @@ async def nextPage(interaction: discord.Interaction, lastMessage: discord.Messag
     await lastMessage.delete()
     await interaction.response.send_message(embed=embed)
 
-bot.run(metadata["BotToken"])
+bot.run(os.getenv("DISCORD_BOT_TOKEN") or "Your Discord Bot Token Here")
