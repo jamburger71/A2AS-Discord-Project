@@ -83,7 +83,7 @@ def testUpdateDriverInDatabase(testDBManager, driverDataSample):
     # ACT
     for driver in driverDataSample:
         testDBManager.insertDriver(*driver)
-    testDBManager.updateDriver(3, "UpdatedFirstName", "UpdatedLastName", "UPD", 99, 99, 99)
+    testDBManager.updateDriverStats(3, True, True)
     updatedDriver = testDBManager.getDriver(3)
     # ASSERT
-    assert updatedDriver == (3, "UpdatedFirstName", "UpdatedLastName", "UPD", 99, 99, 99)
+    assert updatedDriver == (3, *driverDataSample[3], 1, 1, 1)
