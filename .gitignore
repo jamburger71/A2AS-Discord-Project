@@ -1,3 +1,6 @@
 /__pycache__/*
 appMetadata.yaml
 A2AS_DB
+Test_DB
+/src/__pycache__/*
+/test/__pycache__/*
