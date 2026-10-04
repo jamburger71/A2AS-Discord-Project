@@ -3,6 +3,7 @@ import sqlite3
 import yaml
 import os
 from contextlib import closing
+from pathlib import Path
 
 class DatabaseManager:
 
@@ -93,7 +94,9 @@ class DatabaseManager:
     
     def setDefaults(self, overwrite: bool = False):
 
-        with open("FixedData\\Defaults\\DefaultKeyVals.yaml") as stream:
+        yamlPath = Path(__file__).resolve().parent.parent / "FixedData" / "Defaults" / "DefaultKeyVals.yaml"
+
+        with open(yamlPath) as stream:
             try:
                 self.defaultKeyVals = yaml.safe_load(stream)
                 with closing(self.DatabaseConnection.cursor()) as cursor:
