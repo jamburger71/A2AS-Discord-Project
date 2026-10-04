@@ -246,6 +246,44 @@ class DatabaseManager:
                 """, (driverID,))
             self.DatabaseConnection.commit()
 
+    def updateDriverStats(self, driverID: int, won: bool, podium: bool) -> None: # Assumed driver raced or wouldnt bother updating stats
+
+        with closing(self.DatabaseConnection.cursor()) as cursor:
+            cursor.execute("""
+                UPDATE DriverData
+                SET Races = Races + ?,
+                    Wins = Wins + ?,
+                    Podiums = Podiums + ?
+                WHERE DriverID = ?
+            """, (1, 1 if won else 0, 1 if won | podium else 0, driverID))
+
+    def updateDriverRatings(self, 
+                            driverID: int, 
+                            qualiPaceChange: int, 
+                            racePaceChange: int, 
+                            wetPaceChange: int, 
+                            tyreManagementChange: int, 
+                            aggressivenessChange: int, 
+                            defendingChange: int) -> None:
+        with closing(self.DatabaseConnection.cursor()) as cursor:
+            cursor.execute("""
+                UPDATE DriverData
+                SET QualiPace = QualiPace + ?,
+                    RacePace = RacePace + ?,
+                    WetPace = WetPace + ?,
+                    TyreManagement = TyreManagement + ?,
+                    Aggressiveness = Aggressiveness + ?,
+                    Defending = Defending + ?
+                WHERE DriverID = ?
+            """, (max(0, min(100, qualiPaceChange)), 
+                  max(0, min(100, racePaceChange)), 
+                  max(0, min(100, wetPaceChange)), 
+                  max(0, min(100, tyreManagementChange)), 
+                  max(0, min(100, aggressivenessChange)), 
+                  max(0, min(100, defendingChange)), 
+                  driverID))
+            self.DatabaseConnection.commit()
+
     def getAllDrivers(self, availableOnly: bool = False) -> list:
 
         with closing(self.DatabaseConnection.cursor()) as cursor:

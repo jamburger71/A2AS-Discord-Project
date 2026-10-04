@@ -79,3 +79,11 @@ def testRemoveDriverFromDatabase(testDBManager, driverDataSample):
     assert testDBManager.getDriver("DRI") is not None
     assert testDBManager.getDriver(4) is not None
 
+def testUpdateDriverInDatabase(testDBManager, driverDataSample):
+    # ACT
+    for driver in driverDataSample:
+        testDBManager.insertDriver(*driver)
+    testDBManager.updateDriver(3, "UpdatedFirstName", "UpdatedLastName", "UPD", 99, 99, 99)
+    updatedDriver = testDBManager.getDriver(3)
+    # ASSERT
+    assert updatedDriver == (3, "UpdatedFirstName", "UpdatedLastName", "UPD", 99, 99, 99)
