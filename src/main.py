@@ -5,6 +5,10 @@ import logging
 
 from helpers import convertToPounds, groupReturnsByN
 from databaseManager import DatabaseManager
+from driverManager import DriverManager
+from keyValManager import KeyValManager
+from teamManager import TeamManager
+from eventManager import EventManager
 from enums import *
 from areyousure import areYouSure
 from pagecontroller import pagecontroller
@@ -20,6 +24,10 @@ intents.members = True
 intents.message_content = True
 
 databaseManager = DatabaseManager(databaseName=os.getenv("DB_NAME"))
+driverManager = DriverManager(databaseManager.DatabaseConnection)
+teamManager = DriverManager(databaseManager.DatabaseConnection)
+eventManager = DriverManager(databaseManager.DatabaseConnection)
+keyValManager = DriverManager(databaseManager.DatabaseConnection)
 
 bot = commands.Bot(command_prefix="/", description="A2AS Personal Assistant", intents=intents) # type: ignore
 
@@ -37,7 +45,7 @@ async def on_ready():
 @app_commands.describe()
 async def myteam(interaction: discord.Interaction):
 
-    team = databaseManager.getOwnerTeam(interaction.user.id)
+    team = teamManager.getOwnerTeam(interaction.user.id)
     
     if team == None:
         logging.info(f"No team found for user {interaction.user.id}")
@@ -50,7 +58,7 @@ async def myteam(interaction: discord.Interaction):
 @app_commands.describe(newteamname = "New Team Name")
 async def changeteamname(interaction: discord.Interaction, newteamname: str):
 
-    team = databaseManager.getOwnerTeam(interaction.user.id)
+    team = teamManager.getOwnerTeam(interaction.user.id)
     if team == None:
         await interaction.response.send_message("You don't own a team!")
     else:
@@ -62,7 +70,7 @@ async def changeteamname(interaction: discord.Interaction, newteamname: str):
 
 async def changeTeamName(args: tuple, interaction: discord.Interaction, databaseManager: DatabaseManager):
     teamID, newteamname = args
-    databaseManager.updateTeamName(teamID, newteamname)
+    teamManager.updateTeamName(teamID, newteamname)
     await interaction.response.send_message(f"Team name changed to {newteamname}.")
 
 @bot.tree.command(name="registerteam")
@@ -91,7 +99,7 @@ async def registerteam(
     enginesupplier: str, 
     tyremanufacturer: str
 ):
-    team = databaseManager.getOwnerTeam(interaction.user.id)
+    team = teamManager.getOwnerTeam(interaction.user.id)
     if team != None:
         await interaction.response.send_message("You already own a team!")
     else:
@@ -130,7 +138,7 @@ async def registerteam(
 @bot.tree.command(name="transferownership")
 @app_commands.describe(newowner = "New Owner (by Discord ID)")
 async def transferownership(interaction: discord.Interaction, newowner: str):
-    team = databaseManager.getOwnerTeam(interaction.user.id)
+    team = teamManager.getOwnerTeam(interaction.user.id)
     if team == None:
         await interaction.response.send_message("You don't own a team!")
     else:
@@ -142,8 +150,8 @@ async def transferownership(interaction: discord.Interaction, newowner: str):
 
 async def changeTeamOwnership(args: tuple, interaction: discord.Interaction, databaseManager: DatabaseManager):
     teamID, newOwnerID = args
-    if not databaseManager.checkIfUserOwnsTeam(newOwnerID):
-        databaseManager.changeTeamOwnership(teamID, newOwnerID)
+    if not teamManager.checkIfUserOwnsTeam(newOwnerID):
+        teamManager.changeTeamOwnership(teamID, newOwnerID)
     else:
         await interaction.response.send_message("That user already owns a team, and cannot own another.")
 
@@ -155,7 +163,7 @@ async def dontChangeTeamOwnership(args: tuple, interaction: discord.Interaction,
 async def getdriver(interaction: discord.Interaction, driverid: str):
     if driverid.isdigit():
         driverid = int(driverid) # type: ignore
-    driver = databaseManager.getDriver(driverid)
+    driver = driverManager.getDriver(driverid)
     if driver is None:
         await interaction.response.send_message(f"No driver found with ID or code '{driverid}'.")
     else:
@@ -213,9 +221,9 @@ async def insertnewdriver(
         await interaction.response.send_message(f"Defending must be between 0 and 100. Please try again.")
     else:
         threecode = lastname[:3].upper()
-        while databaseManager.getDriver(threecode) is not None:
+        while driverManager.getDriver(threecode) is not None:
             threecode = f"{threecode[:-1]}{chr(ord(threecode[-1]) + 1)}"
-        databaseManager.insertDriver(drivername, lastname, threecode, nationality, age, qualipace, racepace, wetpace, tyremanagement, aggressiveness, defending, contractcost)
+        driverManager.insertDriver(drivername, lastname, threecode, nationality, age, qualipace, racepace, wetpace, tyremanagement, aggressiveness, defending, contractcost)
         await interaction.response.send_message(f"{drivername} {lastname} has been registered successfully.")
 
     
@@ -226,7 +234,7 @@ async def insertnewdriver(
 async def removedriver(interaction: discord.Interaction, driverid: str):
     if driverid.isdigit():
         driverid = int(driverid) # type: ignore
-    driver = databaseManager.getDriver(driverid)
+    driver = driverManager.getDriver(driverid)
     if driver is None:
         await interaction.response.send_message(f"No driver found with ID or code '{driverid}'.")
     else:
@@ -235,7 +243,7 @@ async def removedriver(interaction: discord.Interaction, driverid: str):
             title="Are you sure?", 
             description=f"You will be removing {driver[1]} {driver[2]} from the database. You will need to manually re-insert him later if you want him back. This action cannot be undone.",
             )
-        if not databaseManager.checkDriverAvailability(driver[0]):
+        if not driverManager.checkDriverAvailability(driver[0]):
             embed.add_field(
                 name="Warning", 
                 value=f"This driver is currently contracted to a team."
@@ -245,7 +253,7 @@ async def removedriver(interaction: discord.Interaction, driverid: str):
 
 async def removeDriverConfirmed(args: tuple, interaction: discord.Interaction, databaseManager: DatabaseManager):
     driver = args[0]
-    databaseManager.removeDriver(driver[0])
+    driverManager.removeDriver(driver[0])
     await interaction.response.send_message(f"{driver[1]} {driver[2]} with ID {driver[0]} has been removed from the database.")
 
 async def removeDriverCancelled(args: tuple, interaction: discord.Interaction, databaseManager: DatabaseManager):
@@ -301,7 +309,7 @@ async def commands(interaction: discord.Interaction):
 @bot.tree.command(name="alldrivers")
 @app_commands.describe(availableonly="Whether to only show available drivers")
 async def alldrivers(interaction: discord.Interaction, availableonly: bool = False):
-    drivers = databaseManager.getAllDrivers(availableOnly=availableonly)
+    drivers = driverManager.getAllDrivers(availableOnly=availableonly)
     if len(drivers) == 0:
         await interaction.response.send_message("No drivers found.")
     else:
