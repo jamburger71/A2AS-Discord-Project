@@ -2,14 +2,13 @@ from pathlib import Path
 
 import pytest
 import sys
-src_path = Path(__file__).resolve().parent.parent / 'src'
+src_path = Path(__file__).resolve().parent.parent / 'src' / ' database'
 sys.path.append(str(src_path))
 from databaseManager import DatabaseManager
 import testdata
 
 @pytest.fixture()
 def testDBManager():
-
     testDB = DatabaseManager("Test_DB")
     yield testDB
     testDB.deleteDatabase()
@@ -17,10 +16,6 @@ def testDBManager():
 @pytest.fixture()
 def tableNames():
     return ["EventRounds", "TeamData", "DriverData"]
-
-@pytest.fixture()
-def driverDataSample():
-    return testdata.drivers
     
 def testCreateDatabase(testDBManager, tableNames):
     # ACT
@@ -87,3 +82,4 @@ def testUpdateDriverInDatabase(testDBManager, driverDataSample):
     updatedDriver = testDBManager.getDriver(3)
     # ASSERT
     assert updatedDriver == (3, *driverDataSample[3], 1, 1, 1)
+    

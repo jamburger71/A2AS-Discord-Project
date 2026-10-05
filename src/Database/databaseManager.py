@@ -9,6 +9,7 @@ class DatabaseManager:
     def __init__(self, databaseName: str):        
         self.DatabaseConnection = sqlite3.connect(databaseName)
         self.createTables()
+        self.databaseName = databaseName
 
     def createTables(self):
 
