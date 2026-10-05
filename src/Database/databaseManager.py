@@ -95,7 +95,7 @@ class DatabaseManager:
             cursor.execute("DROP TABLE IF EXISTS EventRounds")
             cursor.execute("DROP TABLE IF EXISTS TeamData")
             cursor.execute("DROP TABLE IF EXISTS DriverData")
-            self.setDefaults(True)
+            cursor.execute("DROP TABLE IF EXISTS KeyVal")
 
     def deleteDatabase(self):
         try:

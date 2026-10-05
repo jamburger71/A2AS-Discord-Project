@@ -10,10 +10,10 @@ class DriverManager:
 
         self.DatabaseConnection = databaseConnection
 
-    def insertDriver(self, firstName: str, lastName: str, threeLetterCode: str, nationality: str, age: int, qualiPace: int, racePace: int, wetPace: int, tyreManagement: int, aggressiveness: int, defending: int, contractCost: int):
+    def insertDriver(self, firstName: str, lastName: str, threeLetterCode: str, nationality: str, age: int, qualiPace: int, racePace: int, wetPace: int, tyreManagement: int, aggressiveness: int, defending: int, contractCost: int, keyValManager):
 
         with closing(self.DatabaseConnection.cursor()) as cursor:
-            driverID = self.getNextDriverID(increment=True)
+            driverID = keyValManager.getNextDriverID(increment=True)
             print(f"Inserting driver with ID: {driverID}")
             cursor.execute("""
                 INSERT INTO DriverData (DriverID, FirstName, LastName, ThreeLetterCode, Nationality, Age, QualiPace, RacePace, WetPace, TyreManagement, Aggressiveness, Defending, ContractCost)
@@ -54,11 +54,11 @@ class DriverManager:
                 cursor.execute("SELECT * FROM DriverData WHERE DriverID = ?", (driverID,))
             return cursor.fetchone()
 
-    def getNextDriverID(self, increment: bool = False) -> int:
+    def getNextDriverID(self, keyValManager, increment: bool = False) -> int:
 
-        driverID = self.getKeyVal("NextDriverID")
+        driverID = keyValManager.getKeyVal("NextDriverID")
         if increment:
-            self.updateKeyVal("NextDriverID", driverID + 1)
+            keyValManager.updateKeyVal("NextDriverID", driverID + 1)
         print(f"Next driver ID: {driverID}")
         return driverID
 
