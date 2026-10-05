@@ -13,7 +13,7 @@ def testDriverManager():
     testDB = DatabaseManager("Test_DB")
     testDrvrManager = DriverManager(testDB.DatabaseConnection)
     yield testDrvrManager
-   testDB.deleteDatabase()
+    testDB.deleteDatabase()
 
 @pytest.fixture()
 def driverDataSample():
