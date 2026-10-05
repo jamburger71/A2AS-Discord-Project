@@ -1,3 +1,9 @@
+import logging
+import sqlite3
+import yaml
+import os
+from contextlib import closing
+
 class TeamManager:
 
     def __init__(self, databaseConnection):
