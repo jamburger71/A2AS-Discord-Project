@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 import sys
-src_path = Path(__file__).resolve().parent.parent / 'src' / ' database'
+src_path = Path(__file__).resolve().parent.parent / 'src' / 'Database'
 sys.path.append(str(src_path))
 from databaseManager import DatabaseManager
 import testdata
