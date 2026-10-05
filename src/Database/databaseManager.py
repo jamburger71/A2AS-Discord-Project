@@ -3,14 +3,10 @@ import sqlite3
 import yaml
 import os
 from contextlib import closing
-from pathlib import Path
 
 class DatabaseManager:
 
-    def __init__(self, databaseName: str | None):
-
-        if databaseName is None:
-            raise ValueError("Database name cannot be None")
+    def __init__(self, databaseName: str):
 
         self.DatabaseConnection = sqlite3.connect(databaseName)
         self.createTables()
@@ -80,6 +76,7 @@ class DatabaseManager:
                 Podiums SMALLINT DEFAULT 0
                 )
             """)
+
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS KeyVal (
                 Key TEXT PRIMARY KEY,
@@ -92,14 +89,12 @@ class DatabaseManager:
             cursor.execute("""
                 SELECT 1 FROM sqlite_master 
                 WHERE type = 'table'
-                AND name = ?""", (tableName,))
+                AND name = ?""", (tableName))
             return cursor.fetchone() is not None
     
     def setDefaults(self, overwrite: bool = False):
 
-        yamlPath = Path(__file__).resolve().parent.parent / "FixedData" / "Defaults" / "DefaultKeyVals.yaml"
-
-        with open(yamlPath) as stream:
+        with open("FixedData\\Defaults\\DefaultKeyVals.yaml") as stream:
             try:
                 self.defaultKeyVals = yaml.safe_load(stream)
                 with closing(self.DatabaseConnection.cursor()) as cursor:
@@ -109,7 +104,7 @@ class DatabaseManager:
                         else:
                             cursor.execute("INSERT OR REPLACE INTO KeyVal (Key, Value) VALUES (?, ?)", (key, value))
             except yaml.YAMLError as exception:
-                logging.error(exception)
+                print(exception)
 
     def getKeyVal(self, key: str):
 
@@ -131,11 +126,11 @@ class DatabaseManager:
             self.setDefaults(True)
 
     def deleteDatabase(self):
-        self.DatabaseConnection.close()
-        os.remove(f"{self.databaseName}")
+        os.remove(f"{self.databaseName}.db")
     
     def getOwnerTeam(self, ownerID) -> tuple | None:
 
+        logging.info(f"Getting team for ownerID: {ownerID}")
         with closing(self.DatabaseConnection.cursor()) as cursor:
             cursor.execute(f"""
                 SELECT * FROM TeamData
@@ -231,6 +226,7 @@ class DatabaseManager:
 
         with closing(self.DatabaseConnection.cursor()) as cursor:
             driverID = self.getNextDriverID(increment=True)
+            print(f"Inserting driver with ID: {driverID}")
             cursor.execute("""
                 INSERT INTO DriverData (DriverID, FirstName, LastName, ThreeLetterCode, Nationality, Age, QualiPace, RacePace, WetPace, TyreManagement, Aggressiveness, Defending, ContractCost)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -250,44 +246,6 @@ class DatabaseManager:
                     DELETE FROM DriverData
                     WHERE DriverID = ?
                 """, (driverID,))
-            self.DatabaseConnection.commit()
-
-    def updateDriverStats(self, driverID: int, won: bool, podium: bool) -> None: # Assumed driver raced or wouldnt bother updating stats
-
-        with closing(self.DatabaseConnection.cursor()) as cursor:
-            cursor.execute("""
-                UPDATE DriverData
-                SET Races = Races + ?,
-                    Wins = Wins + ?,
-                    Podiums = Podiums + ?
-                WHERE DriverID = ?
-            """, (1, 1 if won else 0, 1 if won | podium else 0, driverID))
-
-    def updateDriverRatings(self, 
-                            driverID: int, 
-                            qualiPaceChange: int, 
-                            racePaceChange: int, 
-                            wetPaceChange: int, 
-                            tyreManagementChange: int, 
-                            aggressivenessChange: int, 
-                            defendingChange: int) -> None:
-        with closing(self.DatabaseConnection.cursor()) as cursor:
-            cursor.execute("""
-                UPDATE DriverData
-                SET QualiPace = QualiPace + ?,
-                    RacePace = RacePace + ?,
-                    WetPace = WetPace + ?,
-                    TyreManagement = TyreManagement + ?,
-                    Aggressiveness = Aggressiveness + ?,
-                    Defending = Defending + ?
-                WHERE DriverID = ?
-            """, (max(0, min(100, qualiPaceChange)), 
-                  max(0, min(100, racePaceChange)), 
-                  max(0, min(100, wetPaceChange)), 
-                  max(0, min(100, tyreManagementChange)), 
-                  max(0, min(100, aggressivenessChange)), 
-                  max(0, min(100, defendingChange)), 
-                  driverID))
             self.DatabaseConnection.commit()
 
     def getAllDrivers(self, availableOnly: bool = False) -> list:
@@ -313,6 +271,7 @@ class DatabaseManager:
         driverID = self.getKeyVal("NextDriverID")
         if increment:
             self.updateKeyVal("NextDriverID", driverID + 1)
+        print(f"Next driver ID: {driverID}")
         return driverID
 
     def checkDriverAvailability(self, driverID: int | str) -> bool:
