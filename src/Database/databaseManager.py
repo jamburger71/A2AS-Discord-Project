@@ -6,7 +6,8 @@ from contextlib import closing
 
 class DatabaseManager:
 
-    def __init__(self, databaseName: str):        
+    def __init__(self, databaseName: str):
+        print(f"Creating database: {databaseName}")
         self.DatabaseConnection = sqlite3.connect(databaseName)
         self.createTables()
         self.databaseName = databaseName
@@ -71,7 +72,8 @@ class DatabaseManager:
                 ContractCost SMALLINT,
                 Races SMALLINT DEFAULT 0,
                 Wins SMALLINT DEFAULT 0,
-                Podiums SMALLINT DEFAULT 0
+                Podiums SMALLINT DEFAULT 0,
+                IsAvailable BOOLEAN DEFAULT 1
                 )
             """)
 
@@ -98,7 +100,8 @@ class DatabaseManager:
             cursor.execute("DROP TABLE IF EXISTS KeyVal")
 
     def deleteDatabase(self):
+        self.DatabaseConnection.close()
         try:
-            os.remove(f"{self.databaseName}.db")
+            os.remove(f"{self.databaseName}")
         except Exception as e:
             print(e)

@@ -9,7 +9,7 @@ import testdata
 
 @pytest.fixture()
 def testDBManager():
-    testDB = DatabaseManager("Test_DB")
+    testDB = DatabaseManager("Test_DB.db")
     yield testDB
     testDB.deleteDatabase()
 

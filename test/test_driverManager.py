@@ -10,7 +10,7 @@ import testdata
 
 @pytest.fixture()
 def testDriverManager():
-    testDB = DatabaseManager("Test_DB")
+    testDB = DatabaseManager("Test_DB.db")
     testDrvrManager = DriverManager(testDB.DatabaseConnection)
     yield testDrvrManager
     testDB.deleteDatabase()
@@ -26,14 +26,12 @@ def testAddDriverToDatabase(testDriverManager, driverDataSample):
     allDrivers = testDriverManager.getAllDrivers()
     # ASSERT
     assert len(allDrivers) == 6
-    print(allDrivers[0])
-    print(driverDataSample[0])
-    assert allDrivers[0] == (0, *driverDataSample[0], 0, 0, 0) # Adds expected driver ID
-    assert allDrivers[1] == (1, *driverDataSample[1], 0, 0, 0)
-    assert allDrivers[2] == (2, *driverDataSample[2], 0, 0, 0)
-    assert allDrivers[3] == (3, *driverDataSample[3], 0, 0, 0)
-    assert allDrivers[4] == (4, *driverDataSample[4], 0, 0, 0)
-    assert allDrivers[5] == (5, *driverDataSample[5], 0, 0, 0)
+    assert allDrivers[0] == (*driverDataSample[0], 0, 0, 0, True)
+    assert allDrivers[1] == (*driverDataSample[1], 0, 0, 0, True)
+    assert allDrivers[2] == (*driverDataSample[2], 0, 0, 0, True)
+    assert allDrivers[3] == (*driverDataSample[3], 0, 0, 0, True)
+    assert allDrivers[4] == (*driverDataSample[4], 0, 0, 0, True)
+    assert allDrivers[5] == (*driverDataSample[5], 0, 0, 0, True)
 
 def testGetDriverByIDAndCode(testDriverManager, driverDataSample):
     # ACT
@@ -42,8 +40,8 @@ def testGetDriverByIDAndCode(testDriverManager, driverDataSample):
     driverByID = testDriverManager.getDriver(2)
     driverByCode = testDriverManager.getDriver("ALO")
     # ASSERT
-    assert driverByID == (2, *driverDataSample[2], 0, 0, 0)
-    assert driverByCode == (2, *driverDataSample[2], 0, 0, 0)
+    assert driverByID == (*driverDataSample[2], 0, 0, 0, True)
+    assert driverByCode == (*driverDataSample[2], 0, 0, 0, True)
 
 def testRemoveDriverFromDatabase(testDriverManager, driverDataSample):
     # ACT
@@ -67,5 +65,5 @@ def testUpdateDriverInDatabase(testDriverManager, driverDataSample):
     testDriverManager.updateDriverStats(3, True, True)
     updatedDriver = testDriverManager.getDriver(3)
     # ASSERT
-    assert updatedDriver == (3, *driverDataSample[3], 1, 1, 1)
+    assert updatedDriver == (*driverDataSample[3], 1, 1, 1, True)
     

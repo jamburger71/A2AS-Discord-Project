@@ -10,13 +10,13 @@ class DriverManager:
 
         self.DatabaseConnection = databaseConnection
 
-    def insertDriver(self, firstName: str, lastName: str, threeLetterCode: str, nationality: str, age: int, qualiPace: int, racePace: int, wetPace: int, tyreManagement: int, aggressiveness: int, defending: int, contractCost: int, driverID: int):
+    def insertDriver(self, driverID: int, firstName: str, lastName: str, threeLetterCode: str, nationality: str, age: int, qualiPace: int, racePace: int, wetPace: int, tyreManagement: int, aggressiveness: int, defending: int, contractCost: int, isAvailable: bool = True):
 
         with closing(self.DatabaseConnection.cursor()) as cursor:
             cursor.execute("""
-                INSERT INTO DriverData (DriverID, FirstName, LastName, ThreeLetterCode, Nationality, Age, QualiPace, RacePace, WetPace, TyreManagement, Aggressiveness, Defending, ContractCost)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, (driverID, firstName, lastName, threeLetterCode, nationality, age, qualiPace, racePace, wetPace, tyreManagement, aggressiveness, defending, contractCost))
+                INSERT INTO DriverData (DriverID, FirstName, LastName, ThreeLetterCode, Nationality, Age, QualiPace, RacePace, WetPace, TyreManagement, Aggressiveness, Defending, ContractCost, IsAvailable)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (driverID, firstName, lastName, threeLetterCode, nationality, age, qualiPace, racePace, wetPace, tyreManagement, aggressiveness, defending, contractCost, isAvailable))
             self.DatabaseConnection.commit()
 
     def removeDriver(self, driverID: int | str):
@@ -72,4 +72,31 @@ class DriverManager:
 
         with closing(self.DatabaseConnection.cursor()) as cursor:
             cursor.execute("UPDATE Drivers SET Age = Age + 1")
+            self.DatabaseConnection.commit()
+
+    def updateDriverStats(self, driverID: int, wins: bool = False, podiums: bool = False) -> None:
+
+        with closing(self.DatabaseConnection.cursor()) as cursor:
+            if wins:
+                cursor.execute("UPDATE DriverData SET Wins = Wins + 1 WHERE DriverID = ?", (driverID,))
+            if podiums:
+                cursor.execute("UPDATE DriverData SET Podiums = Podiums + 1 WHERE DriverID = ?", (driverID,))
+            cursor.execute("UPDATE DriverData SET Races = Races + 1 WHERE DriverID = ?", (driverID,))
+            self.DatabaseConnection.commit()
+
+    def updateDriverRatings(self, driverID: int, qualiPace: int | None = None, racePace: int | None = None, wetPace: int | None = None, tyreManagement: int | None = None, aggressiveness: int | None = None, defending: int | None = None) -> None:
+
+        with closing(self.DatabaseConnection.cursor()) as cursor:
+            if qualiPace is not None:
+                cursor.execute("UPDATE DriverData SET QualiPace = ? WHERE DriverID = ?", (qualiPace, driverID))
+            if racePace is not None:
+                cursor.execute("UPDATE DriverData SET RacePace = ? WHERE DriverID = ?", (racePace, driverID))
+            if wetPace is not None:
+                cursor.execute("UPDATE DriverData SET WetPace = ? WHERE DriverID = ?", (wetPace, driverID))
+            if tyreManagement is not None:
+                cursor.execute("UPDATE DriverData SET TyreManagement = ? WHERE DriverID = ?", (tyreManagement, driverID))
+            if aggressiveness is not None:
+                cursor.execute("UPDATE DriverData SET Aggressiveness = ? WHERE DriverID = ?", (aggressiveness, driverID))
+            if defending is not None:
+                cursor.execute("UPDATE DriverData SET Defending = ? WHERE DriverID = ?", (defending, driverID))
             self.DatabaseConnection.commit()
