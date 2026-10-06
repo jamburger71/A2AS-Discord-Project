@@ -87,7 +87,7 @@ class DatabaseManager:
             cursor.execute("""
                 SELECT 1 FROM sqlite_master 
                 WHERE type = 'table'
-                AND name = ?""", (tableName))
+                AND name = ?""", (tableName,))
             return cursor.fetchone() is not None
 
     def dropAllTables(self):
