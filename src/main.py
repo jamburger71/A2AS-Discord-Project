@@ -255,9 +255,9 @@ async def insertnewdriver(
             await interaction.response.send_message(f"No available three-letter code for {drivername} {lastname}. Please try again with a different name.")
             return
         driverID = keyValManager.getKeyVal("NextDriverID")
-        driverManager.insertDriver(drivername, lastname, threecode, nationality, age, qualipace, racepace, wetpace, tyremanagement, aggressiveness, defending, contractcost, driverID)
+        driverManager.insertDriver(driverID, drivername, lastname, threecode, nationality, age, qualipace, racepace, wetpace, tyremanagement, aggressiveness, defending, contractcost)
         keyValManager.updateKeyVal("NextDriverID", driverID + 1)
-        await interaction.response.send_message(f"{drivername} {lastname} has been registered successfully.")
+        await interaction.response.send_message(f"{drivername} {lastname} has been registered successfully, with id {driverID} and three-letter code {threecode}. You can check his stats at any time using the /getdriver command.")
             
 @bot.tree.command(name="removedriver")
 @app_commands.describe(driverid = "Driver ID or Three-Letter Code")

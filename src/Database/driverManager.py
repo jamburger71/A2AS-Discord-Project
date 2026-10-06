@@ -65,13 +65,13 @@ class DriverManager:
     def setDriverAvailability(self, driverID: int, isAvailable: bool) -> None:
 
         with closing(self.DatabaseConnection.cursor()) as cursor:
-            cursor.execute("UPDATE Drivers SET IsAvailable = ? WHERE DriverID = ?", (isAvailable, driverID))
+            cursor.execute("UPDATE DriverData SET IsAvailable = ? WHERE DriverID = ?", (isAvailable, driverID))
             self.DatabaseConnection.commit()
 
     def ageAllDrivers(self) -> None:
 
         with closing(self.DatabaseConnection.cursor()) as cursor:
-            cursor.execute("UPDATE Drivers SET Age = Age + 1")
+            cursor.execute("UPDATE DriverData SET Age = Age + 1")
             self.DatabaseConnection.commit()
 
     def updateDriverStats(self, driverID: int, wins: bool = False, podiums: bool = False) -> None:

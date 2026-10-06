@@ -66,4 +66,14 @@ def testUpdateDriverInDatabase(testDriverManager, driverDataSample):
     updatedDriver = testDriverManager.getDriver(3)
     # ASSERT
     assert updatedDriver == (*driverDataSample[3], 1, 1, 1, True)
-    
+
+def testToggleDriverAvailability(testDriverManager, driverDataSample):
+    # ACT
+    for driver in driverDataSample:
+        testDriverManager.insertDriver(*driver)
+    testDriverManager.setDriverAvailability(1, False)
+    testDriverManager.setDriverAvailability(2, False)
+    availableDrivers = testDriverManager.getAllDrivers(availableOnly=True)
+    # ASSERT
+    assert len(availableDrivers) == 4
+    assert all(driver[0] not in [1, 2] for driver in availableDrivers)
