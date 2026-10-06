@@ -1,6 +1,6 @@
 import discord
 from discord import app_commands
-from discord.ext import commands # type: ignore
+from discord.ext import commands
 import logging
 
 from helpers import convertToPounds, groupReturnsByN
@@ -23,13 +23,13 @@ intents = discord.Intents.default()
 intents.members = True
 intents.message_content = True
 
-databaseManager = DatabaseManager(databaseName=os.getenv("DB_NAME"))
+databaseManager = DatabaseManager(databaseName=os.getenv("DB_NAME"+".db") or "GenericDB.db")
 driverManager = DriverManager(databaseManager.DatabaseConnection)
-teamManager = DriverManager(databaseManager.DatabaseConnection)
-eventManager = DriverManager(databaseManager.DatabaseConnection)
-keyValManager = DriverManager(databaseManager.DatabaseConnection)
+teamManager = TeamManager(databaseManager.DatabaseConnection)
+eventManager = EventManager(databaseManager.DatabaseConnection)
+keyValManager = KeyValManager(databaseManager.DatabaseConnection)
 
-bot = commands.Bot(command_prefix="/", description="A2AS Personal Assistant", intents=intents) # type: ignore
+bot = commands.Bot(command_prefix="/", description="A2AS Personal Assistant", intents=intents)
 
 @bot.event
 async def on_ready():
@@ -40,6 +40,15 @@ async def on_ready():
     except Exception as e:
         print(e)
     print("Ready to run!")
+
+@bot.event
+async def on_command_error(ctx, error):
+    if isinstance(error, commands.CommandNotFound):
+        await ctx.send("Command not found.")
+    elif isinstance(error, commands.CheckFailure):
+        await ctx.send("You do not have permission to use this command.")
+    else:
+        await ctx.send(f"An error occurred: {error}")
 
 @bot.tree.command(name="myteam")
 @app_commands.describe()
@@ -104,20 +113,20 @@ async def registerteam(
         await interaction.response.send_message("You already own a team!")
     else:
         # Check if there are available team slots
-        availableSlots = databaseManager.getAvailableTeamSlots()
+        availableSlots = teamManager.getAvailableTeamSlots(keyValManager.getKeyVal("max_teams"))
         if availableSlots == 0:
             await interaction.response.send_message("No available team slots!")
-        elif not databaseManager.tyreIsAvailable(tyremanufacturer):
+        elif not teamManager.tyreIsAvailable(tyremanufacturer):
             await interaction.response.send_message("The selected tyre manufacturer is not available!")
         elif driver1 == driver2:
             await interaction.response.send_message("You cannot select the same driver for both slots!")
-        elif driver1 not in [driver[0] for driver in databaseManager.getAllDrivers(availableOnly=True)]:
+        elif driver1 not in [driver[0] for driver in driverManager.getAllDrivers(availableOnly=True)]:
             await interaction.response.send_message("The selected Driver 1 is not available!")
-        elif driver2 not in [driver[0] for driver in databaseManager.getAllDrivers(availableOnly=True)]:
+        elif driver2 not in [driver[0] for driver in driverManager.getAllDrivers(availableOnly=True)]:
             await interaction.response.send_message("The selected Driver 2 is not available!")
         else:
             # Register the team
-            databaseManager.registerTeam(
+            teamManager.registerTeam(
                 interaction.user.id, 
                 teamname, 
                 teamnation, 
@@ -180,7 +189,6 @@ async def getdriver(interaction: discord.Interaction, driverid: str):
 @app_commands.describe(
     drivername = "Driver First Name",
     lastname = "Driver Last Name",
-    threecode = "Three-Letter Code",
     nationality = "Driver Nationality",
     age = "Driver Age",
     qualipace = "Qualifying Pace",
@@ -220,13 +228,33 @@ async def insertnewdriver(
     elif not (0 <= defending <= 100):
         await interaction.response.send_message(f"Defending must be between 0 and 100. Please try again.")
     else:
+        noNameAvailable = False
+        currentLastChar = 2
+        currentMiddleChar = 1
+        currentFirstChar = 0
         threecode = lastname[:3].upper()
-        while driverManager.getDriver(threecode) is not None:
-            threecode = f"{threecode[:-1]}{chr(ord(threecode[-1]) + 1)}"
-        driverManager.insertDriver(drivername, lastname, threecode, nationality, age, qualipace, racepace, wetpace, tyremanagement, aggressiveness, defending, contractcost)
+        if driverManager.getDriver(threecode) is not None and len(lastname) <= 3:
+            noNameAvailable = True
+        while driverManager.getDriver(threecode) is not None and not noNameAvailable:
+            threecode = f"{lastname[currentFirstChar]}{lastname[currentMiddleChar]}{chr(ord(lastname[currentLastChar]))}".upper()
+            if currentMiddleChar < currentLastChar-1:
+                currentMiddleChar += 1
+            elif currentLastChar < len(lastname)-1:
+                currentLastChar += 1
+                currentMiddleChar = currentFirstChar + 1
+            elif currentFirstChar < len(lastname)-3:
+                currentFirstChar += 1
+                currentMiddleChar = currentFirstChar + 1
+                currentLastChar = currentMiddleChar + 1
+            else:
+                noNameAvailable = True
+        if noNameAvailable:
+            await interaction.response.send_message(f"No available three-letter code for {drivername} {lastname}. Please try again with a different name.")
+            return
+        driverID = keyValManager.getKeyVal("NextDriverID")
+        driverManager.insertDriver(drivername, lastname, threecode, nationality, age, qualipace, racepace, wetpace, tyremanagement, aggressiveness, defending, contractcost, driverID)
+        keyValManager.updateKeyVal("NextDriverID", driverID + 1)
         await interaction.response.send_message(f"{drivername} {lastname} has been registered successfully.")
-
-    
             
 @bot.tree.command(name="removedriver")
 @app_commands.describe(driverid = "Driver ID or Three-Letter Code")
@@ -259,9 +287,9 @@ async def removeDriverConfirmed(args: tuple, interaction: discord.Interaction, d
 async def removeDriverCancelled(args: tuple, interaction: discord.Interaction, databaseManager: DatabaseManager):
     await interaction.response.send_message("Driver removal cancelled.")
 
-@bot.tree.command(name="commands")
+@bot.tree.command(name="help")
 @app_commands.describe()
-async def commands(interaction: discord.Interaction):
+async def help(interaction: discord.Interaction):
 
     commandsEmbed = discord.Embed(
         title = "All Commands",
@@ -270,7 +298,7 @@ async def commands(interaction: discord.Interaction):
     commandsEmbed.add_field(
         name = "General Commands",
         value = """
-        /commands - Displays all available commands
+        /help - Displays this help message
         /calendar - Displays the current season's calendar (NOT IMPLEMENTED)
         /standings - Displays the current season's standings (NOT IMPLEMENTED)
         /teamstandings - Displays the current season's team standings (NOT IMPLEMENTED)
@@ -332,4 +360,4 @@ async def nextPage(interaction: discord.Interaction, lastMessage: discord.Messag
     await lastMessage.delete()
     await interaction.response.send_message(embed=embed)
 
-bot.run(os.getenv("DISCORD_BOT_TOKEN") or "Your Discord Bot Token Here")
+bot.run(os.getenv("DISCORD_BOT_TOKEN") or "No Token")

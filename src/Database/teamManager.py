@@ -22,15 +22,14 @@ class TeamManager:
             """)
             return cursor.fetchone()
 
-    def getAvailableTeamSlots(self, keyValManager):
+    def getAvailableTeamSlots(self, maxSlots):
 
         with closing(self.DatabaseConnection.cursor()) as cursor:
             cursor.execute("""
                 SELECT COUNT(*) FROM TeamData
                 WHERE IsActive
             """)
-            maxTeamSlots = keyValManager.getKeyVal("MaxTeamSlots")
-            return maxTeamSlots - cursor.fetchone()[0]
+            return maxSlots - cursor.fetchone()[0]
 
     def tyreIsAvailable(self, tyremanufacturer: str) -> bool:
 

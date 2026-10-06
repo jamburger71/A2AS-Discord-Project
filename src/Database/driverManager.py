@@ -10,11 +10,9 @@ class DriverManager:
 
         self.DatabaseConnection = databaseConnection
 
-    def insertDriver(self, firstName: str, lastName: str, threeLetterCode: str, nationality: str, age: int, qualiPace: int, racePace: int, wetPace: int, tyreManagement: int, aggressiveness: int, defending: int, contractCost: int, keyValManager):
+    def insertDriver(self, firstName: str, lastName: str, threeLetterCode: str, nationality: str, age: int, qualiPace: int, racePace: int, wetPace: int, tyreManagement: int, aggressiveness: int, defending: int, contractCost: int, driverID: int):
 
         with closing(self.DatabaseConnection.cursor()) as cursor:
-            driverID = keyValManager.getNextDriverID(increment=True)
-            print(f"Inserting driver with ID: {driverID}")
             cursor.execute("""
                 INSERT INTO DriverData (DriverID, FirstName, LastName, ThreeLetterCode, Nationality, Age, QualiPace, RacePace, WetPace, TyreManagement, Aggressiveness, Defending, ContractCost)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -53,14 +51,6 @@ class DriverManager:
             else:
                 cursor.execute("SELECT * FROM DriverData WHERE DriverID = ?", (driverID,))
             return cursor.fetchone()
-
-    def getNextDriverID(self, keyValManager, increment: bool = False) -> int:
-
-        driverID = keyValManager.getKeyVal("NextDriverID")
-        if increment:
-            keyValManager.updateKeyVal("NextDriverID", driverID + 1)
-        print(f"Next driver ID: {driverID}")
-        return driverID
 
     def checkDriverAvailability(self, driverID: int | str) -> bool:
 
