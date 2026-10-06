@@ -3,6 +3,7 @@ import sqlite3
 import yaml
 import os
 from contextlib import closing
+
 from pathlib import Path
 
 class DatabaseManager:
@@ -19,7 +20,7 @@ class DatabaseManager:
 
     def createTables(self):
 
-        #self.dropAllTables()
+        # self.dropAllTables()
 
         with closing(self.DatabaseConnection.cursor()) as cursor:
             cursor.execute("""
@@ -77,7 +78,8 @@ class DatabaseManager:
                 ContractCost SMALLINT,
                 Races SMALLINT DEFAULT 0,
                 Wins SMALLINT DEFAULT 0,
-                Podiums SMALLINT DEFAULT 0
+                Podiums SMALLINT DEFAULT 0,
+                IsAvailable BOOLEAN DEFAULT True
                 )
             """)
             cursor.execute("""
