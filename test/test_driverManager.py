@@ -19,11 +19,11 @@ def testDriverManager():
 def driverDataSample():
     return testdata.drivers
 
-def testAddDriverToDatabase(testDBManager, driverDataSample):
+def testAddDriverToDatabase(testDriverManager, driverDataSample):
     # ACT
     for driver in driverDataSample:
-        testDBManager.insertDriver(*driver)
-    allDrivers = testDBManager.getAllDrivers()
+        testDriverManager.insertDriver(*driver)
+    allDrivers = testDriverManager.getAllDrivers()
     # ASSERT
     assert len(allDrivers) == 6
     print(allDrivers[0])
@@ -35,37 +35,37 @@ def testAddDriverToDatabase(testDBManager, driverDataSample):
     assert allDrivers[4] == (4, *driverDataSample[4], 0, 0, 0)
     assert allDrivers[5] == (5, *driverDataSample[5], 0, 0, 0)
 
-def testGetDriverByIDAndCode(testDBManager, driverDataSample):
+def testGetDriverByIDAndCode(testDriverManager, driverDataSample):
     # ACT
     for driver in driverDataSample:
-        testDBManager.insertDriver(*driver)
-    driverByID = testDBManager.getDriver(2)
-    driverByCode = testDBManager.getDriver("ALO")
+        testDriverManager.insertDriver(*driver)
+    driverByID = testDriverManager.getDriver(2)
+    driverByCode = testDriverManager.getDriver("ALO")
     # ASSERT
     assert driverByID == (2, *driverDataSample[2], 0, 0, 0)
     assert driverByCode == (2, *driverDataSample[2], 0, 0, 0)
 
-def testRemoveDriverFromDatabase(testDBManager, driverDataSample):
+def testRemoveDriverFromDatabase(testDriverManager, driverDataSample):
     # ACT
     for driver in driverDataSample:
-        testDBManager.insertDriver(*driver)
-    driverCountBefore = len(testDBManager.getAllDrivers())
-    testDBManager.removeDriver("MSC")
-    testDBManager.removeDriver(5)
-    driverCountAfter = len(testDBManager.getAllDrivers())
+        testDriverManager.insertDriver(*driver)
+    driverCountBefore = len(testDriverManager.getAllDrivers())
+    testDriverManager.removeDriver("MSC")
+    testDriverManager.removeDriver(5)
+    driverCountAfter = len(testDriverManager.getAllDrivers())
     # ASSERT
     assert driverCountBefore - 2 == driverCountAfter
-    assert testDBManager.getDriver("MSC") is None
-    assert testDBManager.getDriver(5) is None
-    assert testDBManager.getDriver("DRI") is not None
-    assert testDBManager.getDriver(4) is not None
+    assert testDriverManager.getDriver("MSC") is None
+    assert testDriverManager.getDriver(5) is None
+    assert testDriverManager.getDriver("DRI") is not None
+    assert testDriverManager.getDriver(4) is not None
 
-def testUpdateDriverInDatabase(testDBManager, driverDataSample):
+def testUpdateDriverInDatabase(testDriverManager, driverDataSample):
     # ACT
     for driver in driverDataSample:
-        testDBManager.insertDriver(*driver)
-    testDBManager.updateDriverStats(3, True, True)
-    updatedDriver = testDBManager.getDriver(3)
+        testDriverManager.insertDriver(*driver)
+    testDriverManager.updateDriverStats(3, True, True)
+    updatedDriver = testDriverManager.getDriver(3)
     # ASSERT
     assert updatedDriver == (3, *driverDataSample[3], 1, 1, 1)
     
