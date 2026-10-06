@@ -48,17 +48,8 @@ class TeamManager:
                     UPDATE TeamData
                     SET TeamName = ?
                     WHERE TeamID = ?
-                """, (newTeamName, teamID))
+                """, (newTeamName, teamID,))
                 self.DatabaseConnection.commit()
-    
-    def getNextTeamID(self, increment: bool = False) -> int:
-
-        with closing(self.DatabaseConnection.cursor()) as cursor:
-            cursor.execute("SELECT Value FROM KeyVal WHERE Key = 'NextTeamID'")
-            if increment:
-                cursor.execute("UPDATE KeyVal SET Value = Value + 1 WHERE Key = 'NextTeamID'")
-                self.DatabaseConnection.commit()
-            return cursor.fetchone()
 
     def registerTeam(
             self, 
@@ -72,14 +63,14 @@ class TeamManager:
             secondarySponsor2: str, 
             secondarySponsor3: str, 
             engineSupplier: str, 
-            tyremanufacturer: str):
+            tyremanufacturer: str,
+            teamID: int) -> None:
 
         with closing(self.DatabaseConnection.cursor()) as cursor:
-            teamID = self.getNextTeamID(increment=True)
             cursor.execute("""
                 INSERT INTO TeamData (TeamID, OwnerDiscordID, TeamName, TeamNationality, Driver1, Driver2, PrimarySponsor, SecondarySponsor1, SecondarySponsor2, SecondarySponsor3, EngineSupplier, TyreManufacturer)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, (teamID, ownerID, teamName, nationality, driver1, driver2, primarySponsor, secondarySponsor1, secondarySponsor2, secondarySponsor3, engineSupplier, tyremanufacturer))
+            """, (teamID, ownerID, teamName, nationality, driver1, driver2, primarySponsor, secondarySponsor1, secondarySponsor2, secondarySponsor3, engineSupplier, tyremanufacturer,))
             self.DatabaseConnection.commit()
 
     def changeTeamOwnership(self, teamID: int, newOwnerID: int) -> None:
@@ -89,7 +80,7 @@ class TeamManager:
                 UPDATE TeamData
                 SET OwnerDiscordID = ?
                 WHERE TeamID = ?
-            """, (newOwnerID, teamID))
+            """, (newOwnerID, teamID,))
             self.DatabaseConnection.commit()
 
     def checkIfUserOwnsTeam(self, ownerID: int) -> bool:

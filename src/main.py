@@ -126,6 +126,7 @@ async def registerteam(
             await interaction.response.send_message("The selected Driver 2 is not available!")
         else:
             # Register the team
+            teamID = keyValManager.getKeyVal("NextTeamID")
             teamManager.registerTeam(
                 interaction.user.id, 
                 teamname, 
@@ -137,8 +138,10 @@ async def registerteam(
                 secondarysponsor2, 
                 secondarysponsor3, 
                 enginesupplier, 
-                tyremanufacturer
+                tyremanufacturer,
+                teamID
             )
+            keyValManager.updateKeyVal("NextTeamID", teamID + 1)
             await interaction.response.send_message(embed = discord.Embed(
                 title=f"Team {teamname} registered successfully!",
                 description=f"You can check your team details at any time using the /myteam command."
