@@ -5,6 +5,10 @@ import logging
 
 from helpers import convertToPounds, groupReturnsByN
 from databaseManager import DatabaseManager
+from driverManager import DriverManager
+from keyValManager import KeyValManager
+from teamManager import TeamManager
+from eventManager import EventManager
 from enums import *
 from areyousure import areYouSure
 from pagecontroller import pagecontroller
@@ -19,7 +23,11 @@ intents = discord.Intents.default()
 intents.members = True
 intents.message_content = True
 
-databaseManager = DatabaseManager(databaseName=os.getenv("DB_NAME"))
+databaseManager = DatabaseManager(databaseName=os.getenv("DB_NAME"+".db") or "GenericDB.db")
+driverManager = DriverManager(databaseManager.DatabaseConnection)
+teamManager = TeamManager(databaseManager.DatabaseConnection)
+eventManager = EventManager(databaseManager.DatabaseConnection)
+keyValManager = KeyValManager(databaseManager.DatabaseConnection)
 
 bot = commands.Bot(command_prefix="/", description="A2AS Personal Assistant", intents=intents)
 
@@ -46,7 +54,7 @@ async def on_command_error(ctx, error):
 @app_commands.describe()
 async def myteam(interaction: discord.Interaction):
 
-    team = databaseManager.getOwnerTeam(interaction.user.id)
+    team = teamManager.getOwnerTeam(interaction.user.id)
     
     if team == None:
         logging.info(f"No team found for user {interaction.user.id}")
@@ -59,7 +67,7 @@ async def myteam(interaction: discord.Interaction):
 @app_commands.describe(newteamname = "New Team Name")
 async def changeteamname(interaction: discord.Interaction, newteamname: str):
 
-    team = databaseManager.getOwnerTeam(interaction.user.id)
+    team = teamManager.getOwnerTeam(interaction.user.id)
     if team == None:
         await interaction.response.send_message("You don't own a team!")
     else:
@@ -71,7 +79,7 @@ async def changeteamname(interaction: discord.Interaction, newteamname: str):
 
 async def changeTeamName(args: tuple, interaction: discord.Interaction, databaseManager: DatabaseManager):
     teamID, newteamname = args
-    databaseManager.updateTeamName(teamID, newteamname)
+    teamManager.updateTeamName(teamID, newteamname)
     await interaction.response.send_message(f"Team name changed to {newteamname}.")
 
 @bot.tree.command(name="registerteam")
@@ -100,25 +108,26 @@ async def registerteam(
     enginesupplier: str, 
     tyremanufacturer: str
 ):
-    team = databaseManager.getOwnerTeam(interaction.user.id)
+    team = teamManager.getOwnerTeam(interaction.user.id)
     if team != None:
         await interaction.response.send_message("You already own a team!")
     else:
         # Check if there are available team slots
-        availableSlots = databaseManager.getAvailableTeamSlots()
+        availableSlots = teamManager.getAvailableTeamSlots(keyValManager.getKeyVal("max_teams"))
         if availableSlots == 0:
             await interaction.response.send_message("No available team slots!")
-        elif not databaseManager.tyreIsAvailable(tyremanufacturer):
+        elif not teamManager.tyreIsAvailable(tyremanufacturer):
             await interaction.response.send_message("The selected tyre manufacturer is not available!")
         elif driver1 == driver2:
             await interaction.response.send_message("You cannot select the same driver for both slots!")
-        elif driver1 not in [driver[0] for driver in databaseManager.getAllDrivers(availableOnly=True)]:
+        elif driver1 not in [driver[0] for driver in driverManager.getAllDrivers(availableOnly=True)]:
             await interaction.response.send_message("The selected Driver 1 is not available!")
-        elif driver2 not in [driver[0] for driver in databaseManager.getAllDrivers(availableOnly=True)]:
+        elif driver2 not in [driver[0] for driver in driverManager.getAllDrivers(availableOnly=True)]:
             await interaction.response.send_message("The selected Driver 2 is not available!")
         else:
             # Register the team
-            databaseManager.registerTeam(
+            teamID = keyValManager.getKeyVal("NextTeamID")
+            teamManager.registerTeam(
                 interaction.user.id, 
                 teamname, 
                 teamnation, 
@@ -129,8 +138,10 @@ async def registerteam(
                 secondarysponsor2, 
                 secondarysponsor3, 
                 enginesupplier, 
-                tyremanufacturer
+                tyremanufacturer,
+                teamID
             )
+            keyValManager.updateKeyVal("NextTeamID", teamID + 1)
             await interaction.response.send_message(embed = discord.Embed(
                 title=f"Team {teamname} registered successfully!",
                 description=f"You can check your team details at any time using the /myteam command."
@@ -139,7 +150,7 @@ async def registerteam(
 @bot.tree.command(name="transferownership")
 @app_commands.describe(newowner = "New Owner (by Discord ID)")
 async def transferownership(interaction: discord.Interaction, newowner: str):
-    team = databaseManager.getOwnerTeam(interaction.user.id)
+    team = teamManager.getOwnerTeam(interaction.user.id)
     if team == None:
         await interaction.response.send_message("You don't own a team!")
     else:
@@ -151,8 +162,8 @@ async def transferownership(interaction: discord.Interaction, newowner: str):
 
 async def changeTeamOwnership(args: tuple, interaction: discord.Interaction, databaseManager: DatabaseManager):
     teamID, newOwnerID = args
-    if not databaseManager.checkIfUserOwnsTeam(newOwnerID):
-        databaseManager.changeTeamOwnership(teamID, newOwnerID)
+    if not teamManager.checkIfUserOwnsTeam(newOwnerID):
+        teamManager.changeTeamOwnership(teamID, newOwnerID)
     else:
         await interaction.response.send_message("That user already owns a team, and cannot own another.")
 
@@ -164,7 +175,7 @@ async def dontChangeTeamOwnership(args: tuple, interaction: discord.Interaction,
 async def getdriver(interaction: discord.Interaction, driverid: str):
     if driverid.isdigit():
         driverid = int(driverid) # type: ignore
-    driver = databaseManager.getDriver(driverid)
+    driver = driverManager.getDriver(driverid)
     if driver is None:
         await interaction.response.send_message(f"No driver found with ID or code '{driverid}'.")
     else:
@@ -225,9 +236,9 @@ async def insertnewdriver(
         currentMiddleChar = 1
         currentFirstChar = 0
         threecode = lastname[:3].upper()
-        if databaseManager.getDriver(threecode) is not None and len(lastname) <= 3:
+        if driverManager.getDriver(threecode) is not None and len(lastname) <= 3:
             noNameAvailable = True
-        while databaseManager.getDriver(threecode) is not None and not noNameAvailable:
+        while driverManager.getDriver(threecode) is not None and not noNameAvailable:
             threecode = f"{lastname[currentFirstChar]}{lastname[currentMiddleChar]}{chr(ord(lastname[currentLastChar]))}".upper()
             if currentMiddleChar < currentLastChar-1:
                 currentMiddleChar += 1
@@ -243,8 +254,10 @@ async def insertnewdriver(
         if noNameAvailable:
             await interaction.response.send_message(f"No available three-letter code for {drivername} {lastname}. Please try again with a different name.")
             return
-        databaseManager.insertDriver(drivername, lastname, threecode, nationality, age, qualipace, racepace, wetpace, tyremanagement, aggressiveness, defending, contractcost)
-        await interaction.response.send_message(f"{drivername} {lastname} has been registered successfully.")
+        driverID = keyValManager.getKeyVal("NextDriverID")
+        driverManager.insertDriver(driverID, drivername, lastname, threecode, nationality, age, qualipace, racepace, wetpace, tyremanagement, aggressiveness, defending, contractcost)
+        keyValManager.updateKeyVal("NextDriverID", driverID + 1)
+        await interaction.response.send_message(f"{drivername} {lastname} has been registered successfully, with id {driverID} and three-letter code {threecode}. You can check his stats at any time using the /getdriver command.")
             
 @bot.tree.command(name="removedriver")
 @app_commands.describe(driverid = "Driver ID or Three-Letter Code")
@@ -252,7 +265,7 @@ async def insertnewdriver(
 async def removedriver(interaction: discord.Interaction, driverid: str):
     if driverid.isdigit():
         driverid = int(driverid) # type: ignore
-    driver = databaseManager.getDriver(driverid)
+    driver = driverManager.getDriver(driverid)
     if driver is None:
         await interaction.response.send_message(f"No driver found with ID or code '{driverid}'.")
     else:
@@ -261,7 +274,7 @@ async def removedriver(interaction: discord.Interaction, driverid: str):
             title="Are you sure?", 
             description=f"You will be removing {driver[1]} {driver[2]} from the database. You will need to manually re-insert him later if you want him back. This action cannot be undone.",
             )
-        if not databaseManager.checkDriverAvailability(driver[0]):
+        if not driverManager.checkDriverAvailability(driver[0]):
             embed.add_field(
                 name="Warning", 
                 value=f"This driver is currently contracted to a team."
@@ -271,7 +284,7 @@ async def removedriver(interaction: discord.Interaction, driverid: str):
 
 async def removeDriverConfirmed(args: tuple, interaction: discord.Interaction, databaseManager: DatabaseManager):
     driver = args[0]
-    databaseManager.removeDriver(driver[0])
+    driverManager.removeDriver(driver[0])
     await interaction.response.send_message(f"{driver[1]} {driver[2]} with ID {driver[0]} has been removed from the database.")
 
 async def removeDriverCancelled(args: tuple, interaction: discord.Interaction, databaseManager: DatabaseManager):
@@ -327,7 +340,7 @@ async def help(interaction: discord.Interaction):
 @bot.tree.command(name="alldrivers")
 @app_commands.describe(availableonly="Whether to only show available drivers")
 async def alldrivers(interaction: discord.Interaction, availableonly: bool = False):
-    drivers = databaseManager.getAllDrivers(availableOnly=availableonly)
+    drivers = driverManager.getAllDrivers(availableOnly=availableonly)
     if len(drivers) == 0:
         await interaction.response.send_message("No drivers found.")
     else:

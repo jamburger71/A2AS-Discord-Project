@@ -1,7 +1,7 @@
 /__pycache__/*
 .env
-A2AS_DB
-Test_DB
-/src/__pycache__/*
-/test/__pycache__/*
+*.db
+src/__pycache__/*
+test/__pycache__/*
+src/Database/__pycache__/*
 *-journal
