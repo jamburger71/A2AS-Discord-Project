@@ -1,7 +1,5 @@
 /__pycache__/*
 .env
 *.db
-src/__pycache__/*
-test/__pycache__/*
-src/Database/__pycache__/*
+*/__pycache__/*
 *-journal
