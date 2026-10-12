@@ -1,5 +1,7 @@
-/__pycache__/*
 .env
 *.db
-*/__pycache__/*
 *-journal
+/__pycache__/*
+*/__pycache__/*
+**/__pycache__/*
+discord.log
