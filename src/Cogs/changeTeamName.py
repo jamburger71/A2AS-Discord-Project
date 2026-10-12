@@ -7,7 +7,7 @@ from areyousure import areYouSure
 
 class ChangeTeamName(commands.Cog):
 
-    def __init__(self, bot: "MyBot"): # type: ignore
+    def __init__(self, bot: "MyBot"): # type: ignore # noqa: F821
         self.bot = bot
 
     async def cog_load(self):
@@ -32,6 +32,6 @@ class ChangeTeamName(commands.Cog):
         self.bot.teamManager.updateTeamName(teamID, newteamname)
         await interaction.response.send_message(f"Team name changed to {newteamname}.")
 
-async def setup(bot: "MyBot"): # type: ignore
+async def setup(bot: "MyBot"): # type: ignore # noqa: F821
     print("Loading ChangeTeamName cog...")
     await bot.add_cog(ChangeTeamName(bot))

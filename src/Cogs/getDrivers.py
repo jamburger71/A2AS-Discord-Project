@@ -8,7 +8,7 @@ from pageController import PageController
 
 class GetDrivers(commands.Cog):
 
-    def __init__(self, bot: "MyBot"): # type: ignore
+    def __init__(self, bot: "MyBot"): # type: ignore # noqa: F821
         self.bot = bot
 
     async def cog_load(self):
@@ -42,6 +42,6 @@ class GetDrivers(commands.Cog):
 
 
 
-async def setup(bot: "MyBot"): # type: ignore
+async def setup(bot: "MyBot"): # type: ignore # noqa: F821
     print("Loading GetDrivers cog...")
     await bot.add_cog(GetDrivers(bot))

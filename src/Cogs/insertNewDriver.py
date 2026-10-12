@@ -5,7 +5,7 @@ import logging
 
 class InsertNewDriver(commands.Cog):
     
-    def __init__(self, bot: "MyBot"): # type: ignore
+    def __init__(self, bot: "MyBot"): # type: ignore # noqa: F821
         self.bot = bot
 
     @app_commands.command(name="insertnewdriver", description="ADMIN ONLY: Insert a new driver into the database.")
@@ -89,6 +89,6 @@ class InsertNewDriver(commands.Cog):
             logging.info(f"Successfully registered driver {drivername} {lastname} with ID {driverID} and three-letter code {threecode}.")
             await interaction.response.send_message(f"{drivername} {lastname} has been registered successfully, with id {driverID} and three-letter code {threecode}. You can check his stats at any time using the /getdriver command.")
 
-async def setup(bot: "MyBot"): # type: ignore
+async def setup(bot: "MyBot"): # type: ignore # noqa: F821
     print("Loading InsertNewDriver cog...")
     await bot.add_cog(InsertNewDriver(bot))

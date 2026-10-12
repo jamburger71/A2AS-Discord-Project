@@ -7,7 +7,7 @@ from helpers import convertToPounds
 
 class GetDriver(commands.Cog):
 
-    def __init__(self, bot: "MyBot"): # type: ignore
+    def __init__(self, bot: "MyBot"): # type: ignore # noqa: F821
         self.bot = bot
 
     async def cog_load(self):
@@ -31,6 +31,6 @@ class GetDriver(commands.Cog):
                                 value=f"Races: {driver[13]}\nWins: {driver[14]}\nPodiums: {driver[15]}", inline=False)
             await interaction.response.send_message(embed = driverEmbed)
 
-async def setup(bot: "MyBot"): # type: ignore
+async def setup(bot: "MyBot"): # type: ignore # noqa: F821
     print("Loading GetDriver cog...")
     await bot.add_cog(GetDriver(bot))

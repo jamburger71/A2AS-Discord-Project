@@ -7,7 +7,7 @@ from areyousure import areYouSure
 
 class RemoveDriver(commands.Cog):
 
-    def __init__(self, bot: "MyBot"): # type: ignore
+    def __init__(self, bot: "MyBot"): # type: ignore # noqa: F821
         self.bot = bot
 
     async def cog_load(self):
@@ -41,6 +41,6 @@ async def removeDriverConfirmed(self, args: tuple, interaction: discord.Interact
     self.bot.driverManager.removeDriver(driver[0])
     await interaction.response.send_message(f"{driver[1]} {driver[2]} with ID {driver[0]} has been removed from the database.")
 
-async def setup(bot: "MyBot"): # type: ignore
+async def setup(bot: "MyBot"): # type: ignore # noqa: F821
     print("Loading RemoveDriver cog...")
     await bot.add_cog(RemoveDriver(bot))

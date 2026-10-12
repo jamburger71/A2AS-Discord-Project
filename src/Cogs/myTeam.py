@@ -5,7 +5,7 @@ import logging
 
 class MyTeam(commands.Cog):
 
-    def __init__(self, bot: "MyBot"): # type: ignore
+    def __init__(self, bot: "MyBot"): # type: ignore # noqa: F821
         self.bot = bot
 
     async def cog_load(self):
@@ -23,6 +23,6 @@ class MyTeam(commands.Cog):
             logging.info(f"No team found for user {interaction.user.id}")
             await interaction.response.send_message("You don't own a team!")
 
-async def setup(bot: "MyBot"): # type: ignore
+async def setup(bot: "MyBot"): # type: ignore # noqa: F821
     print("Loading MyTeam cog...")
     await bot.add_cog(MyTeam(bot))

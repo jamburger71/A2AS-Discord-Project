@@ -7,7 +7,7 @@ from areyousure import areYouSure
 
 class TransferOwnership(commands.Cog):
 
-    def __init__(self, bot: "MyBot"): # type: ignore
+    def __init__(self, bot: "MyBot"): # type: ignore # noqa: F821
         self.bot = bot
 
     async def cog_load(self):
@@ -34,6 +34,6 @@ class TransferOwnership(commands.Cog):
             await interaction.response.send_message("That user already owns a team, and cannot own another.")
 
 
-async def setup(bot: "MyBot"): # type: ignore
+async def setup(bot: "MyBot"): # type: ignore # noqa: F821
     print("Loading TransferOwnership cog...")
     await bot.add_cog(TransferOwnership(bot))

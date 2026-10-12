@@ -5,7 +5,7 @@ import logging
 
 class RegisterTeam(commands.Cog):
 
-    def __init__(self, bot: "MyBot"): # type: ignore
+    def __init__(self, bot: "MyBot"): # type: ignore # noqa: F821
         self.bot = bot
 
     async def cog_load(self):
@@ -77,6 +77,6 @@ class RegisterTeam(commands.Cog):
                     description=f"You can check your team details at any time using the /myteam command."
                 ))
 
-async def setup(bot: "MyBot"): # type: ignore
+async def setup(bot: "MyBot"): # type: ignore # noqa: F821
     print("Loading RegisterTeam cog...")
     await bot.add_cog(RegisterTeam(bot))
