@@ -8,9 +8,11 @@ class DatabaseManager:
 
     def __init__(self, databaseName: str):
         print(f"Creating database: {databaseName}")
-        self.DatabaseConnection = sqlite3.connect(databaseName)
+        self.DatabaseConnection = sqlite3.connect(databaseName, timeout=10)
         self.createTables()
         self.databaseName = databaseName
+
+        self.DatabaseConnection.execute("PRAGMA journal_mode=WAL;")
 
     def createTables(self):
 

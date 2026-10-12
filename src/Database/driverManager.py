@@ -12,12 +12,18 @@ class DriverManager:
 
     def insertDriver(self, driverID: int, firstName: str, lastName: str, threeLetterCode: str, nationality: str, age: int, qualiPace: int, racePace: int, wetPace: int, tyreManagement: int, aggressiveness: int, defending: int, contractCost: int, isAvailable: bool = True):
 
-        with closing(self.DatabaseConnection.cursor()) as cursor:
-            cursor.execute("""
-                INSERT INTO DriverData (DriverID, FirstName, LastName, ThreeLetterCode, Nationality, Age, QualiPace, RacePace, WetPace, TyreManagement, Aggressiveness, Defending, ContractCost, IsAvailable)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, (driverID, firstName, lastName, threeLetterCode, nationality, age, qualiPace, racePace, wetPace, tyreManagement, aggressiveness, defending, contractCost, isAvailable))
-            self.DatabaseConnection.commit()
+        with self.DatabaseConnection:
+            try:
+                self.DatabaseConnection.execute("""
+                    INSERT INTO DriverData (DriverID, FirstName, LastName, ThreeLetterCode, Nationality, Age, QualiPace, RacePace, WetPace, TyreManagement, Aggressiveness, Defending, ContractCost, IsAvailable)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """, (driverID, firstName, lastName, threeLetterCode, nationality, age, qualiPace, racePace, wetPace, tyreManagement, aggressiveness, defending, contractCost, isAvailable))
+                self.DatabaseConnection.commit()
+            except sqlite3.IntegrityError as e:
+                self.DatabaseConnection.rollback()
+                print(f"Failed to insert driver {firstName} {lastName} with ID {driverID}: {e}")
+                logging.error(f"Failed to insert driver {firstName} {lastName} with ID {driverID}: {e}")
+                raise e
 
     def removeDriver(self, driverID: int | str):
 

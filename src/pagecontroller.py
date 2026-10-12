@@ -1,6 +1,6 @@
 import discord
 
-class pagecontroller(discord.ui.View):
+class PageController(discord.ui.View):
     def __init__(self, pages: list, currentPage: int, interaction: discord.Interaction, nextPageFunc=None):
         super().__init__(timeout=300)
         self.pages = pages

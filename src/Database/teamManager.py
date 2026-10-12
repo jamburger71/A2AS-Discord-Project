@@ -10,17 +10,20 @@ class TeamManager:
 
         self.DatabaseConnection = databaseConnection
 
-    def getOwnerTeam(self, ownerID) -> tuple | None:
+    def getOwnerTeam(self, ownerID: int) -> tuple | None:
 
-        logging.info(f"Getting team for ownerID: {ownerID}")
-        with closing(self.DatabaseConnection.cursor()) as cursor:
-            cursor.execute(f"""
-                SELECT * FROM TeamData
-                WHERE OwnerDiscordID = {ownerID}
-                AND IsActive = True
-                LIMIT 1
-            """)
-            return cursor.fetchone()
+        with self.DatabaseConnection:
+            logging.info(f"Getting team for ownerID: {ownerID}")
+            with closing(self.DatabaseConnection.cursor()) as cursor:
+                try:
+                    cursor.execute(f"""
+                        SELECT * FROM TeamData
+                        WHERE OwnerDiscordID = ?
+                        AND IsActive = True
+                        LIMIT 1
+                    """, (ownerID,))
+                finally:
+                    return cursor.fetchone()
 
     def getAvailableTeamSlots(self, maxSlots):
 

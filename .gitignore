@@ -1,7 +1,9 @@
-/__pycache__/*
 .env
 *.db
-src/__pycache__/*
-test/__pycache__/*
-src/Database/__pycache__/*
 *-journal
+*.db-shm
+*.db-wal
+/__pycache__/*
+*/__pycache__/*
+**/__pycache__/*
+discord.log
