@@ -43,19 +43,6 @@ class Help(commands.Cog):
             """,
             inline = False
         )
-        commandsEmbed.add_field(
-            name = "Admin Commands (For Admins Only - duh)",
-            value = """
-            /removeteam - Removes a team from the database (NOT IMPLEMENTED)
-            /agedrivers - Ages all drivers by 1 year, for use at the end of the season (NOT IMPLEMENTED)
-            /createnewcalendar - Creates a new calendar for the next season (NOT IMPLEMENTED)
-            /insertnewdriver - Inserts a new driver into the database (NOT IMPLEMENTED)
-            /removedriver - Removes a driver from the database (NOT IMPLEMENTED)
-            /changedrivername - Changes a driver's name (NOT IMPLEMENTED)
-            /insertnewprimarysponsor - Inserts a new primary sponsor into the database (NOT IMPLEMENTED)
-            """,
-            inline = False
-        )
         await interaction.response.send_message(embed = commandsEmbed)
 
 async def setup(bot: "MyBot"): # type: ignore # noqa: F821
