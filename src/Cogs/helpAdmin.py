@@ -24,10 +24,10 @@ class HelpAdmin(commands.Cog):
             name = "Database Commands",
             value = """
             /removeteam - Removes a team from the database (NOT IMPLEMENTED)
-            /insertnewdriver - Inserts a new driver into the database (NOT IMPLEMENTED)
-            /removedriver - Removes a driver from the database (NOT IMPLEMENTED)
+            /insertnewdriver - Inserts a new driver into the database
+            /removedriver - Removes a driver from the database
             /changedrivername - Changes a driver's name (NOT IMPLEMENTED)
-            /insertnewprimarysponsor - Inserts a new primary sponsor into the database (NOT IMPLEMENTED)
+            /insertnewsponsor - Inserts a new sponsor (primary or secondary) into the database (NOT IMPLEMENTED)
             """,
             inline = False
         )
