@@ -36,9 +36,9 @@ class HelpAdmin(commands.Cog):
             value = """
             /agedrivers - Ages all drivers by 1 year, for use at the end of the season (NOT IMPLEMENTED)
             /createnewcalendar - Creates a new calendar for the next season (NOT IMPLEMENTED)
-            /insertresults
-            /editresults
-            /editcalendar
+            /editcalendar - Edits the calendar for a season (NOT IMPLEMENTED)
+            /insertresults - Inserts results for a race into the database (NOT IMPLEMENTED)
+            /editresults - Edits results for a race in the database (NOT IMPLEMENTED)
             """
         )
         await interaction.response.send_message(embed = commandsEmbed)

@@ -21,7 +21,7 @@ class ChangeTeamName(commands.Cog):
         if team == None:
             await interaction.response.send_message("You don't own a team!")
         else:
-            view = areYouSure((team[0], newteamname), self.changeTeamNameConfirmed, await interaction.response.send_message("Team name change cancelled."), self.bot.databaseManager)
+            view = areYouSure((team[0], newteamname), self.changeTeamNameConfirmed, await interaction.response.send_message("Team name change cancelled."))
             await interaction.response.send_message(embed = discord.Embed(
                 title="Are you sure?", 
                 description=f"You will be renaming your team from {team[1]} to {newteamname}. This action will have to be manually reverted."
