@@ -3,6 +3,44 @@ from discord import app_commands
 from discord.ext import commands
 import logging
 
+class RegisterTeamModal(discord.ui.Modal, title="Register Team"):
+
+    def __init__(self):
+        
+        name = discord.ui.TextInput(
+            label="Team Name",
+            placeholder="Team name here...",
+            required=True
+        )
+        description = discord.ui.TextInput(
+            style=discord.TextStyle.long,
+            label="Team Description",
+            placeholder = "Team description here...",
+            required=False,
+            max_length=500
+        )
+
+    async def on_submit(self, interaction: discord.Interaction):
+
+        await interaction.response.send_message("PP")
+
+class ChooseTeamCarDropdown(discord.ui.Select):
+
+    def __init__(self):
+        carOptions = []#TODO get current car options
+        options = []
+        for carOption in carOptions:
+            options.append(discord.SelectOption(
+                label = carOption.carName
+            ))
+
+        super().__init__(
+            placeholder = "Select your team car",
+            min_values=1,
+            max_values=1,
+            options=options
+        )
+
 class RegisterTeam(commands.Cog):
 
     def __init__(self, bot: "MyBot"): # type: ignore # noqa: F821

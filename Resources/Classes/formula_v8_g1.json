@@ -1,0 +1,12 @@
+{
+    "ams2id": "formula_v8_g1",
+    "name": "Formula 1 V8 Gen 1",
+    "desc": "The first year of Formula 1 with mandated Naturally Aspirated V8 engines.",
+    "cars": [
+        "formula_v8_g1_b",
+        "formula_v8_g1_m"
+    ],
+    "maxCars": 20,
+    "minCarsPerTeam": 2,
+    "maxCarsPerTeam": 2
+}
