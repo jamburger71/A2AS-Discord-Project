@@ -1,6 +1,6 @@
 
 
-class Class:
+class CarClass:
 
     def __init__(self, classID):
 

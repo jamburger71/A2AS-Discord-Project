@@ -5,29 +5,38 @@ import logging
 
 class RegisterTeamModal(discord.ui.Modal, title="Register Team"):
 
-    def __init__(self):
+    def __init__(self, bot):
+
+        self.bot = bot
         
         name = discord.ui.TextInput(
             label="Team Name",
-            placeholder="Team name here...",
+            placeholder="Team name...",
             required=True
         )
         description = discord.ui.TextInput(
             style=discord.TextStyle.long,
             label="Team Description",
-            placeholder = "Team description here...",
+            placeholder = "Team description...",
             required=False,
             max_length=500
+        )
+        nationality = discord.ui.TextInput(
+            label="Team Nationality",
+            placeholder="Nationality...",
+            required=True
         )
 
     async def on_submit(self, interaction: discord.Interaction):
 
-        await interaction.response.send_message("PP")
+        self.bot.teamDatabase.registerTeam()
+        await interaction.response.send_message("""Team Registered! Manage your team with /myteam. 
+        Until you have assigned your team a car, drivers, and an engine supplier, your team will not compete.""")
 
 class ChooseTeamCarDropdown(discord.ui.Select):
 
     def __init__(self):
-        carOptions = []#TODO get current car options
+        carOptions = [] #TODO get current car options
         options = []
         for carOption in carOptions:
             options.append(discord.SelectOption(
@@ -50,70 +59,15 @@ class RegisterTeam(commands.Cog):
         logging.info("RegisterTeam cog loaded successfully.")
 
     @app_commands.command(name="registerteam")
-    @app_commands.describe(
-        teamname = "Team Name",
-        teamnation = "Team Nation of Origin", 
-        driver1 = "Driver 1 (by ID)", 
-        driver2 = "Driver 2 (by ID)", 
-        primarysponsor = "Primary Sponsor (by ID)",
-        secondarysponsor1 = "Secondary Sponsor 1 (by ID)", 
-        secondarysponsor2 = "Secondary Sponsor 2 (by ID)", 
-        secondarysponsor3 = "Secondary Sponsor 3 (by ID)",
-        enginesupplier = "Engine Supplier",
-        tyremanufacturer = "Tyre Manufacturer"
-    )
+    @app_commands.describe()
     async def registerteam(
         self,
-        interaction: discord.Interaction, 
-        teamname: str, 
-        teamnation: str, 
-        driver1: str, 
-        driver2: str, 
-        primarysponsor: str, 
-        secondarysponsor1: str, 
-        secondarysponsor2: str, 
-        secondarysponsor3: str, 
-        enginesupplier: str, 
-        tyremanufacturer: str
-    ):
+        interaction: discord.Interaction):
         team = self.bot.teamManager.getOwnerTeam(interaction.user.id)
         if team != None:
-            await interaction.response.send_message("You already own a team!")
-        else:
-            # Check if there are available team slots
-            availableSlots = self.bot.teamManager.getAvailableTeamSlots(self.bot.keyValManager.getKeyVal("max_teams"))
-            if availableSlots == 0:
-                await interaction.response.send_message("No available team slots!")
-            elif not self.bot.teamManager.tyreIsAvailable(tyremanufacturer):
-                await interaction.response.send_message("The selected tyre manufacturer is not available!")
-            elif driver1 == driver2:
-                await interaction.response.send_message("You cannot select the same driver for both slots!")
-            elif driver1 not in [driver[0] for driver in self.bot.driverManager.getAllDrivers(availableOnly=True)]:
-                await interaction.response.send_message("The selected Driver 1 is not available!")
-            elif driver2 not in [driver[0] for driver in self.bot.driverManager.getAllDrivers(availableOnly=True)]:
-                await interaction.response.send_message("The selected Driver 2 is not available!")
-            else:
-                # Register the team
-                teamID = self.bot.keyValManager.getKeyVal("NextTeamID")
-                self.bot.teamManager.registerTeam(
-                    interaction.user.id, 
-                    teamname, 
-                    teamnation, 
-                    driver1, 
-                    driver2, 
-                    primarysponsor, 
-                    secondarysponsor1, 
-                    secondarysponsor2, 
-                    secondarysponsor3, 
-                    enginesupplier, 
-                    tyremanufacturer,
-                    teamID
-                )
-                self.bot.keyValManager.updateKeyVal("NextTeamID", teamID + 1)
-                await interaction.response.send_message(embed = discord.Embed(
-                    title=f"Team {teamname} registered successfully!",
-                    description=f"You can check your team details at any time using the /myteam command."
-                ))
+            await interaction.response.send_message("You already own a team! To manager your team, use /myteam")
+            return
+        interaction.response.send_modal(RegisterTeamModal(self.bot))
 
 async def setup(bot: "MyBot"): # type: ignore # noqa: F821
     print("Loading RegisterTeam cog...")
