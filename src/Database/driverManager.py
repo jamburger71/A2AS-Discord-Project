@@ -1,3 +1,4 @@
+from discordLogger import DiscordLogger
 import logging
 import sqlite3
 import yaml
@@ -123,8 +124,15 @@ class DriverManager:
             cursor.execute("UPDATE DriverData SET IsAvailable = ? WHERE DriverID = ?", (isAvailable, driverID))
             self.DatabaseConnection.commit()
 
-    def ageAllDrivers(self) -> None:
+    def ageAllDrivers(self, discLogger: DiscordLogger) -> None:
 
         with closing(self.DatabaseConnection.cursor()) as cursor:
-            cursor.execute("UPDATE DriverData SET Age = Age + 1")
-            self.DatabaseConnection.commit()
+            try:
+                discLogger.info("Increasing all driver ages by 1")
+                cursor.execute("UPDATE DriverData SET Age = Age + 1")
+                discLogger.info("Committing changes to database")
+                self.DatabaseConnection.commit()
+            except Exception as e:
+                template = "An exception of type {0} occurred. Arguments: {1!r}"
+                message = template.format(type(ex).__name__, ex.args)
+                discLogger.error(message)
