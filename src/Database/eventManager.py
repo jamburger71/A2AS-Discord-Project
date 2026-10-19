@@ -1,3 +1,4 @@
+import weakref
 import logging
 import sqlite3
 import yaml
@@ -55,5 +56,34 @@ class EventManager:
         roundNo: int,
         eventTitle: int | None,
         eventDate: int | None,
+        weather: str | None,
+        qualiDuration: int | None,
+        qualiResults: str | None,
+        raceLength: int | None,
+        raceResults: str | None
+    ):
         
-    )
+        with closing(self.DatabaseConnection.cursor()) as cursor:
+            cursor.execute("""
+                UPDATE EventData
+                SET 
+                EventTitle = COALESCE(?, EventTitle),
+                EventDate = COALESCE(?, EventDate),
+                Weather = COALESCE(?, Weather),
+                QualiDuration = COALESCE(?, QualiDuration),
+                QualiResults = COALESCE(?, QualiResults),
+                RaceLength = COALESCE(?, RaceLength),
+                RaceResults = COALESCE(?, RaceResults)
+                WHERE SeasonNo = ? AND RoundNo = ?""",
+                (eventTitle, eventDate, weather, qualiDuration, qualiResults, raceLength, raceResults, seasonNo, roundNo))
+            cursor.commit()
+
+    def deleteEvent(self, roundNo, seasonNo):
+
+        with closing(self.DatabaseConnection.cursor()) as cursor:
+            cursor.execute("""
+                DELETE FROM EventData
+                WHERE RoundNo = ? 
+                AND SeasonNo = ?""", 
+                (roundNo, seasonNo))
+            cursor.commit()
