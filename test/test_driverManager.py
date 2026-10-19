@@ -1,3 +1,4 @@
+from discordLogger import DiscordLogger
 from pathlib import Path
 
 import pytest
@@ -101,7 +102,7 @@ def testAgeAllDrivers(testDriverManager, driverDataSample):
     # ACT
     for driver in driverDataSample:
         testDriverManager.insertDriverFromClass(driver)
-    testDriverManager.ageAllDrivers()
+    testDriverManager.ageAllDrivers(DiscordLogger())
     agedDrivers: list[Driver] = testDriverManager.getAllDrivers()
     # ASSERT
     assert all(driver.age == driverDataSample[index].age + 1 for index, driver in enumerate(agedDrivers))
