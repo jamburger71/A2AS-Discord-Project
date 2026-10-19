@@ -17,7 +17,7 @@ class DriverManager:
 
         with closing(self.DatabaseConnection.cursor()) as cursor:
             try:
-                self.DatabaseConnection.execute("""
+                cursor.execute("""
                     INSERT INTO DriverData (DriverID, FirstName, LastName, ThreeLetterCode, Nationality, Age, QualiPace, RacePace, WetPace, TyreManagement, Aggressiveness, Defending, ContractCost, IsAvailable)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """, (driverID, firstName, lastName, threeLetterCode, nationality, age, qualiPace, racePace, wetPace, tyreManagement, aggressiveness, defending, contractCost, isAvailable))
@@ -134,5 +134,5 @@ class DriverManager:
                 self.DatabaseConnection.commit()
             except Exception as e:
                 template = "An exception of type {0} occurred. Arguments: {1!r}"
-                message = template.format(type(e).__name__, ex.args)
+                message = template.format(type(e).__name__, e.args)
                 discLogger.error(message)
