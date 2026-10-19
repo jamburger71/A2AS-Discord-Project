@@ -134,5 +134,5 @@ class DriverManager:
                 self.DatabaseConnection.commit()
             except Exception as e:
                 template = "An exception of type {0} occurred. Arguments: {1!r}"
-                message = template.format(type(ex).__name__, ex.args)
+                message = template.format(type(e).__name__, ex.args)
                 discLogger.error(message)
