@@ -12,18 +12,19 @@ class TeamManager:
 
     def getOwnerTeam(self, ownerID: int) -> tuple | None:
 
-        with self.DatabaseConnection:
-            logging.info(f"Getting team for ownerID: {ownerID}")
-            with closing(self.DatabaseConnection.cursor()) as cursor:
-                try:
-                    cursor.execute(f"""
-                        SELECT * FROM TeamData
-                        WHERE OwnerDiscordID = ?
-                        AND IsActive = True
-                        LIMIT 1
-                    """, (ownerID,))
-                finally:
-                    return cursor.fetchone()
+        with closing(self.DatabaseConnection.cursor()) as cursor:
+            cursor.execute(f"""
+                SELECT * FROM TeamData
+                WHERE OwnerDiscordID = ?
+                LIMIT 1
+            """, (ownerID,))
+            return cursor.fetchone()
+    
+    def getTeams(self):
+        
+        with closing(self.DatabaseConnection.cursor()) as cursor:
+            cursor.execute("""SELECT * FROM TeamData""")
+            return cursor.fetchall()
 
     def getAvailableTeamSlots(self, maxSlots):
 
@@ -57,23 +58,16 @@ class TeamManager:
     def registerTeam(
             self, 
             ownerID: int, 
-            teamName: str, 
+            teamName: str,
+            teamDescription: str,
             nationality: str, 
-            driver1: str, 
-            driver2: str, 
-            primarySponsor: str, 
-            secondarySponsor1: str, 
-            secondarySponsor2: str, 
-            secondarySponsor3: str, 
-            engineSupplier: str, 
-            tyremanufacturer: str,
             teamID: int) -> None:
 
         with closing(self.DatabaseConnection.cursor()) as cursor:
             cursor.execute("""
-                INSERT INTO TeamData (TeamID, OwnerDiscordID, TeamName, TeamNationality, Driver1, Driver2, PrimarySponsor, SecondarySponsor1, SecondarySponsor2, SecondarySponsor3, EngineSupplier, TyreManufacturer)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, (teamID, ownerID, teamName, nationality, driver1, driver2, primarySponsor, secondarySponsor1, secondarySponsor2, secondarySponsor3, engineSupplier, tyremanufacturer,))
+                INSERT INTO TeamData (TeamID, OwnerDiscordID, TeamName, TeamDescription, Nationality)
+                VALUES (?, ?, ?, ?, ?)
+            """, (teamID, ownerID, teamName, teamDescription, nationality,))
             self.DatabaseConnection.commit()
 
     def changeTeamOwnership(self, teamID: int, newOwnerID: int) -> None:

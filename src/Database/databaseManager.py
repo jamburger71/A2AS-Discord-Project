@@ -16,7 +16,7 @@ class DatabaseManager:
 
     def createTables(self):
 
-        #self.dropAllTables()
+        # self.dropAllTables()
 
         with closing(self.DatabaseConnection.cursor()) as cursor:
             cursor.execute("""
@@ -32,31 +32,28 @@ class DatabaseManager:
                 RaceResults TEXT,
                 PRIMARY KEY(SeasonNo, RoundNo))
             """)
+            
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS TeamData (
                 TeamID INT PRIMARY KEY,
                 TeamName SMALLTEXT,
-                IsActive BOOLEAN,
-                EngineSupplier INT,
-                TyreManufacturer TINYINT,
+                TeamDescription TEXT,
                 Nationality TINYTEXT,
-                OwnerName SMALLTEXT,
                 OwnerDiscordID SMALLINT,
+                IsActive BOOLEAN DEFAULT FALSE,
+                EngineSupplier INT,
+                Car SMALLTEXT,
                 FirstDriver INT,
                 SecondDriver INT,
-                CurrentFinances INT,
+                CurrentFunds INT DEFAULT 0,
                 DragUpgrades INT DEFAULT 0,
                 WeightUpgrades INT DEFAULT 0,
                 PrimarySponsor INT,
                 SecondarySponsor1 INT,
                 SecondarySponsor2 INT,
-                SecondarySponsor3 INT,
-                Wins SMALLINT DEFAULT 0,
-                Podiums SMALLINT DEFAULT 0,
-                Starts SMALLINT DEFAULT 0,
-                Finishes SMALLINT DEFAULT 0
-                )
+                SecondarySponsor3 INT)
             """)
+            
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS DriverData (
                 DriverID INT PRIMARY KEY NOT NULL,
@@ -75,15 +72,13 @@ class DatabaseManager:
                 Races SMALLINT DEFAULT 0,
                 Wins SMALLINT DEFAULT 0,
                 Podiums SMALLINT DEFAULT 0,
-                IsAvailable BOOLEAN DEFAULT 1
-                )
+                IsAvailable BOOLEAN DEFAULT 1)
             """)
 
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS KeyVal (
                 Key TEXT PRIMARY KEY,
-                Value BLOB
-                )
+                Value BLOB)
             """)
 
     def checkTableExists(self, tableName: str) -> bool:

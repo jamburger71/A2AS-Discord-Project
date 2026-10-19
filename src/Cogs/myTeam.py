@@ -14,15 +14,16 @@ class MyTeam(commands.Cog):
     @app_commands.command(name="myteam")
     async def myteam(self, interaction: discord.Interaction):
 
+        print(interaction.user.id)
         team: tuple | None = self.bot.teamManager.getOwnerTeam(interaction.user.id)
-        
-        if team is not None:
-            logging.info(f"Team found for user {interaction.user.id}: {team[1]} (ID: {team[0]})")
-            await interaction.response.send_message("Nice team bro")
-        else:
+        print(team)
+        if team is None:
             logging.info(f"No team found for user {interaction.user.id}")
             await interaction.response.send_message("You don't own a team!")
+            return
+        logging.info(f"Team found for user {interaction.user.id}: {team[1]} (ID: {team[0]})")
+        
 
 async def setup(bot: "MyBot"): # type: ignore # noqa: F821
-    print("Loading MyTeam cog...")
+    logging.info("Loading MyTeam cog...")
     await bot.add_cog(MyTeam(bot))

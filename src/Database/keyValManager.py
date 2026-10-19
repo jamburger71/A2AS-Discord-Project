@@ -13,7 +13,7 @@ class KeyValManager:
 
     def setDefaults(self, overwrite: bool = False):
 
-        with open("FixedData\\Defaults\\DefaultKeyVals.yaml") as stream:
+        with open("Resources\\Defaults\\DefaultKeyVals.yaml") as stream:
             try:
                 self.defaultKeyVals = yaml.safe_load(stream)
                 with closing(self.DatabaseConnection.cursor()) as cursor:
@@ -36,11 +36,3 @@ class KeyValManager:
         with closing(self.DatabaseConnection.cursor()) as cursor:
             cursor.execute("UPDATE KeyVal SET Value = ? WHERE Key = ?", (value, key))
             self.DatabaseConnection.commit()
-
-    def getNextDriverID(self, keyValManager, increment: bool = False) -> int:
-
-        driverID = keyValManager.getKeyVal("NextDriverID")
-        if increment:
-            keyValManager.updateKeyVal("NextDriverID", driverID + 1)
-        print(f"Next driver ID: {driverID}")
-        return driverID
