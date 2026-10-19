@@ -102,7 +102,7 @@ def testAgeAllDrivers(testDriverManager, driverDataSample):
     # ACT
     for driver in driverDataSample:
         testDriverManager.insertDriverFromClass(driver)
-    testDriverManager.ageAllDrivers(DiscordLogger())
+    testDriverManager.ageAllDrivers(DiscordLogger(None, "Testing", None))
     agedDrivers: list[Driver] = testDriverManager.getAllDrivers()
     # ASSERT
     assert all(driver.age == driverDataSample[index].age + 1 for index, driver in enumerate(agedDrivers))
