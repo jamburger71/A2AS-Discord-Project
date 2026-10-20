@@ -1,7 +1,4 @@
 import sys
-if "pytest" not in sys.modules:
-    import discord
-    from discord.ext import commands
 import os
 
 class DiscordLogger:
@@ -38,7 +35,10 @@ class DiscordLogger:
     async def submit(self):
 
         if "pytest" not in sys.modules:
-            logChannel = self.bot.get_channel(os.getenv("DISCORD_LOG_CHANNEL"))
+            import discord
+            from discord.ext import commands
+            channelID = os.getenv("DISCORD_LOG_CHANNEL")
+            logChannel = await self.bot.fetch_channel(int(channelID or ""))
             logEmbed = discord.Embed()
             if self.logState == self.GOOD:
                 logEmbed.title = f"{self.author.name} completed action: {self.action}"
@@ -78,4 +78,4 @@ class DiscordLogger:
                 name = "Full Log:",
                 value = logDesc
             )
-            await logChannel.send_message(embed = logEmbed)
+            await logChannel.send(embed = logEmbed)
