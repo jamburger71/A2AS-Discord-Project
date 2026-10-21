@@ -1,0 +1,3 @@
+[CogLoading]
+    loadingPrefix = "Loading command "
+    loadedPrefix = "Loaded command "
