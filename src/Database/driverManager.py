@@ -18,13 +18,13 @@ class DriverManager:
         with closing(self.DatabaseConnection.cursor()) as cursor:
             try:
                 cursor.execute("""
-                    INSERT INTO DriverData (DriverID, FirstName, LastName, ThreeLetterCode, Nationality, Age, QualiPace, RacePace, WetPace, TyreManagement, Aggressiveness, Defending, ContractCost, IsAvailable)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """, (driverID, firstName, lastName, threeLetterCode, nationality, age, qualiPace, racePace, wetPace, tyreManagement, aggressiveness, defending, contractCost, isAvailable))
+                    INSERT INTO DriverData (FirstName, LastName, ThreeLetterCode, Nationality, Age, QualiPace, RacePace, WetPace, TyreManagement, Aggressiveness, Defending, ContractCost, IsAvailable)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """, (firstName, lastName, threeLetterCode, nationality, age, qualiPace, racePace, wetPace, tyreManagement, aggressiveness, defending, contractCost, isAvailable))
                 self.DatabaseConnection.commit()
             except sqlite3.IntegrityError as e:
                 self.DatabaseConnection.rollback()
-                print(f"Failed to insert driver {firstName} {lastName} with ID {driverID}: {e}")
+                print(f"Failed to insert driver {firstName} {lastName} with ID {threeLetterCode}: {e}")
                 logging.error(f"Failed to insert driver {firstName} {lastName} with ID {driverID}: {e}")
                 raise e
 

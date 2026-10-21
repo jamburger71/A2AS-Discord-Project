@@ -56,10 +56,10 @@ class DatabaseManager:
             
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS DriverData (
-                DriverID INT PRIMARY KEY NOT NULL,
+                ThreeLetterCode TINYTEXT PRIMARY KEY,
                 FirstName SMALLTEXT,
                 LastName SMALLTEXT,
-                ThreeLetterCode TINYTEXT,
+                Gender SMALLTEXT,
                 Nationality TINYTEXT,
                 Age TINYINT,
                 QualiPace TINYINT,

@@ -1,7 +1,11 @@
+import helpers
 import discord
 from discord import app_commands
 from discord.ext import commands
 import logging
+
+from Classes.team import Team
+from Classes.driver import Driver
 
 class MyTeam(commands.Cog):
 
@@ -14,15 +18,52 @@ class MyTeam(commands.Cog):
     @app_commands.command(name="myteam")
     async def myteam(self, interaction: discord.Interaction):
 
-        print(interaction.user.id)
-        team: tuple | None = self.bot.teamManager.getOwnerTeam(interaction.user.id)
-        print(team)
+        team: Team | None = self.bot.teamManager.getOwnerTeam(interaction.user.id)
         if team is None:
             logging.info(f"No team found for user {interaction.user.id}")
             await interaction.response.send_message("You don't own a team!")
             return
-        logging.info(f"Team found for user {interaction.user.id}: {team[1]} (ID: {team[0]})")
+
+        await interaction.response.send_message(view = MyTeamView(team, self.bot))
         
+        logging.info(f"Team found for user {interaction.user.id}: {team.name} (ID: {team.id})")
+
+class MyTeamView(discord.ui.View):
+
+    def __init__(self, team: Team, bot):
+
+        super().__init__(timeout=300)
+        self.bot = bot
+        
+        driverText = []
+        teamDriver1: Driver = self.bot.driverManager.getDriver(team.driverOne)
+        teamDriver2: Driver = self.bot.driverManager.getDriver(team.driverTwo)
+        for drNo, driver in enumerate([teamDriver1, teamDriver2]):
+            if driver is None:
+                driverText[drNo] = f"You have no {helpers.ordinalConv(drNo+1)} driver."
+            else:
+                driverText[drNo] = f"""## {teamDriver1.firstName} {teamDriver1.lastName}
+            Current Position: NOT YET IMPLEMENTED
+            Current Points: NOT YET IMPLEMENTED"""
+        driverSection = discord.ui.Section(
+            discord.ui.TextDisplay("# Drivers"),
+            discord.ui.TextDisplay(driverText[0]),
+            discord.ui.TextDisplay(driverText[1]),
+            accessory = manageDriversButton(team)
+        )
+
+        self.add_item(driverSection)
+        self.add_item(discord.ui.Separator())
+
+class manageDriversButton(discord.ui.Button):
+
+    def __init__(self, team: Team):
+
+        super().__init__(label = "Manage Drivers")
+
+    async def callback(self, interaction: discord.Interaction):
+
+        return
 
 async def setup(bot: "MyBot"): # type: ignore # noqa: F821
     logging.info("Loading MyTeam cog...")

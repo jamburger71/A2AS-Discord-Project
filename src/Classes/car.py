@@ -1,6 +1,6 @@
 import json
 
-class Car:
+ Car:
 
     def __init__(self, ams2id: str):
 
