@@ -11,6 +11,9 @@ from Database.driverManager import DriverManager
 from Database.keyValManager import KeyValManager
 from Database.teamManager import TeamManager
 from Database.eventManager import EventManager
+from Database.carManager import CarManager
+from Database.primarySponsorManager import PrimarySponsorManager
+from Database.secondarySponsorManager import SecondarySponsorManager
 
 load_dotenv()
 

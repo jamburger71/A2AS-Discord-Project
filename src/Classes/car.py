@@ -1,14 +1,25 @@
-import json
+class Car:
 
- Car:
+    def __init__(self, dboutput: tuple | None):
 
-    def __init__(self, ams2id: str):
+        if dboutput is None: return
+            
+        self.id = dboutput[0]
+        self.name = dboutput[1]
+        self.description = dboutput[2]
+        self.manufacturer = dboutput[3]
+        self.year = dboutput[4]
+        self.maxTeams = dboutput[5]
+        self.carClass = dboutput[6]
 
-        self.id = ams2id
+    def toTuple(self) -> tuple:
 
-        with open(f"{ams2id}.json") as carData:
-            data = json.load(carData)
-            self.name = data.name
-            self.desc = data.desc
-            self.year = data.year
-            self.maxCars = data.maxCars
+        return (
+            self.id, 
+            self.name, 
+            self.description, 
+            self.manufacturer, 
+            self.year, 
+            self.maxTeams, 
+            self.carClass
+        )

@@ -3,12 +3,8 @@ import pytest
 import sys
 
 src_path = Path(__file__).resolve().parent.parent / 'src'
-db_path = src_path / 'Database'
-class_path = src_path / 'Classes'
 sys.path.append(str(src_path))
-sys.path.append(str(db_path))
-sys.path.append(str(class_path))
-from databaseManager import DatabaseManager
+from Database.databaseManager import DatabaseManager
 
 @pytest.fixture()
 def testDBManager():

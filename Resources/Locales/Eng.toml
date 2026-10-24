@@ -1,3 +1,8 @@
 [CogLoading]
     loadingPrefix = "Loading command "
     loadedPrefix = "Loaded command "
+
+[MyTeam]
+    teamFoundPrefix = "Found team for user "
+    noTeamFoundPrefix = "Couldn't find team for user "
+    youDontOwnTeam = "You don't own a team!"

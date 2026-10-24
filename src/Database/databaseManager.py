@@ -81,6 +81,79 @@ class DatabaseManager:
                 Value BLOB)
             """)
 
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS EngineData (
+                Model SMALLTEXT PRIMARY KEY,
+                Manufacturer SMALLTEXT,
+                Year TINYTEXT,
+                Power TINYINT,
+                Reliability TINYINT,
+                Price INT)
+            """)
+
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS TrackData (
+                ID SMALLTEXT PRIMARY KEY,
+                Name SMALLTEXT,
+                Nickname SMALLTEXT,
+                Description TEXT,
+                Country SMALLTEXT,
+                Region SMALLTEXT,
+                City SMALLTEXT,
+                DateOpened TINYTEXT)
+            """)
+
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS TrackLayoutData (
+                ID SMALLTEXT PRIMARY KEY,
+                Name SMALLTEXT,
+                Description SMALLTEXT,
+                Length SMALLTEXT,
+                Corners SMALLINT)
+            """)
+
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS CarData (
+                ID SMALLTEXT PRIMARY KEY,
+                Name SMALLTEXT,
+                Description TEXT,
+                Manufacturer SMALLTEXT,
+                Year TINYTEXT,
+                MaxTeams TINYINT,
+                CarClass TEXT)
+            """)
+
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS SeasonData (
+                SeasonNo TINYINT PRIMARY KEY,
+                SeasonClass SMALLTEXT,
+                SeasonYear TINYTEXT,
+                seasonStatus TINYINT
+                )
+            """)
+
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS SecondarySponsorData (
+                ID SMALLINT PRIMARY KEY,
+                Name SMALLTEXT,
+                ContractLength TINYINT,
+                IsAvailable BOOLEAN,
+                SigningPay INT,
+                RacePay INT
+                )
+            """)
+
+            cursor.execute("""
+            Select Top 0 * into PrimarySponsorData from SecondarySponsorData
+            """)
+            cursor.execute("""
+            ALTER TABLE PrimarySponsorData
+            ADD
+                Target SMALLINT,
+                TargetType TINYINT,
+                TargetReward INT
+            """)
+
     def checkTableExists(self, tableName: str) -> bool:
         with closing(self.DatabaseConnection.cursor()) as cursor:
             cursor.execute("""
@@ -91,10 +164,12 @@ class DatabaseManager:
 
     def dropAllTables(self):
         with closing(self.DatabaseConnection.cursor()) as cursor:
-            cursor.execute("DROP TABLE IF EXISTS EventRounds")
-            cursor.execute("DROP TABLE IF EXISTS TeamData")
-            cursor.execute("DROP TABLE IF EXISTS DriverData")
-            cursor.execute("DROP TABLE IF EXISTS KeyVal")
+            cursor.execute("SELECT name FROM sqlite_schema WHERE type='table' AND name NOT LIKE 'sqlite_%';")
+            tables = cursor.fetchall()
+            for table_name in tables:
+                cursor.execute(f'DROP TABLE IF EXISTS "{table_name[0]}"')
+
+            self.DatabaseConnection.commit()
 
     def deleteDatabase(self):
         self.DatabaseConnection.close()

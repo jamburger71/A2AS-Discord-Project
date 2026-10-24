@@ -1,11 +1,12 @@
 from yaml import load
-
 try: from yaml import CLoader as Loader
 except ImportError: from yaml import Loader
 import json
+from pathlib import Path
 from itertools import zip_longest
 import random
 
+from Classes.car import Car
 from enums import Gender
 
 def ordinalConv(n):
@@ -16,7 +17,9 @@ def groupReturnsByN(n, iteratedList, defaultFillVal=None):
     return list(zip_longest(fillvalue=defaultFillVal, *args))
 
 def getTrackData(trackName: str) -> dict:
-    with open(f"..\\FixedData\\TrackData\\{trackName}", "r", encoding="utf-8") as file:
+
+    filePath = Path(__file__).resolve().parent / "Resources" / "Tracks" / f"{trackName}.json"
+    with open(filePath, "r") as file:
         return json.loads(file.read())
 
 def convertToPounds(amount: int) -> str:

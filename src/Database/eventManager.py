@@ -1,9 +1,10 @@
-import weakref
 import logging
 import sqlite3
 import yaml
 import os
 from contextlib import closing
+
+from classes.event import Event
 
 class EventManager:
 
@@ -28,24 +29,14 @@ class EventManager:
                 AND EventNo = {roundNo}""")
             return cursor.fetchOne != None
     
-    def insertEvent(
-        self,
-        seasonNo, 
-        roundNo, 
-        eventTitle, 
-        eventDate,
-        Weather,
-        QualiDuration,
-        QualiResults,
-        RaceLength,
-        RaceResults):
+    def insertEvent(self, event: Event):
         
         try:
             with closing(self.DatabaseConnection.cursor()) as cursor:
                 cursor.execute("""
                     INSERT INTO EventRounds
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-                    """, seasonNo, roundNo, eventTitle, eventDate, Weather, QualiDuration, QualiResults, RaceLength, RaceResults)
+                    """, event.toTuple())
                 cursor.fetchall()
         except Exception as e:
             return e

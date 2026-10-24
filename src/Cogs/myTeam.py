@@ -1,11 +1,15 @@
-import helpers
+from types import NoneType
+import json
 import discord
 from discord import app_commands
 from discord.ext import commands
 import logging
 
+import helpers
 from Classes.team import Team
 from Classes.driver import Driver
+from Classes.car import Car
+from Classes.engine import Engine
 
 class MyTeam(commands.Cog):
 
@@ -33,18 +37,28 @@ class MyTeamView(discord.ui.View):
     def __init__(self, team: Team, bot):
 
         super().__init__(timeout=300)
-        self.bot = bot
+
+        car: Car | None = bot.carManager.getCar(team.car)
+        carText = car.name if car is not None else "No car"
+        engine: Engine | None = bot.engineManager.getEngine(team.engine)
+        engineText = engine.model if engine is not None else "No engine"
+        carSection = discord.ui.Section(
+            discord.ui.TextDisplay("## Car"),
+            discord.ui.TextDisplay(f"Current Car: {carText}"),
+            discord.ui.TextDisplay(f"Current Engine: {engineText}"),
+            accessory = manageCarButton(team)
+        )
         
         driverText = []
-        teamDriver1: Driver = self.bot.driverManager.getDriver(team.driverOne)
-        teamDriver2: Driver = self.bot.driverManager.getDriver(team.driverTwo)
+        teamDriver1 = bot.driverManager.getDriver(team.driverOne)
+        teamDriver2 = bot.driverManager.getDriver(team.driverTwo)
         for drNo, driver in enumerate([teamDriver1, teamDriver2]):
-            if driver is None:
-                driverText[drNo] = f"You have no {helpers.ordinalConv(drNo+1)} driver."
+            if driver is not None:
+                driverText[drNo] = f"## {teamDriver1.firstName} {teamDriver1.lastName}"
             else:
-                driverText[drNo] = f"""## {teamDriver1.firstName} {teamDriver1.lastName}
-            Current Position: NOT YET IMPLEMENTED
-            Current Points: NOT YET IMPLEMENTED"""
+                driverText[drNo] = f"You have no {helpers.ordinalConv(drNo+1)} driver."
+                
+            
         driverSection = discord.ui.Section(
             discord.ui.TextDisplay("# Drivers"),
             discord.ui.TextDisplay(driverText[0]),
@@ -52,6 +66,8 @@ class MyTeamView(discord.ui.View):
             accessory = manageDriversButton(team)
         )
 
+        self.add_item(carSection)
+        self.add_item(discord.ui.Separator())
         self.add_item(driverSection)
         self.add_item(discord.ui.Separator())
 
@@ -60,6 +76,28 @@ class manageDriversButton(discord.ui.Button):
     def __init__(self, team: Team):
 
         super().__init__(label = "Manage Drivers")
+        self.team = team
+
+    async def callback(self, interaction: discord.Interaction):
+
+        return
+
+class manageCarButton(discord.ui.Button):
+
+    def __init__(self, team: Team):
+
+        super().__init__(label = "Manage car")
+        self.team = team
+
+    async def callback(self, interaction: discord.Interaction):
+
+        return
+
+class manageSponsorsButton(discord.ui.Button):
+
+    def __init__(self, team: Team):
+
+        super().__init__(label = "Manage Sponsors")
 
     async def callback(self, interaction: discord.Interaction):
 
