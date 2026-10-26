@@ -7,7 +7,7 @@ from contextlib import closing
 class DatabaseManager:
 
     def __init__(self, databaseName: str):
-        print(f"Creating database: {databaseName}")
+        
         self.DatabaseConnection = sqlite3.connect(databaseName, timeout=10)
         self.createTables()
         self.databaseName = databaseName
@@ -16,22 +16,9 @@ class DatabaseManager:
 
     def createTables(self):
 
-        # self.dropAllTables()
+        self.dropAllTables()
 
         with closing(self.DatabaseConnection.cursor()) as cursor:
-            cursor.execute("""
-                CREATE TABLE IF NOT EXISTS EventRounds (
-                SeasonNo TINYINT,
-                RoundNo TINYINT,
-                EventTitle TINYTEXT,
-                EventDate DATE,
-                Weather TEXT,
-                QualiDuration INT,
-                QualiResults TEXT,
-                RaceLength SMALLINT,
-                RaceResults TEXT,
-                PRIMARY KEY(SeasonNo, RoundNo))
-            """)
             
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS TeamData (
@@ -76,43 +63,6 @@ class DatabaseManager:
             """)
 
             cursor.execute("""
-                CREATE TABLE IF NOT EXISTS KeyVal (
-                Key TEXT PRIMARY KEY,
-                Value BLOB)
-            """)
-
-            cursor.execute("""
-                CREATE TABLE IF NOT EXISTS EngineData (
-                Model SMALLTEXT PRIMARY KEY,
-                Manufacturer SMALLTEXT,
-                Year TINYTEXT,
-                Power TINYINT,
-                Reliability TINYINT,
-                Price INT)
-            """)
-
-            cursor.execute("""
-                CREATE TABLE IF NOT EXISTS TrackData (
-                ID SMALLTEXT PRIMARY KEY,
-                Name SMALLTEXT,
-                Nickname SMALLTEXT,
-                Description TEXT,
-                Country SMALLTEXT,
-                Region SMALLTEXT,
-                City SMALLTEXT,
-                DateOpened TINYTEXT)
-            """)
-
-            cursor.execute("""
-                CREATE TABLE IF NOT EXISTS TrackLayoutData (
-                ID SMALLTEXT PRIMARY KEY,
-                Name SMALLTEXT,
-                Description SMALLTEXT,
-                Length SMALLTEXT,
-                Corners SMALLINT)
-            """)
-
-            cursor.execute("""
                 CREATE TABLE IF NOT EXISTS CarData (
                 ID SMALLTEXT PRIMARY KEY,
                 Name SMALLTEXT,
@@ -126,6 +76,7 @@ class DatabaseManager:
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS SeasonData (
                 SeasonNo TINYINT PRIMARY KEY,
+                SeasonName TEXT,
                 SeasonClass SMALLTEXT,
                 SeasonYear TINYTEXT,
                 seasonStatus TINYINT
