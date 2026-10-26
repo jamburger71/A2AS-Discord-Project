@@ -21,3 +21,25 @@ class Team:
         self.secondarySponsor1 = databaseData[14] or None
         self.secondarySponsor2 = databaseData[15] or None
         self.secondarySponsor3 = databaseData[16] or None
+    
+    def toTuple(self) -> tuple:
+        
+        return (
+            self.id,
+            self.name,
+            self.desc,
+            self.nationality,
+            self.ownerID,
+            self.isActive,
+            self.engine,
+            self.car,
+            self.driverOne,
+            self.driverTwo,
+            self.currentFunds,
+            self.dragUpgrades,
+            self.weightUpgrades,
+            self.primarySponsor,
+            self.secondarySponsor1,
+            self.secondarySponsor2,
+            self.secondarySponsor3
+        )

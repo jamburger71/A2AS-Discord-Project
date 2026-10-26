@@ -16,7 +16,7 @@ class PrimarySponsorManager:
     def insertSponsor(self, sponsor: PrimarySponsor):
 
         with closing(self.databaseConnection.cursor()) as cursor:
-            cursor.execute("""
+            cursor.execute("""  
                 INSERT INTO PrimarySponsorData
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, sponsor.toTuple())
@@ -43,4 +43,12 @@ class PrimarySponsorManager:
                 UPDATE PrimarySponsorData
                 SET ()
                 WHERE ID = {sponsor.id}
+            """)
+    
+    def deleteSponsor(self, sponsorID: int):
+        
+        with closing(self.databaseConnection.cursor()) as cursor:
+            cursor.execute(f"""
+                DELETE FROM PrimarySponsorData
+                WHERE ID = {sponsorID}
             """)
