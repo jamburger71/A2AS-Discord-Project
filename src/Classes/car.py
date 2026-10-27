@@ -11,6 +11,11 @@ class Car:
         self.year = dboutput[4]
         self.maxTeams = dboutput[5]
         self.carClass = dboutput[6]
+        self.defaultWeight = dboutput[7]
+        self.noUpgradesWeight = dboutput[8]
+        self.weightUpgradeAmount = dboutput[9]
+        self.noUpgradeDrag = dboutput[10]
+        self.dragUpgradeAmount = dboutput[11]
 
     def toTuple(self) -> tuple:
 
@@ -21,5 +26,10 @@ class Car:
             self.manufacturer, 
             self.year, 
             self.maxTeams, 
-            self.carClass
+            self.carClass,
+            self.defaultWeight,
+            self.noUpgradesWeight,
+            self.weightUpgradeAmount,
+            self.noUpgradeDrag,
+            self.dragUpgradeAmount
         )

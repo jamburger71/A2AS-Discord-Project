@@ -62,16 +62,14 @@ class DatabaseManager:
                 IsAvailable BOOLEAN DEFAULT 1)
             """)
 
+            
             cursor.execute("""
-                CREATE TABLE IF NOT EXISTS CarData (
+                CREATE TABLE IF NOT EXISTS CarClassData (
                 ID SMALLTEXT PRIMARY KEY,
                 Name SMALLTEXT,
                 Description TEXT,
-                Manufacturer SMALLTEXT,
-                Year TINYTEXT,
-                MaxTeams TINYINT,
-                CarClass TEXT)
-            """)
+                Cars TEXT
+            )""")
 
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS SeasonData (
