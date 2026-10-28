@@ -1,4 +1,3 @@
-from termios import TAB0
 from discordLogger import DiscordLogger
 import logging
 import sqlite3
@@ -14,6 +13,7 @@ NAME = "Name"
 DESCRIPTION = "Description"
 MANUFACTURER = "Manufacturer"
 YEAR = "Year"
+CLASS = "Class"
 MAXTEAMS = "MaxTeams"
 DEFAULTWEIGHT = "DefaultWeight"
 BASEWEIGHT = "BaseWeight"
@@ -36,6 +36,7 @@ class CarManager:
                 {DESCRIPTION} TEXT,
                 {MANUFACTURER} SMALLTEXT,
                 {YEAR} TINYTEXT,
+                {CLASS} TEXT,
                 {MAXTEAMS} TINYINT,
                 {DEFAULTWEIGHT} INT,
                 {BASEWEIGHT} INT,
@@ -50,30 +51,53 @@ class CarManager:
     def insertCar(self, car: Car):
 
         with closing(self.databaseConnection.cursor()) as cursor:
-            cursor.execute(f"INSERT INTO {TABLENAME} VALUES {car.toTuple()}")
+            cursor.execute(f"INSERT INTO {TABLENAME} VALUES {str(car.toTuple())}")
 
     def getCar(self, carID: int) -> Car:
 
         with closing(self.databaseConnection.cursor()) as cursor:
-            cursor.execute(f"SELECT * FROM {TABLENAME} WHERE ID = ?", carID)
+            cursor.execute(f"SELECT * FROM {TABLENAME} WHERE ID = {carID}")
             return Car(cursor.fetchone())
+        
+    def getCarsInClass(self, carClass: str) -> list[Car]:
+        
+        with closing(self.databaseConnection.cursor()) as cursor:
+            cursor.execute(f"SELECT * FROM {TABLENAME} WHERE {CLASS} = {carClass}")
+            return list(map(Car, cursor.fetchall()))
     
-    def editCar(self, car: Car):
+    def getCars(self) -> list[Car]:
+        
+        with closing(self.databaseConnection.cursor()) as cursor:
+            cursor.execute(f"SELECT * FROM {TABLENAME}")
+            return list(map(Car, cursor.fetchall()))
+    
+    def updateCar(self, car: Car):
 
         with closing(self.databaseConnection.cursor()) as cursor:
-            cursor.execute("""
+            cursor.execute(f"""
                 UPDATE CarData
-                SET (ID, Name, Description, Manufacturer, Year, MaxTeams, CarClass)
-                = (?, ?, ?, ?, ?, ?)
-                WHERE ID = ?
-            """, car.toTuple() + (car.id, ))
+                SET
+                ({ID},
+                {NAME},
+                {DESCRIPTION},
+                {MANUFACTURER},
+                {YEAR},
+                {CLASS},
+                {MAXTEAMS},
+                {DEFAULTWEIGHT},
+                {BASEWEIGHT},
+                {WEIGHTUPGRADESIZE},
+                {MAXWEIGHTUPGRADES}
+                {BASEDRAG},
+                {DRAGUPGRADESIZE},
+                {MAXDRAGUPGRADES})
+                = {str(car.toTuple())}
+                WHERE ID = {car.id}
+            """)
             cursor.commit()
 
     def deleteCar(self, carID: int):
 
-        with closing(self.DatabaseConnection.cursor()) as cursor:
-            cursor.execute("""
-                DELETE FROM CarData
-                WHERE ID = ?
-            """, (carID))
+        with closing(self.databaseConnection.cursor()) as cursor:
+            cursor.execute(f"DELETE FROM {TABLENAME} WHERE {ID} = {carID}")
             cursor.commit()

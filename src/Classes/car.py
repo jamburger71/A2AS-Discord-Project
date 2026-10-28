@@ -9,13 +9,15 @@ class Car:
         self.description = dboutput[2]
         self.manufacturer = dboutput[3]
         self.year = dboutput[4]
-        self.maxTeams = dboutput[5]
-        self.carClass = dboutput[6]
+        self.carClass = dboutput[5]
+        self.maxTeams = dboutput[6]
         self.defaultWeight = dboutput[7]
-        self.noUpgradesWeight = dboutput[8]
-        self.weightUpgradeAmount = dboutput[9]
-        self.noUpgradeDrag = dboutput[10]
-        self.dragUpgradeAmount = dboutput[11]
+        self.baseWeight = dboutput[8]
+        self.weightUpgradeSize = dboutput[9]
+        self.maxWeightUpgrades = dboutput[10]
+        self.baseDrag = dboutput[11]
+        self.dragUpgradeSize = dboutput[12]
+        self.maxDragUpgrades = dboutput[13]
 
     def toTuple(self) -> tuple:
 
@@ -28,8 +30,9 @@ class Car:
             self.maxTeams, 
             self.carClass,
             self.defaultWeight,
-            self.noUpgradesWeight,
-            self.weightUpgradeAmount,
-            self.noUpgradeDrag,
-            self.dragUpgradeAmount
+            self.baseWeight,
+            self.weightUpgradeSize,
+            self.maxWeightUpgrades,
+            self.baseDrag,
+            self.dragUpgradeSize
         )

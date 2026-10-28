@@ -88,7 +88,7 @@ class DriverManager:
                 """, (driverID,))
             self.DatabaseConnection.commit()
 
-    def getAllDrivers(self, availableOnly: bool = False) -> list:
+    def getAllDrivers(self, availableOnly: bool = False) -> list[Driver]:
 
         with closing(self.DatabaseConnection.cursor()) as cursor:
             if availableOnly:
@@ -98,23 +98,17 @@ class DriverManager:
             drivers = cursor.fetchall()
             return [Driver(driverData) for driverData in drivers]
 
-    def getDriver(self, driverID: int | str) -> Driver | None:
+    def getDriver(self, driverID: int) -> Driver | None:
 
         with closing(self.DatabaseConnection.cursor()) as cursor:
-            if isinstance(driverID, str):
-                cursor.execute("SELECT * FROM DriverData WHERE ThreeLetterCode = ?", (driverID,))
-            else:
-                cursor.execute("SELECT * FROM DriverData WHERE DriverID = ?", (driverID,))
+            cursor.execute("SELECT * FROM DriverData WHERE DriverID = ?", (driverID,))
             driverData = cursor.fetchone()
-            return Driver(driverData) if driverData else None
+            return Driver(driverData)
 
-    def checkDriverAvailability(self, driverID: int | str) -> bool:
+    def getDriverAvailability(self, driverID: int | str) -> bool:
 
         with closing(self.DatabaseConnection.cursor()) as cursor:
-            if isinstance(driverID, str):
-                cursor.execute("SELECT IsAvailable FROM DriverData WHERE ThreeLetterCode = ?", (driverID,))
-            else:
-                cursor.execute("SELECT IsAvailable FROM DriverData WHERE DriverID = ?", (driverID,))
+            cursor.execute("SELECT IsAvailable FROM DriverData WHERE ThreeLetterCode = ?", (driverID,))
             result = cursor.fetchone()
             return result is not None
 
