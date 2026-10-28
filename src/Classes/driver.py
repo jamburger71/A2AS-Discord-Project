@@ -2,28 +2,49 @@
 
 class Driver:
 
-    def __init__(self, databaseData: tuple, unsaved: bool = False):
+    def __init__(self, databaseData: tuple):
         
-        self.id = databaseData[0]
+        self.threecode = databaseData[0]
         self.firstName = databaseData[1]
         self.lastName = databaseData[2]
-        self.threecode = databaseData[3]
-        self.nationality = databaseData[4]
-        self.age = databaseData[5]
-        self.qualiPace = databaseData[6]
-        self.racePace = databaseData[7]
-        self.wetPace = databaseData[8]
-        self.tyreManagement = databaseData[9]
-        self.aggressiveness = databaseData[10]
-        self.defending = databaseData[11]
-        self.contractCost = databaseData[12]
-        if unsaved:
+        self.nationality = databaseData[3]
+        self.age = databaseData[4]
+        self.qualiPace = databaseData[5]
+        self.racePace = databaseData[6]
+        self.wetPace = databaseData[7]
+        self.tyreManagement = databaseData[8]
+        self.aggressiveness = databaseData[9]
+        self.defending = databaseData[10]
+        self.contractCost = databaseData[11]
+        if len(databaseData) > 12:
+            self.races = databaseData[12]
+            self.wins = databaseData[13]
+            self.podiums = databaseData[14]
+        else:
             self.races = 0
             self.wins = 0
             self.podiums = 0
-            self.isAvailable = True
-        else:
-            self.races = databaseData[13] or 0
-            self.wins = databaseData[14] or 0
-            self.podiums = databaseData[15] or 0
-            self.isAvailable = databaseData[16] or True
+        
+    def toTuple(self) -> tuple:
+        
+        return (
+            self.threecode,
+            self.firstName,
+            self.lastName,
+            self.nationality,
+            self.age,
+            self.qualiPace,
+            self.racePace,
+            self.wetPace,
+            self.tyreManagement,
+            self.aggressiveness,
+            self.defending,
+            self.contractCost,
+            self.races,
+            self.wins,
+            self.podiums
+        )
+    
+def byVariable(threecode, firstname, lastname, nationality, age, qualipace, racepace, wetpace, tyremanagement, aggressiveness, defending, contractcost, races, wins, podiums):
+    
+    return Driver((threecode, firstname, lastname, nationality, age, qualipace, racepace, wetpace, tyremanagement, aggressiveness, defending, contractcost, races, wins, podiums))

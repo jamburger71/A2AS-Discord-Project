@@ -2,7 +2,7 @@ import discord
 
 from Database.databaseManager import DatabaseManager
 
-class areYouSure(discord.ui.View):
+class AreYouSure(discord.ui.View):
     def __init__(self, args: tuple | None, confirmFunc, denyFunc):
         super().__init__(timeout=60)
         self.args = args

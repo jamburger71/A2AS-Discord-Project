@@ -3,7 +3,7 @@ from discord import app_commands
 from discord.ext import commands
 import logging
 
-from areyousure import areYouSure
+from areyousure import AreYouSure
 
 class RemoveDriver(commands.Cog):
 
@@ -23,7 +23,7 @@ class RemoveDriver(commands.Cog):
         if driver is None:
             await interaction.response.send_message(f"No driver found with ID or code '{driverid}'.")
         else:
-            view = areYouSure((driver,), removeDriverConfirmed, await interaction.response.send_message("Driver removal cancelled."))
+            view = AreYouSure((driver,), removeDriverConfirmed, await interaction.response.send_message("Driver removal cancelled."))
             embed = discord.Embed(
                 title="Are you sure?", 
                 description=f"You will be removing {driver[1]} {driver[2]} from the database. You will need to manually re-insert him later if you want him back. This action cannot be undone.",

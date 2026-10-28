@@ -3,7 +3,7 @@ from discord import app_commands
 from discord.ext import commands
 import logging
 
-from areyousure import areYouSure
+from areyousure import AreYouSure
 
 class TransferOwnership(commands.Cog):
 
@@ -20,7 +20,7 @@ class TransferOwnership(commands.Cog):
         if team == None:
             await interaction.response.send_message("You don't own a team!")
         else:
-            areYouSureView = areYouSure((team[0], newowner), self.transferOwnershipConfirmed, await interaction.response.send_message("Team ownership transfer cancelled."))
+            areYouSureView = AreYouSure((team[0], newowner), self.transferOwnershipConfirmed, await interaction.response.send_message("Team ownership transfer cancelled."))
             await interaction.response.send_message(embed = discord.Embed(
                 title="Confirm Team Ownership Transfer",
                 description=f"Are you sure you want to transfer ownership of team {team[1]} to {newowner}?"

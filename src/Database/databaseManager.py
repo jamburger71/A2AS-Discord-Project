@@ -42,33 +42,10 @@ class DatabaseManager:
             """)
             
             cursor.execute("""
-                CREATE TABLE IF NOT EXISTS DriverData (
-                ThreeLetterCode TINYTEXT PRIMARY KEY,
-                FirstName SMALLTEXT,
-                LastName SMALLTEXT,
-                Gender SMALLTEXT,
-                Nationality TINYTEXT,
-                Age TINYINT,
-                QualiPace TINYINT,
-                RacePace TINYINT,
-                WetPace TINYINT,
-                TyreManagement TINYINT,
-                Aggressiveness TINYINT,
-                Defending TINYINT,
-                ContractCost SMALLINT,
-                Races SMALLINT DEFAULT 0,
-                Wins SMALLINT DEFAULT 0,
-                Podiums SMALLINT DEFAULT 0,
-                IsAvailable BOOLEAN DEFAULT 1)
-            """)
-
-            
-            cursor.execute("""
                 CREATE TABLE IF NOT EXISTS CarClassData (
                 ID SMALLTEXT PRIMARY KEY,
                 Name SMALLTEXT,
-                Description TEXT,
-                Cars TEXT
+                Description TEXT
             )""")
 
             cursor.execute("""

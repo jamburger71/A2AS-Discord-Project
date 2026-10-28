@@ -8,7 +8,9 @@ from faker.config import AVAILABLE_LOCALES
 import random
 
 import helpers
+from Classes import driver
 from Classes.driver import Driver
+from areyousure import AreYouSure
 
 class AdminManageDrivers(commands.Cog):
 
@@ -33,8 +35,28 @@ class DriverManageView(discord.ui.View):
 
         @discord.ui.button(label="Add Driver")
         async def callback_addDriver(self, interaction: discord.Interaction, button: discord.ui.Button):
-
             await interaction.response.send_modal(AddDriverModal(self.bot))
+        
+        @discord.ui.button(label="Add Random Drivers")
+        async def callback_addRandomDrivers(self, interaction: discord.Interaction, button: discord.ui.Button):
+            await interaction.response.send_modal(addRandomDriversModal(self.bot))
+        
+        @discord.ui.button(label="Edit Driver")
+        async def callback_editDriver(self, interaction:discord.Interaction, button: discord.ui.Button):
+            await interaction.response.send_message()
+        
+        @discord.ui.button(label="Age All Drivers By 1")
+        async def callback_ageAllDrivers(self, interaction:discord.Interaction, button: discord.ui.Button):
+            
+            async def confirm(args, interaction: discord.Interaction):
+                self.bot.DriverManager.ageAllDrivers()
+                await interaction.response.send_message("All drivers aged by 1 year.")
+            
+            async def deny(args, interaction: discord.Interaction):
+                await interaction.response.send_message("Command Cancelled.")
+                
+            await interaction.response.send_message(view=AreYouSure(None, confirm, deny))
+
 
 class AddDriverModal(discord.ui.Modal, title="Add New Driver"):
 
@@ -43,22 +65,10 @@ class AddDriverModal(discord.ui.Modal, title="Add New Driver"):
         super().__init__()
         self.bot = bot
 
-    name = discord.ui.TextInput(
-        label="Firstname/Surname/Age/Nationality",
-        placeholder="Use / to separate values"
-        )
-    paceStats = discord.ui.TextInput(
-        label="Quali pace/Race pace/Wet pace",
-        placeholder="Between 0 & 100"
-    )
-    racecraftStats = discord.ui.TextInput(
-        label="Tyre Management/Aggressiveness/Defending",
-        placeholder="Between 0 & 100"
-    )
-    cost = discord.ui.TextInput(
-        label="Season cost",
-        placeholder="Can be negative - pay driver!"
-    )
+    name = discord.ui.TextInput(label="Firstname/Surname/Age/Nationality", placeholder="Use / to separate values")
+    paceStats = discord.ui.TextInput(label="Quali pace/Race pace/Wet pace", placeholder="Between 0 & 100")
+    racecraftStats = discord.ui.TextInput(label="Tyre Management/Aggressiveness/Defending", placeholder="Between 0 & 100")
+    cost = discord.ui.TextInput(label="Season cost", placeholder="Can be negative - pay driver!")
 
     async def on_submit(self, interaction: discord.Interaction):
 
@@ -68,8 +78,8 @@ class AddDriverModal(discord.ui.Modal, title="Add New Driver"):
         driverCost = tuple(self.cost.value,)
         if len(driverDetails) == 4 and len(driverPace) == 3 and len(driverRacecraft) == 3:
             allThreecodes = self.bot.driverManager.getThreeCodes()
-            driverID = helpers.getBestLetterCode(driverDetails[0], driverDetails[1], allThreecodes)
-            self.bot.driverManager.insertDriver(Driver(driverDetails + driverPace + driverRacecraft + driverCost, ))
+            threecode = helpers.getBestLetterCode(driverDetails[0], driverDetails[1], allThreecodes)
+            self.bot.driverManager.insertDriver(Driver((threecode, ) + driverDetails  + driverPace + driverRacecraft + (driverCost, ) ))
 
 class addRandomDriversModal(discord.ui.Modal):
 
@@ -102,8 +112,12 @@ class addRandomDriversModal(discord.ui.Modal):
                 tyreManagement = max(min(random.randint(baseVal-deviation, baseVal+deviation), 100), 0)
                 aggressiveness = max(min(random.randint(baseVal-deviation, baseVal+deviation), 100), 0)
                 defending = max(min(random.randint(baseVal-deviation, baseVal+deviation), 100), 0)
-                newDriver = Driver((threecode, firstname, lastname, qualiPace, racePace))
+                cost = random.randint(-10, 100)*1000
+                newDriver = driver.byVariable(threecode, firstname, lastname, nationality, age, qualiPace, racePace, wetPace, tyreManagement, aggressiveness, defending, cost, 0, 0, 0)
+                self.bot.driverManager.insertDriver(newDriver)
+            else:
+                continue # Add error thingy here later
 
 async def setup(bot: "MyBot"): # type: ignore # noqa: F821
-    print("Loading AgeDrivers cog...")
+    print(f"Loading {AdminManageDrivers.__name__} cog...")
     await bot.add_cog(AdminManageDrivers(bot))

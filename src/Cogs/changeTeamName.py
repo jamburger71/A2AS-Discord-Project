@@ -3,7 +3,7 @@ from discord import app_commands
 from discord.ext import commands
 import logging
 
-from areyousure import areYouSure
+from areyousure import AreYouSure
 
 class ChangeTeamName(commands.Cog):
 
@@ -21,7 +21,7 @@ class ChangeTeamName(commands.Cog):
         if team == None:
             await interaction.response.send_message("You don't own a team!")
         else:
-            view = areYouSure((team[0], newteamname), self.changeTeamNameConfirmed, await interaction.response.send_message("Team name change cancelled."))
+            view = AreYouSure((team[0], newteamname), self.changeTeamNameConfirmed, await interaction.response.send_message("Team name change cancelled."))
             await interaction.response.send_message(embed = discord.Embed(
                 title="Are you sure?", 
                 description=f"You will be renaming your team from {team[1]} to {newteamname}. This action will have to be manually reverted."

@@ -4,7 +4,7 @@ from discord.ext import commands
 import logging
 from discordLogger import DiscordLogger
 
-from areyousure import areYouSure
+from areyousure import AreYouSure
 
 class AgeDrivers(commands.Cog):
 
@@ -18,7 +18,7 @@ class AgeDrivers(commands.Cog):
     async def agedrivers(self, interaction: discord.Interaction):
 
         self.discLogger = DiscordLogger(interaction.user, "Age All Drivers", self.bot)
-        view = areYouSure(None, self.ageDriversConfirmed, self.ageDriversDenied)
+        view = AreYouSure(None, self.ageDriversConfirmed, self.ageDriversDenied)
         self.discLogger.info("Asking if the user is sure")
         await interaction.response.send_message(embed = discord.Embed(
             title="Are you sure?", 
