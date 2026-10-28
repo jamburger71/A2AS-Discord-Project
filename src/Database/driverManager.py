@@ -108,6 +108,12 @@ class DriverManager:
             driverData = cursor.fetchone()
             return Driver(driverData) if driverData else None
 
+    def getAllThreecodes(self) -> list[str]:
+
+        with closing(self.DatabaseConnection.cursor()) as cursor:
+            cursor.execute(f"SELECT Threecode FROM DriverData")
+            return [row[0] for row in cursor.fetchall()]
+    
     def checkDriverAvailability(self, driverID: int | str) -> bool:
 
         with closing(self.DatabaseConnection.cursor()) as cursor:
