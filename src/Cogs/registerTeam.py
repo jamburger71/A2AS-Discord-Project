@@ -19,7 +19,7 @@ class RegisterTeamModal(discord.ui.Modal, title="Register Team"):
         style=discord.TextStyle.long,
         label="Team Description",
         placeholder = "Team description...",
-        required=False,
+        required=True,
         max_length=500
     )
     nationality = discord.ui.TextInput(
