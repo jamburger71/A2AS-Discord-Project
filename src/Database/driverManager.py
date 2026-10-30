@@ -8,7 +8,8 @@ from contextlib import closing
 from Classes.driver import Driver
 
 TABLENAME = "DriverData"
-THREECODE = "Threecode"
+ID = "ID"
+ISACTIVE = "IsActive"
 FIRSTNAME = "FirstName"
 LASTNAME = "LastName"
 NATIONALITY = "Nationality"
@@ -20,9 +21,6 @@ TYREMANAGEMENT = "TyreManagement"
 AGGRESSIVENESS = "Aggressiveness"
 DEFENDING = "Defending"
 CONTRACTCOST = "ContractCost"
-RACES = "Races"
-WINS = "Wins"
-PODIUMS = "Podiums"
 
 class DriverManager:
 
@@ -32,7 +30,8 @@ class DriverManager:
         with closing(self.databaseConnection.cursor()) as cursor:
             cursor.execute(f"""
                 CREATE TABLE IF NOT EXISTS {TABLENAME} (
-                {THREECODE} TINYTEXT PRIMARY KEY,
+                {ID} INT PRIMARY KEY,
+                {ISACTIVE} TINYINT,
                 {FIRSTNAME} SMALLTEXT,
                 {LASTNAME} SMALLTEXT,
                 {NATIONALITY} TINYTEXT,
@@ -43,11 +42,8 @@ class DriverManager:
                 {TYREMANAGEMENT} TINYINT,
                 {AGGRESSIVENESS} TINYINT,
                 {DEFENDING} TINYINT,
-                {CONTRACTCOST} SMALLINT,
-                {RACES} SMALLINT DEFAULT 0,
-                {WINS} SMALLINT DEFAULT 0,
-                {PODIUMS} SMALLINT DEFAULT 0)
-            """)
+                {CONTRACTCOST} SMALLINT
+            )""")
 
     def insertDriver(self, driver: Driver):
 
@@ -61,16 +57,16 @@ class DriverManager:
             
             cursor.execute(f"""
                 UPDATE {TABLENAME}
-                SET ({THREECODE}, {FIRSTNAME}, {LASTNAME}, {NATIONALITY}, {AGE}, {QUALIPACE}, {RACEPACE}, {WETPACE}, {TYREMANAGEMENT}, {AGGRESSIVENESS}, {DEFENDING}, {CONTRACTCOST}, {RACES}, {WINS}, {PODIUMS})
-                = ({driver.toTuple()})
-                WHERE {THREECODE} = {driver.threecode}
+                SET ({ID}, {ISACTIVE}, {FIRSTNAME}, {LASTNAME}, {NATIONALITY}, {AGE}, {QUALIPACE}, {RACEPACE}, {WETPACE}, {TYREMANAGEMENT}, {AGGRESSIVENESS}, {DEFENDING}, {CONTRACTCOST})
+                = ({str(driver.toTuple())})
+                WHERE {ID} = {driver.ID}
             """)
             self.databaseConnection.commit()
 
-    def removeDriver(self, threecode: str):
+    def removeDriver(self, driverID: int):
 
         with closing(self.databaseConnection.cursor()) as cursor:
-            cursor.execute(f"DELETE FROM {TABLENAME} WHERE {THREECODE} = {threecode}")
+            cursor.execute(f"DELETE FROM {TABLENAME} WHERE {ID} = {driverID}")
             self.databaseConnection.commit()
 
     def getDrivers(self) -> list[Driver]:
@@ -79,17 +75,18 @@ class DriverManager:
             cursor.execute(f"SELECT * FROM {TABLENAME}")
             return [Driver(driverData) for driverData in cursor.fetchall()]
 
-    def getDriver(self, threecode: str) -> Driver | None:
+    def getActiveDrivers(self, getInactive: bool = False) -> list[Driver]:
+
+        activeState = 0 if getInactive else 1
+        with closing(self.databaseConnection.cursor()) as cursor:
+            cursor.execute(f"SELECT * FROM {TABLENAME} WHERE {ISACTIVE} = {activeState}")
+            return [Driver(driverData) for driverData in cursor.fetchall()]
+
+    def getDriver(self, driverID) -> Driver | None:
 
         with closing(self.databaseConnection.cursor()) as cursor:
-            cursor.execute(f"SELECT * FROM {TABLENAME} WHERE {THREECODE} = {threecode}")
+            cursor.execute(f"SELECT * FROM {TABLENAME} WHERE {ID} = {driverID}")
             return Driver(cursor.fetchone())
-
-    def getThreecodes(self) -> list[str]:
-
-        with closing(self.databaseConnection.cursor()) as cursor:
-            cursor.execute(f"SELECT {THREECODE} FROM {TABLENAME}")
-            return [row[0] for row in cursor.fetchall()]
 
     def ageAllDrivers(self) -> None:
 
@@ -103,3 +100,8 @@ class DriverManager:
                 template = "An exception of type {0} occurred. Arguments: {1!r}"
                 message = template.format(type(e).__name__, e.args)
                 #discLogger.error(message)
+
+    def deactivateDriver(self, driverID):
+
+        with closing(self.databaseConnection.cursor()) as cursor:
+            cursor.execute(f"UPDATE {TABLENAME} SET {ISACTIVE} = 0 WHERE {ID} = {driverID}")

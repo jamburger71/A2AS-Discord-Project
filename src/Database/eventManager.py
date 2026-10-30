@@ -13,9 +13,7 @@ TITLE = "Title"
 DATE = "Date"
 WEATHER = "Weather"
 QUALIDURATION = "QualiDuration"
-QUALIRESULTS = "QualiResults"
 RACELENGTH = "RaceLength"
-RACERESULTS = "RaceResults"
 
 class EventManager:
 
@@ -31,9 +29,7 @@ class EventManager:
                 {DATE} DATE,
                 {WEATHER} TEXT,
                 {QUALIDURATION} INT,
-                {QUALIRESULTS} TEXT,
                 {RACELENGTH} SMALLINT,
-                {RACERESULTS} TEXT,
                 PRIMARY KEY({SEASONNO}, {ROUNDNO}))
             """)
             
@@ -82,9 +78,7 @@ class EventManager:
                 {DATE} = {event.date},
                 {WEATHER} = {event.weather},
                 {QUALIDURATION} = {event.qualiDuration},
-                {QUALIRESULTS} = {event.qualiResults},
                 {RACELENGTH} = {event.raceLength},
-                {RACERESULTS} = {event.raceResults}
                 WHERE {SEASONNO} = {event.seasonNo} 
                 AND {ROUNDNO} = {event.roundNo}""")
             cursor.commit()

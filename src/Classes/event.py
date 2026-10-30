@@ -8,11 +8,10 @@ class Event:
         self.roundNo = databaseData[1]
         self.title = databaseData[2]
         self.date = databaseData[3]
-        self.weather = databaseData[4]
-        self.qualiDuration = databaseData[5]
-        self.qualiResults = databaseData[6]
+        self.track = databaseData[4]
+        self.weather = databaseData[5]
+        self.qualiDuration = databaseData[6]
         self.raceLength = databaseData[7]
-        self.raceResults = databaseData[8]
 
     def toTuple(self) -> tuple:
 
@@ -23,7 +22,9 @@ class Event:
             self.date,
             self.weather,
             self.qualiDuration,
-            self.qualiResults,
             self.raceLength,
-            self.raceResults
         )
+
+    @classmethod
+    def new(cls, seasonNo, roundNo, title, date, track, qualiDuration, raceLength):
+        return cls((seasonNo, roundNo, title, date, track, "Unset", qualiDuration, raceLength))

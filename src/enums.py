@@ -7,8 +7,14 @@ class Gender(Enum):
     OTHER = 4
 
 class TargetType(Enum):
-    FINISHPOS = 1,
-    DOUBLEFINISHPOS = 2,
-    DIDNTFINISHBELOW = 3,
-    DOUBLEDIDNTFINISHBELOW = 4,
-    NODNFS = 5
+    FINISHPOS = 1,              # Where they finished
+    DOUBLEFINISHPOS = 2,        # Where both cars finished
+    NODNFS = 3,                 # Both cars finished the race
+    MINSTOPS = 4,               # At least this many stops on both cars
+    MAXSTOPS = 5                # At most this many stops on both cars
+
+class RaceFinishStatus(Enum):
+    FINISHED = 1,
+    DNFDAMAGE = 2,
+    DNFENGINE = 3,
+    DNFFUEL = 4

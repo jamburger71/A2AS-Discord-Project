@@ -9,18 +9,21 @@ class Team:
         self.desc: str = databaseData[2]
         self.nationality: str = databaseData[3]
         self.ownerID: str = databaseData[4]
-        self.isActive: bool = databaseData[5] or False
-        self.engine: str = databaseData[6] or ""
-        self.car: str = databaseData[7] or ""
-        self.driverOne: int = databaseData[8] or -1
-        self.driverTwo: int = databaseData[9] or -1
-        self.currentFunds: int = databaseData[10]
-        self.dragUpgrades: int = databaseData[11]
-        self.weightUpgrades: int = databaseData[12]
-        self.primarySponsor = databaseData[13] or None
-        self.secondarySponsor1 = databaseData[14] or None
-        self.secondarySponsor2 = databaseData[15] or None
-        self.secondarySponsor3 = databaseData[16] or None
+        self.engine: str = databaseData[5]
+        self.car: str = databaseData[6]
+        self.driverOne: int = databaseData[7]
+        self.driverTwo: int = databaseData[8]
+        self.currentFunds: int = databaseData[9]
+        self.dragUpgrades: int = databaseData[10]
+        self.weightUpgrades: int = databaseData[11]
+        self.primarySponsor = databaseData[12]
+        self.secondarySponsor1 = databaseData[13]
+        self.secondarySponsor2 = databaseData[14]
+        self.secondarySponsor3 = databaseData[15]
+
+    @classmethod
+    def new(cls, id: int, name: str, desc: str, nationality: str, ownerID: str, defaultCash):
+        return cls((id, name, desc, nationality, ownerID, "", "", "", "", defaultCash, 0, 0, "", "", "", "", 0, 0, 0, 0))
     
     def toTuple(self) -> tuple:
         
@@ -30,7 +33,6 @@ class Team:
             self.desc,
             self.nationality,
             self.ownerID,
-            self.isActive,
             self.engine,
             self.car,
             self.driverOne,

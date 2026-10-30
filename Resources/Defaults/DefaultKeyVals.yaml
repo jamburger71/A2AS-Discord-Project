@@ -1,5 +1,8 @@
 CurrentSeason: 1
 CurrentRound: 1
 NextTeamID: 0
+NextDriverID: 0
 NextPrimarySponsorID: 0
 NextSecondarySponsorID: 0
+MinDriverAge: 18
+MaxDriverAge: 45
