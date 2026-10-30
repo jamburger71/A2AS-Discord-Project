@@ -18,3 +18,13 @@ class RaceFinishStatus(Enum):
     DNFDAMAGE = 2,
     DNFENGINE = 3,
     DNFFUEL = 4
+
+class keyVals(Enum):
+    CURRENTSEASON = "CurrentSeason",
+    CURRENTROUND = "CurrentRound",
+    NEXTTEAMID = "NextTeamID",
+    NEXTDRIVERID = "NextDriverID",
+    NEXTPRIMARYSPONSORID = "NextPrimarySponsorID",
+    NEXTSECONDARYSPONSORID = "NextSecondarySponsorID",
+    MINDRIVERAGE = "MinDriverAge",
+    MAXDRIVERAGE = "MaxDriverAge"

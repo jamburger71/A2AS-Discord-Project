@@ -38,7 +38,7 @@ class KeyValManager:
     def getKeyVal(self, key: str):
 
         with closing(self.databaseConnection.cursor()) as cursor:
-            cursor.execute(f"SELECT {VALUE} FROM {TABLENAME} WHERE {KEY} = {key}")
+            cursor.execute(f"SELECT {VALUE} FROM {TABLENAME} WHERE {KEY} = {key} LIMIT 1")
             return cursor.fetchone()[0]
 
     def updateKeyVal(self, key: str, value):
@@ -46,3 +46,11 @@ class KeyValManager:
         with closing(self.databaseConnection.cursor()) as cursor:
             cursor.execute(f"UPDATE {TABLENAME} SET {VALUE} = {value} WHERE {KEY} = {key}")
             self.databaseConnection.commit()
+    
+    def getAndIterateKeyVal(self, key: str):
+        
+        with closing(self.databaseConnection.cursor()) as cursor:
+            cursor.execute(f"SELECT {VALUE} FROM {TABLENAME} WHERE {KEY} = {key} LIMIT 1")
+            value = cursor.fetchOne()[0]
+            cursor.execute(f"UPDATE {TABLENAME} SET {VALUE} = {value + 1} WHERE {KEY} = {key}")
+            return value

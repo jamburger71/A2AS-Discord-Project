@@ -3,14 +3,10 @@ from discord import app_commands
 from discord.ext import commands
 import logging
 from discordLogger import DiscordLogger
-from faker import Faker
-from faker.config import AVAILABLE_LOCALES
-import random
 
-import helpers
-from Classes import driver
 from Classes.driver import Driver
 from areyousure import AreYouSure
+from enums import keyVals
 
 class AdminManageDrivers(commands.Cog):
 
@@ -23,8 +19,13 @@ class AdminManageDrivers(commands.Cog):
     @app_commands.command(name="adminmanagedrivers")
     @app_commands.checks.has_role("Moderator")
     async def adminmanagedrivers(self, interaction: discord.Interaction):
+        
+        DriverManageEmbed = discord.Embed(
+            title = "Manage Drivers",
+            description="For Admins Only - manage the whole driver database here."
+        )
 
-        await interaction.response.send_message(view = DriverManageView(self.bot))
+        await interaction.response.send_message(embed = DriverManageEmbed, view = DriverManageView(self.bot))
 
 class DriverManageView(discord.ui.View):
 
@@ -77,9 +78,8 @@ class AddDriverModal(discord.ui.Modal, title="Add New Driver"):
         driverRacecraft = tuple(self.racecraftStats.value.split('/'))
         driverCost = tuple(self.cost.value,)
         if len(driverDetails) == 4 and len(driverPace) == 3 and len(driverRacecraft) == 3:
-            allThreecodes = self.bot.driverManager.getThreeCodes()
-            threecode = helpers.getBestLetterCode(driverDetails[0], driverDetails[1], allThreecodes)
-            self.bot.driverManager.insertDriver(Driver((threecode, ) + driverDetails  + driverPace + driverRacecraft + (driverCost, ) ))
+            driverID = self.bot.KeyValManager.getAndIterateKeyVal(keyVals.NEXTDRIVERID)
+            self.bot.driverManager.insertDriver(Driver((driverID, ) + driverDetails  + driverPace + driverRacecraft + driverCost))
 
 class addRandomDriversModal(discord.ui.Modal):
 
@@ -97,26 +97,9 @@ class addRandomDriversModal(discord.ui.Modal):
 
         driverCount = self.howMany.value
         for i in range(int(driverCount)):
-            faker = Faker(random.choice(AVAILABLE_LOCALES))
-            firstname, lastname = faker.name().split(' ')
-            allThreecodes = self.bot.driverManager.getThreeCodes()
-            threecode = helpers.getBestLetterCode(firstname, lastname, allThreecodes)
-            if threecode is not None:
-                age = random.randint(18, 45)
-                nationality = faker.country()
-                baseVal = random.randint(0, 100)
-                deviation = random.randint(0, 25)
-                qualiPace = max(min(random.randint(baseVal-deviation, baseVal+deviation), 100), 0)
-                racePace = max(min(random.randint(baseVal-deviation, baseVal+deviation), 100), 0)
-                wetPace = max(min(random.randint(baseVal-deviation, baseVal+deviation), 100), 0)
-                tyreManagement = max(min(random.randint(baseVal-deviation, baseVal+deviation), 100), 0)
-                aggressiveness = max(min(random.randint(baseVal-deviation, baseVal+deviation), 100), 0)
-                defending = max(min(random.randint(baseVal-deviation, baseVal+deviation), 100), 0)
-                cost = random.randint(-10, 100)*1000
-                newDriver = driver.byVariable(threecode, firstname, lastname, nationality, age, qualiPace, racePace, wetPace, tyreManagement, aggressiveness, defending, cost, 0, 0, 0)
-                self.bot.driverManager.insertDriver(newDriver)
-            else:
-                continue # Add error thingy here later
+            driverID = self.bot.KeyValManager.getAndIterateKeyVal(keyVals.NEXTDRIVERID)
+            newDriver = Driver.randomDriver(driverID=driverID)
+            self.bot.driverManager.insertDriver(newDriver)
 
 async def setup(bot: "MyBot"): # type: ignore # noqa: F821
     print(f"Loading {AdminManageDrivers.__name__} cog...")

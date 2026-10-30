@@ -40,13 +40,6 @@ class DatabaseManager:
                 SecondarySponsor2 INT,
                 SecondarySponsor3 INT)
             """)
-            
-            cursor.execute("""
-                CREATE TABLE IF NOT EXISTS CarClassData (
-                ID SMALLTEXT PRIMARY KEY,
-                Name SMALLTEXT,
-                Description TEXT
-            )""")
 
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS SeasonData (
@@ -56,28 +49,6 @@ class DatabaseManager:
                 SeasonYear TINYTEXT,
                 seasonStatus TINYINT
                 )
-            """)
-
-            cursor.execute("""
-                CREATE TABLE IF NOT EXISTS SecondarySponsorData (
-                ID SMALLINT PRIMARY KEY,
-                Name SMALLTEXT,
-                ContractLength TINYINT,
-                IsAvailable BOOLEAN,
-                SigningPay INT,
-                RacePay INT
-                )
-            """)
-
-            cursor.execute("""
-            Select Top 0 * into PrimarySponsorData from SecondarySponsorData
-            """)
-            cursor.execute("""
-            ALTER TABLE PrimarySponsorData
-            ADD
-                Target SMALLINT,
-                TargetType TINYINT,
-                TargetReward INT
             """)
 
     def checkTableExists(self, tableName: str) -> bool:

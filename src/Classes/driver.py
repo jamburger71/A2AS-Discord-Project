@@ -41,7 +41,7 @@ class Driver:
         )
 
     @classmethod
-    def random(cls, driverID):
+    def randomDriver(cls, driverID):
 
         isMale = random.randint(0, 100) > 5
         faker = Faker(random.choice(AVAILABLE_LOCALES))
