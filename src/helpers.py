@@ -1,8 +1,4 @@
 
-from yaml import load
-try: from yaml import CLoader as Loader
-except ImportError: from yaml import Loader
-import json
 from pathlib import Path
 from itertools import zip_longest
 import random
@@ -39,9 +35,9 @@ def getPoints(pointsModel: PointsModel, position: int, pointForPole: bool) -> in
     if position > len(points[pointsModel.value-1]): return 0
     return points[pointsModel.value-1][position-1] + polePoint
 
-def getCurrentStandings(results: list[Result], pointsModel: PointsModel, pointForPole: bool) -> dict:
+def getCurrentStandings(results: list[Result], pointsModel: PointsModel, pointForPole: bool) -> list[tuple]:
     
     standingsTable = {}
     for result in results:
         standingsTable[result.driver] = standingsTable.get(result.driver, 0) + getPoints(pointsModel, result.racePosition, pointForPole)
-    return dict(sorted(standingsTable.items(), key = lambda item: item[1]))
+    return list(standingsTable.items())

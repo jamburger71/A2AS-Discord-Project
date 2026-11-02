@@ -1,10 +1,10 @@
-from discord.app_commands import describe
-
 import discord
 from discord import app_commands
 from discord.ext import commands
 import logging
 
+from areyousure import AreYouSure
+import enums
 import helpers
 from Classes.team import Team
 from Classes.driver import Driver
@@ -100,10 +100,10 @@ class MyTeam(commands.Cog):
         )
 
         myTeamView = discord.ui.View(timeout=300)
-        myTeamView.add_item(manageTeamButton(team))
-        myTeamView.add_item(manageDriversButton(self.bot, team, teamDriver1, teamDriver2))
-        myTeamView.add_item(manageCarButton(team))
-        myTeamView.add_item(manageSponsorsButton(team))
+        myTeamView.add_item(manageTeamButton(self.bot, team))
+        myTeamView.add_item(manageDriversButton(self.bot, team))
+        myTeamView.add_item(manageCarButton(self.bot, team))
+        myTeamView.add_item(manageSponsorsButton(self.bot, team))
         
         await interaction.response.send_message(embed = myTeamEmbed, view = myTeamView)
         
@@ -112,13 +112,11 @@ class MyTeam(commands.Cog):
     
 class manageDriversButton(discord.ui.Button):
 
-    def __init__(self, bot, team: Team, driver1: Driver | None, driver2: Driver | None):
+    def __init__(self, bot, team: Team):
 
         super().__init__(label = "Manage Drivers")
         self.bot = bot
         self.team = team
-        self.driver1 = driver1
-        self.driver2 = driver2
 
     async def callback(self, interaction: discord.Interaction):
 
@@ -128,51 +126,60 @@ class manageDriversButton(discord.ui.Button):
         )
         currentSeason: Season = self.bot.seasonManager.getCurrentSeason()
         seasonResults = self.bot.resultsManager.getResultsForSeason(currentSeason.seasonNo)
-        seasonStandings = helpers.getCurrentStandings(seasonResults, currentSeason.pointsModel, currentSeason.pointForPole)
-        if self.driver1 is not None:
-            driver1position = helpers.ordinalConv(seasonStandings.index(self.driver1.ID)+1)
-            driver1points = seasonStandings[self.driver1.ID]
+        seasonStandings: list[tuple] = helpers.getCurrentStandings(seasonResults, currentSeason.pointsModel, currentSeason.pointForPole)
+        
+        if self.team.driverOne is not -1:
+            driver1 = self.bot.driverManager.getDriver(self.team.driverOne)
+            for index, driver in enumerate(seasonStandings):
+                if driver[0] == driver1.ID:
+                    driver1position = helpers.ordinalConv(index+1)
+                    driver1points = driver[1]
+                    break
             driversEmbed.add_field(
-                name = f"{self.driver1.firstName} {self.driver1.lastName}",
+                name = f"{driver1.firstName} {driver1.lastName}",
                 value = f"""
-                Age: {self.driver1.age}
-                Nationality: {self.driver1.nationality}
+                Age: {driver1.age}
+                Nationality: {driver1.nationality}
                 Current Position: {driver1position} (Points: {driver1points})
                 ### Stats:
-                Qualifying Pace: {self.driver1.qualiPace}
-                Race Pace: {self.driver1.racePace}
-                Wet Weather Pace: {self.driver1.wetPace}
-                Tyre Management: {self.driver1.tyreManagement}
-                Aggressiveness: {self.driver1.aggressiveness}
-                Defending: {self.driver1.defending}
+                Qualifying Pace: {driver1.qualiPace}
+                Race Pace: {driver1.racePace}
+                Wet Weather Pace: {driver1.wetPace}
+                Tyre Management: {driver1.tyreManagement}
+                Aggressiveness: {driver1.aggressiveness}
+                Defending: {driver1.defending}
                 ### Contract:
-                Cost: £{self.driver1.contractCost}/Season
-                Expires: Who knows """
+                Cost: £{driver1.contractCost}/Season
+                Expires: End Of Season"""
             )
         else:
             driversEmbed.add_field(
                 name = "No Driver Signed",
                 value = "You can hire one with the button below."
             )
-        if self.driver2 is not None:
-            driver2position = helpers.ordinalConv(seasonStandings.index(self.driver2.ID)+1)
-            driver2points = seasonStandings[self.driver2.ID]
+        if self.team.driverTwo is not -1:
+            driver2 = self.bot.driverManager.getDriver(self.team.driverTwo)
+            for index, driver in enumerate(seasonStandings):
+                if driver[0] == driver2.ID:
+                    driver2position = helpers.ordinalConv(index+1)
+                    driver2points = driver[1]
+                    break
             driversEmbed.add_field(
-                name = f"{self.driver2.firstName} {self.driver2.lastName}",
+                name = f"{driver2.firstName} {driver2.lastName}",
                 value = f"""
-                Age: {self.driver2.age}
-                Nationality: {self.driver2.nationality}
+                Age: {driver2.age}
+                Nationality: {driver2.nationality}
                 Current Position: {driver2position} (Points: {driver2points})
                 ### Stats:
-                Qualifying Pace: {self.driver2.qualiPace}
-                Race Pace: {self.driver2.racePace}
-                Wet Weather Pace: {self.driver2.wetPace}
-                Tyre Management: {self.driver2.tyreManagement}
-                Aggressiveness: {self.driver2.aggressiveness}
-                Defending: {self.driver2.defending}
+                Qualifying Pace: {driver2.qualiPace}
+                Race Pace: {driver2.racePace}
+                Wet Weather Pace: {driver2.wetPace}
+                Tyre Management: {driver2.tyreManagement}
+                Aggressiveness: {driver2.aggressiveness}
+                Defending: {driver2.defending}
                 ### Contract:
-                Cost: £{self.driver2.contractCost}/Season
-                Expires: Who knows """
+                Cost: £{driver2.contractCost}/Season
+                Expires: End Of Season"""
             )
         else:
             driversEmbed.add_field(
@@ -180,14 +187,14 @@ class manageDriversButton(discord.ui.Button):
                 value = "You can hire one with the button below."
             )
 
-        driversView = discord.ui.View(300)
-        
+        driversView = discord.ui.View(timeout = 300)
 
 class manageCarButton(discord.ui.Button):
 
-    def __init__(self, team: Team):
+    def __init__(self, bot, team: Team):
 
         super().__init__(label = "Manage car")
+        self.bot = bot
         self.team = team
 
     async def callback(self, interaction: discord.Interaction):
@@ -196,9 +203,11 @@ class manageCarButton(discord.ui.Button):
 
 class manageSponsorsButton(discord.ui.Button):
 
-    def __init__(self, team: Team):
+    def __init__(self, bot, team: Team):
 
         super().__init__(label = "Manage Sponsors")
+        self.bot = bot
+        self.team = team
 
     async def callback(self, interaction: discord.Interaction):
 
@@ -206,11 +215,51 @@ class manageSponsorsButton(discord.ui.Button):
 
 class manageTeamButton(discord.ui.Button):
 
-    def __init__(self, team: Team):
+    def __init__(self, bot, team: Team):
 
         super().__init__(label = "Manage Team")
+        self.bot = bot
+        self.team = team
 
     async def callback(self, interaction: discord.Interaction):
+
+        return
+
+class hireDriverButton(discord.ui.Button):
+
+    def __init__(self, driverSlot: int, team: Team, bot):
+
+        super().__init__(label = f"Hire Driver for Slot {driverSlot}")
+        self.driverSlot = driverSlot
+        self.team = team
+        self.bot = bot
+
+    async def callback(self, interaction: discord.Interaction):
+
+        return
+
+class fireDriverButton(discord.ui.Button):
+
+    def __init__(self, driverSlot: int, team: Team, driver: Driver, bot):
+
+        super().__init__(label = f"Fire {driver.firstName} {driver.lastName}")
+        self.driverSlot = driverSlot
+        self.team = team
+        self.bot = bot
+
+    async def callback(self, interaction: discord.Interaction):
+        
+        await interaction.response.send_message(view = AreYouSure(fireDriver, dontFireDriver))
+
+    def fireDriver(self):
+
+        if self.driverSlot == 1:
+            self.team.driverOne = -1
+        else:
+            self.team.driverTwo = -1
+        self.bot.teamManager.updateTeam(self.team)
+
+    def dontFireDriver(self):
 
         return
 

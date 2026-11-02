@@ -5,7 +5,8 @@ import random
 class Driver:
 
     def __init__(self, databaseData: tuple):
-        
+
+        if databaseData is None: return
         self.ID = databaseData[0]
         self.firstName = databaseData[1]
         self.lastName = databaseData[2]
