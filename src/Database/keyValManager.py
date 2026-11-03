@@ -1,3 +1,4 @@
+
 import logging
 import sqlite3
 import yaml
@@ -35,6 +36,12 @@ class KeyValManager:
             except yaml.YAMLError as exception:
                 print(exception)
 
+    def insertKeyVal(self, key: str, defaultValue):
+
+        with closing(self.databaseConnection.cursor()) as cursor:
+            cursor.execute(f"INSERT INTO {TABLENAME} VALUES ({key}, {defaultValue})")
+            self.databaseConnection.commit()
+    
     def getKeyVal(self, key: str):
 
         with closing(self.databaseConnection.cursor()) as cursor:
@@ -46,6 +53,12 @@ class KeyValManager:
         with closing(self.databaseConnection.cursor()) as cursor:
             cursor.execute(f"UPDATE {TABLENAME} SET {VALUE} = {value} WHERE {KEY} = {key}")
             self.databaseConnection.commit()
+
+    def deleteKeyVal(self, key: str):
+
+        with closing(self.databaseConnection.cursor()) as cursor:
+            cursor.execute(f"DELETE FROM {TABLENAME} WHERE {KEY} = {key}")
+            self.databaseConnection.commit()
     
     def getAndIterateKeyVal(self, key: str):
         
@@ -53,4 +66,11 @@ class KeyValManager:
             cursor.execute(f"SELECT {VALUE} FROM {TABLENAME} WHERE {KEY} = {key} LIMIT 1")
             value = cursor.fetchOne()[0]
             cursor.execute(f"UPDATE {TABLENAME} SET {VALUE} = {value + 1} WHERE {KEY} = {key}")
+            self.databaseConnection.commit()
             return value
+
+    def getAllKeyVals(self) -> list[tuple]:
+
+        with closing(self.databaseConnection.cursor()) as cursor:
+            cursor.execute(f"SELECT * FROM {TABLENAME}")
+            return list(cursor.fetchall())
