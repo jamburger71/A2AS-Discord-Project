@@ -100,6 +100,7 @@ class updateKeyValButton(discord.ui.Button):
         updateEmbed = discord.Embed(title = "Which keyVal would you like to update?")
         updateView = discord.ui.View(timeout=60)
         updateView.add_item(selectKeyValSelect(self.bot, True))
+        await interaction.response.send_message(embed = updateEmbed, view = updateView)
 
 class deleteKeyValButton(discord.ui.Button):
 
@@ -124,7 +125,7 @@ class selectKeyValSelect(discord.ui.Select):
         self.keyVals = self.bot.keyValManager.getAllKeyVals()
         self.update = update
         options = []
-        for (key, value) in self.keyVals:
+        for (key, _) in self.keyVals:
             options.append(discord.SelectOption(label=key))
         super().__init__(
             placeholder = "Choose a KeyVal",
@@ -147,6 +148,7 @@ class selectKeyValSelect(discord.ui.Select):
     async def confirmDelete(self, interaction: discord.Interaction):
 
         successEmbed = discord.Embed(title = f"{self.key} deleted.")
+        await interaction.response.send_message(embed = successEmbed)
         self.bot.keyValManager.deleteKeyVal(self.key)
 
     async def cancelDelete(self, interaction: discord.Interaction):
@@ -155,21 +157,19 @@ class selectKeyValSelect(discord.ui.Select):
         await interaction.response.send_message(embed = cancelEmbed)
 
 class updateKeyValModal(discord.ui.Modal):
-
-    oldValue = 0
     
     def __init__(self, bot, key, value):
 
         self.bot = bot
         self.key = key
-        oldValue = value
         self.oldValue = value
         super().__init__(title = f"Updating value for {key}")
 
-    value = discord.ui.TextInput(
-        label = "New Value",
-        placeholder = f"Previous value: {oldValue}"
-    )
+        self.value = discord.ui.TextInput(
+            label = "New Value",
+            placeholder = f"Previous value: {self.oldValue}"
+        )
+        self.add_item(value)
 
     async def on_submit(self, interaction: discord.Interaction):
 
