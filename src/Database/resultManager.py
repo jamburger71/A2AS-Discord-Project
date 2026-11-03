@@ -1,5 +1,3 @@
-from discord.search import SearchAuthorType
-
 import logging
 import sqlite3
 import yaml
@@ -7,8 +5,6 @@ import os
 from contextlib import closing
 
 from Classes.result import Result
-from Classes.driver import Driver
-from Classes.event import Event
 
 TABLENAME = "ResultData"
 SEASONNO = "SeasonNo"
@@ -111,4 +107,10 @@ class ResultManager:
                 AND {SEASONNO} = {seasonNo}
                 ORDER BY {RACEPOSITION}
             """)
+            return [Result(result) for result in cursor.fetchall()]
+
+    def getResultsForSeason(self, seasonNo: int) -> list[Result]:
+
+        with closing(self.databaseConnection.cursor()) as cursor:
+            cursor.execute(f"SELECT * FROM {TABLENAME} WHERE {SEASONNO} = {seasonNo}")
             return [Result(result) for result in cursor.fetchall()]

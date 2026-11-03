@@ -9,47 +9,9 @@ class DatabaseManager:
     def __init__(self, databaseName: str):
         
         self.DatabaseConnection = sqlite3.connect(databaseName, timeout=10)
-        self.createTables()
         self.databaseName = databaseName
 
         self.DatabaseConnection.execute("PRAGMA journal_mode=WAL;")
-
-    def createTables(self):
-
-        self.dropAllTables()
-
-        with closing(self.DatabaseConnection.cursor()) as cursor:
-            
-            cursor.execute("""
-                CREATE TABLE IF NOT EXISTS TeamData (
-                TeamID INT PRIMARY KEY,
-                TeamName SMALLTEXT,
-                TeamDescription TEXT,
-                Nationality TINYTEXT,
-                OwnerDiscordID SMALLINT,
-                IsActive BOOLEAN DEFAULT FALSE,
-                EngineSupplier INT,
-                Car SMALLTEXT,
-                FirstDriver INT,
-                SecondDriver INT,
-                CurrentFunds INT DEFAULT 0,
-                DragUpgrades INT DEFAULT 0,
-                WeightUpgrades INT DEFAULT 0,
-                PrimarySponsor INT,
-                SecondarySponsor1 INT,
-                SecondarySponsor2 INT,
-                SecondarySponsor3 INT)
-            """)
-
-            cursor.execute("""
-                CREATE TABLE IF NOT EXISTS SeasonData (
-                SeasonNo TINYINT PRIMARY KEY,
-                SeasonName TEXT,
-                SeasonClass SMALLTEXT,
-                SeasonYear TINYTEXT,
-                seasonStatus TINYINT
-                )
-            """)
 
     def checkTableExists(self, tableName: str) -> bool:
         with closing(self.DatabaseConnection.cursor()) as cursor:
@@ -71,6 +33,6 @@ class DatabaseManager:
     def deleteDatabase(self):
         self.DatabaseConnection.close()
         try:
-            os.remove(f"{self.databaseName}")
+            os.remove(f"{self.databaseName}.db")
         except Exception as e:
             print(e)

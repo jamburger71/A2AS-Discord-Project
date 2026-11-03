@@ -1,3 +1,4 @@
+from ctypes.wintypes import POINT
 import logging
 import sqlite3
 import yaml
@@ -14,6 +15,8 @@ DATE = "Date"
 WEATHER = "Weather"
 QUALIDURATION = "QualiDuration"
 RACELENGTH = "RaceLength"
+POLEPOINT = "PolePoint"
+POINTSMODEL = "PointsModel"
 
 class EventManager:
 
@@ -30,6 +33,8 @@ class EventManager:
                 {WEATHER} TEXT,
                 {QUALIDURATION} INT,
                 {RACELENGTH} SMALLINT,
+                {POLEPOINT} TINYINT,
+                {POINTSMODEL} TINYINT
                 PRIMARY KEY({SEASONNO}, {ROUNDNO}))
             """)
             
