@@ -1,3 +1,4 @@
+
 import discord
 from discord import app_commands
 from discord.ext import commands
@@ -38,7 +39,7 @@ class MyTeam(commands.Cog):
         def filterPodiums(result: Result):
             return result.racePosition >= 3
             
-        teamResults = self.bot.resultManager.getAllResultsForTeam(team.id)
+        teamResults = self.bot.resultManager.getAllResultsForTeam(team.ID)
         myTeamEmbed = discord.Embed(
             title = team.name,
             description = f"Entries: {len(teamResults)}\nWins: {len(teamResults.filter(filterWins))}\nPodiums: {len(teamResults.filter(filterPodiums))}"
@@ -107,7 +108,7 @@ class MyTeam(commands.Cog):
         
         await interaction.response.send_message(embed = myTeamEmbed, view = myTeamView)
         
-        logging.info(f"Team found for user {interaction.user.id}: {team.name} (ID: {team.id})")
+        logging.info(f"Team found for user {interaction.user.id}: {team.name} (ID: {team.ID})")
         
     
 class manageDriversButton(discord.ui.Button):
@@ -124,6 +125,8 @@ class manageDriversButton(discord.ui.Button):
             title = "Manage Drivers",
             description = "Hire, fire and check your driver stats here."
         )
+        driversView = discord.ui.View(timeout = 300)
+        
         currentSeason: Season = self.bot.seasonManager.getCurrentSeason()
         seasonResults = self.bot.resultsManager.getResultsForSeason(currentSeason.seasonNo)
         seasonStandings: list[tuple] = helpers.getCurrentStandings(seasonResults, currentSeason.pointsModel, currentSeason.pointForPole)
@@ -152,11 +155,13 @@ class manageDriversButton(discord.ui.Button):
                 Cost: £{driver1.contractCost}/Season
                 Expires: End Of Season"""
             )
+            driversView.add_item(fireDriverButton(1, self.team, driver1, self.bot))
         else:
             driversEmbed.add_field(
                 name = "No Driver Signed",
                 value = "You can hire one with the button below."
             )
+            driversView.add_item(hireDriverButton(1, self.team, self.bot))
         if self.team.driverTwo is not -1:
             driver2 = self.bot.driverManager.getDriver(self.team.driverTwo)
             for index, driver in enumerate(seasonStandings):
@@ -181,13 +186,123 @@ class manageDriversButton(discord.ui.Button):
                 Cost: £{driver2.contractCost}/Season
                 Expires: End Of Season"""
             )
+            driversView.add_item(fireDriverButton(2, self.team, driver2, self.bot))
         else:
             driversEmbed.add_field(
                 name = "No Driver Signed",
                 value = "You can hire one with the button below."
             )
+            driversView.add_item(hireDriverButton(2, self.team, self.bot))
 
-        driversView = discord.ui.View(timeout = 300)
+        await interaction.response.send_message(embed = driversEmbed, view = driversView)
+
+class hireDriverButton(discord.ui.Button):
+
+    def __init__(self, driverSlot: int, team: Team, bot):
+
+        super().__init__(label = f"Hire Driver for Slot {driverSlot}")
+        self.driverSlot = driverSlot
+        self.team = team
+        self.bot = bot
+
+    async def callback(self, interaction: discord.Interaction):
+
+        allDrivers = self.bot.driverManager.getDrivers()
+        allTeams = self.bot.teamManager.getTeams()
+        takenDrivers = []
+        for team in allTeams:
+            if team.driverOne is not -1:
+                takenDrivers.append(team.driverOne)
+            if team.driverTwo is not -1:
+                takenDrivers.append(team.driverTwo)
+        self.availableDrivers = [driver for driver in allDrivers if driver.ID not in takenDrivers]
+        self.pages = (len(self.availableDrivers) // 10) + 1
+        self.pageEmbeds = []
+        for page in range(self.pages):
+            embed = discord.Embed(
+                title = "Available Drivers",
+                description = f"Page {page+1} of {self.pages}"
+            )
+            for i in range(10):
+                if (page*10)+i == len(self.availableDrivers): break
+                driver: Driver = self.availableDrivers[(page*10)+i]
+                driverAvg = (driver.qualiPace + driver.racePace + driver.wetPace + driver.tyreManagement + driver.aggressiveness + driver.defending)/6
+                embed.add_field(
+                    name = f"{driver.firstName} {driver.lastName} - ID: {driver.ID}",
+                    value = f"""QPACE: {driver.qualiPace} RPACE: {driver.racePace} WPACE: {driver.wetPace}
+                    TYRE: {driver.tyreManagement} AGG: {driver.aggressiveness} DEF: {driver.defending}
+                    AVG: {driverAvg} COST: {driver.contractCost}"""
+                )
+            self.pageEmbeds.append(embed)
+        self.pageView = discord.ui.View()
+        self.currentPage = 1
+        await interaction.response.send_message(embed = self.pageEmbeds[self.currentPage], view = self.pageView)
+        
+        @discord.ui.button(label="Previous Page", style=discord.ButtonStyle.green, disabled=self.currentPage==1)
+        async def previous_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+            
+            self.currentPage -= 1
+            if self.currentPage == 0:
+                self.previous_button.disabled = True
+            self.nextButton.disabled = False
+            self.updateEmbed(interaction)
+
+        @discord.ui.button(label="Next Page", style=discord.ButtonStyle.green)
+        async def next_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+            
+            self.currentPage += 1
+            if self.currentPage == len(self.pages):
+                self.next_button.disabled = True
+            self.previous_button.disabled = False
+            self.updateEmbed(interaction)
+            
+        async def updateEmbed(self, interaction: discord.Interaction):
+
+            await interaction.response.edit_message(embed = self.pageEmbeds[self.currentPage-1], view = self.pageView)
+            
+        self.pageView.add_item(previous_button)
+        self.pageView.add_item(next_button)
+        self.message = interaction.response.send_message(embed=self.pageEmbeds[0], view=self.pageView)
+        
+
+class fireDriverButton(discord.ui.Button):
+
+    def __init__(self, driverSlot: int, team: Team, driver: Driver, bot):
+
+        super().__init__(label = f"Fire {driver.firstName} {driver.lastName}")
+        self.driverSlot = driverSlot
+        self.driver = driver
+        self.team = team
+        self.bot = bot
+
+    async def callback(self, interaction: discord.Interaction):
+
+        firingEmbed = discord.Embed(
+            title = "Are you sure you want to fire your driver?",
+            description = "You may not be able to re-hire them later!"
+        )
+        await interaction.response.send_message(embed = firingEmbed, view = AreYouSure(self.fireDriver, self.dontFireDriver))
+
+    async def fireDriver(self, interaction: discord.Interaction):
+
+        firedEmbed = discord.Embed(
+            title = f"{self.driver.firstName} {self.driver.lastName} has been fired from {self.team.name}."
+        )
+        await interaction.response.send_message(embed = firedEmbed)
+        if self.driverSlot == 1:
+            self.team.driverOne = -1
+        else:
+            self.team.driverTwo = -1
+        self.bot.teamManager.updateTeam(self.team)
+
+    async def dontFireDriver(self, interaction: discord.Interaction):
+
+        firingCancelledEmbed = discord.Embed(
+            title = "Firing Cancelled.",
+            description = "Your driver is still signed!"
+        )
+        await interaction.response.send_message(embed = firingCancelledEmbed)
+  
 
 class manageCarButton(discord.ui.Button):
 
@@ -225,43 +340,6 @@ class manageTeamButton(discord.ui.Button):
 
         return
 
-class hireDriverButton(discord.ui.Button):
-
-    def __init__(self, driverSlot: int, team: Team, bot):
-
-        super().__init__(label = f"Hire Driver for Slot {driverSlot}")
-        self.driverSlot = driverSlot
-        self.team = team
-        self.bot = bot
-
-    async def callback(self, interaction: discord.Interaction):
-
-        return
-
-class fireDriverButton(discord.ui.Button):
-
-    def __init__(self, driverSlot: int, team: Team, driver: Driver, bot):
-
-        super().__init__(label = f"Fire {driver.firstName} {driver.lastName}")
-        self.driverSlot = driverSlot
-        self.team = team
-        self.bot = bot
-
-    async def callback(self, interaction: discord.Interaction):
-        
-        await interaction.response.send_message(view = AreYouSure(fireDriver, dontFireDriver))
-
-    def fireDriver(self):
-
-        if self.driverSlot == 1:
-            self.team.driverOne = -1
-        else:
-            self.team.driverTwo = -1
-        self.bot.teamManager.updateTeam(self.team)
-
-    def dontFireDriver(self):
-
-        return
 
 async def setup(bot: "MyBot"): # type: ignore # noqa: F821
     logging.info("Loading MyTeam cog...")

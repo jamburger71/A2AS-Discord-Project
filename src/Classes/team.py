@@ -4,7 +4,7 @@ class Team:
 
     def __init__(self, databaseData: tuple):
 
-        self.id: int = databaseData[0]
+        self.ID: int = databaseData[0]
         self.name: str = databaseData[1]
         self.desc: str = databaseData[2]
         self.nationality: str = databaseData[3]
@@ -22,13 +22,13 @@ class Team:
         self.secondarySponsor3 = databaseData[15]
 
     @classmethod
-    def new(cls, id: int, name: str, desc: str, nationality: str, ownerID: str, defaultCash):
-        return cls((id, name, desc, nationality, ownerID, "", "", "", "", defaultCash, 0, 0, "", "", "", "", 0, 0, 0, 0))
+    def new(cls, ID: int, name: str, desc: str, nationality: str, ownerID: str, defaultCash: int):
+        return cls((ID, name, desc, nationality, ownerID, "", "", "", "", defaultCash, 0, 0, "", "", "", "", 0, 0, 0, 0))
     
     def toTuple(self) -> tuple:
         
         return (
-            self.id,
+            self.ID,
             self.name,
             self.desc,
             self.nationality,
