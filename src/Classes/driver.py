@@ -100,7 +100,7 @@ localeWeights = {
     'nl_BE': 2,    # Belgium (Dutch)
     'fr_BE': 2,    # Belgium (French)
     'pt_PT': 3,    # Portugal
-    'en_ZA': 3,    # South Africa
+    'zu_ZA': 3,    # South Africa
     'hu_HU': 2,    # Hungary
     'cs_CZ': 2,    # Czech Republic
     'en_IN': 2,    # India
