@@ -11,3 +11,9 @@ class CarClass:
     def toTuple(self):
         
         return (self.id, self.name, self.description)
+
+    @classmethod
+    def new(cls, dbinput: tuple | None):
+        if dbinput is not None:
+            return cls(dbinput)
+        return None
