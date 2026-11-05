@@ -48,45 +48,56 @@ class DriverManager:
     def insertDriver(self, driver: Driver):
 
         with closing(self.databaseConnection.cursor()) as cursor:
-            cursor.execute(f"""INSERT INTO {TABLENAME} VALUES ({driver.toTuple()})""")
+            
+            query = f"INSERT INTO {TABLENAME} VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+            params = driver.toTuple()
+            cursor.execute(query, params)
             self.databaseConnection.commit()
 
     def updateDriver(self, driver: Driver) -> None:
 
         with closing(self.databaseConnection.cursor()) as cursor:
             
-            cursor.execute(f"""
+            query = f"""
                 UPDATE {TABLENAME}
                 SET ({ID}, {ISACTIVE}, {FIRSTNAME}, {LASTNAME}, {NATIONALITY}, {AGE}, {QUALIPACE}, {RACEPACE}, {WETPACE}, {TYREMANAGEMENT}, {AGGRESSIVENESS}, {DEFENDING}, {CONTRACTCOST})
-                = ({str(driver.toTuple())})
-                WHERE {ID} = {driver.ID}
-            """)
+                = (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                WHERE {ID} = ?
+            """
+            params = driver.toTuple() + (driver.ID, )
+            cursor.execute(query, params)
             self.databaseConnection.commit()
 
     def removeDriver(self, driverID: int):
 
         with closing(self.databaseConnection.cursor()) as cursor:
-            cursor.execute(f"DELETE FROM {TABLENAME} WHERE {ID} = {driverID}")
+            query = f"DELETE FROM {TABLENAME} WHERE {ID} = ?"
+            params = (driverID, )
+            cursor.execute(query, params)
             self.databaseConnection.commit()
 
     def getDrivers(self) -> list[Driver]:
 
         with closing(self.databaseConnection.cursor()) as cursor:
             cursor.execute(f"SELECT * FROM {TABLENAME}")
-            return [Driver(driverData) for driverData in cursor.fetchall()]
+            return [Driver.new(driverData) for driverData in cursor.fetchall()]
 
     def getActiveDrivers(self, getInactive: bool = False) -> list[Driver]:
 
         activeState = 0 if getInactive else 1
         with closing(self.databaseConnection.cursor()) as cursor:
-            cursor.execute(f"SELECT * FROM {TABLENAME} WHERE {ISACTIVE} = {activeState}")
-            return [Driver(driverData) for driverData in cursor.fetchall()]
+            query = f"SELECT * FROM {TABLENAME} WHERE {ISACTIVE} = ?"
+            params = (activeState, )
+            cursor.execute(query, params)
+            return [Driver.new(driverData) for driverData in cursor.fetchall()]
 
     def getDriver(self, driverID) -> Driver | None:
 
         with closing(self.databaseConnection.cursor()) as cursor:
-            cursor.execute(f"SELECT * FROM {TABLENAME} WHERE {ID} = {driverID}")
-            return Driver(cursor.fetchone())
+            query = f"SELECT * FROM {TABLENAME} WHERE {ID} = ?"
+            params = (driverID, )
+            cursor.execute(query, params)
+            return Driver.new(cursor.fetchone())
 
     def ageAllDrivers(self) -> None:
 

@@ -8,8 +8,8 @@ class DatabaseManager:
 
     def __init__(self, databaseName: str):
         
-        self.DatabaseConnection = sqlite3.connect(databaseName, timeout=10)
-        self.databaseName = databaseName
+        self.DatabaseConnection = sqlite3.connect(databaseName + ".db", timeout=10)
+        self.databaseName = databaseName + ".db"
 
         self.DatabaseConnection.execute("PRAGMA journal_mode=WAL;")
 
@@ -33,6 +33,6 @@ class DatabaseManager:
     def deleteDatabase(self):
         self.DatabaseConnection.close()
         try:
-            os.remove(f"{self.databaseName}.db")
+            os.remove(f"{self.databaseName}")
         except Exception as e:
             print(e)
