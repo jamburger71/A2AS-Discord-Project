@@ -25,7 +25,7 @@ class EventManager:
         self.databaseConnection = databaseConnection
         with closing(self.databaseConnection.cursor()) as cursor:
             cursor.execute(f"""
-                CREATE TABLE IF NOT EXISTS {TABLENAME} (
+            CREATE TABLE IF NOT EXISTS {TABLENAME} (
                 {SEASONNO} TINYINT,
                 {ROUNDNO} TINYINT,
                 {TITLE} TINYTEXT,
@@ -34,7 +34,7 @@ class EventManager:
                 {QUALIDURATION} INT,
                 {RACELENGTH} SMALLINT,
                 {POLEPOINT} TINYINT,
-                {POINTSMODEL} TINYINT
+                {POINTSMODEL} TINYINT,
                 PRIMARY KEY({SEASONNO}, {ROUNDNO}))
             """)
             
