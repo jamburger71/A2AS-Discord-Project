@@ -6,6 +6,7 @@ import os
 from contextlib import closing
 
 from Classes.primarySponsor import PrimarySponsor
+from Classes.sponsor import Sponsor
 
 TABLENAME = "PrimarySponsorData"
 ID = "ID"
