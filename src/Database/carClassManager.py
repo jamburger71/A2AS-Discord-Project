@@ -29,12 +29,37 @@ class CarClassManager:
     def insertCarClass(self, carClass: CarClass):
         
         with closing(self.databaseConnection.cursor()) as cursor:
-            cursor.execute(f"INSERT INTO {TABLENAME} VALUES {str(carClass.toTuple())}")
+            query = f"INSERT INTO {TABLENAME} VALUES (?, ?, ?)"
+            params = carClass.toTuple()
+            cursor.execute(query, params)
+            self.databaseConnection.commit()
     
-    def getCarClass(self, classID: int):
+    def getCarClass(self, classID: int) -> CarClass:
         
         with closing(self.databaseConnection.cursor()) as cursor:
-            cursor.execute(f"SELECT * FROM {TABLENAME} WHERE {ID} = {classID} LIMIT 1")
-            return CarClass(cursor.fetchone())
+            query = f"SELECT * FROM {TABLENAME} WHERE {ID} = ?"
+            params = (classID, )
+            cursor.execute(query, params)
+            return CarClass.new(cursor.fetchone())
 
-    
+    def updateCarClass(self, carClass: CarClass):
+
+        with closing(self.databaseConnection.cursor()) as cursor:
+            query = f"UPDATE {TABLENAME} SET ({ID}, {NAME}, {DESCRIPTION}) = (?, ?, ?) WHERE {ID} = ?"
+            params = carClass.toTuple() + (carClass.id, )
+            cursor.execute(query, params)
+            self.databaseConnection.commit()
+
+    def getCarClasses(self) -> list[CarClass]:
+
+        with closing(self.databaseConnection.cursor()) as cursor:
+            cursor.execute(f"SELECT * FROM {TABLENAME}")
+            return [CarClass.new(carClass) for carClass in cursor.fetchall()]
+
+    def deleteCarClass(self, classID: int):
+
+        with closing(self.databaseConnection.cursor()) as cursor:
+            query = f"DELETE FROM {TABLENAME} WHERE {ID} = ?"
+            params = (classID, )
+            cursor.execute(query, params)
+            self.databaseConnection.commit()
