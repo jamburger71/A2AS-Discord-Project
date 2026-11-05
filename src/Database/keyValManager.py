@@ -55,7 +55,8 @@ class KeyValManager:
             query = f"SELECT {VALUE} FROM {TABLENAME} WHERE {KEY} = ?"
             params = (key,)
             cursor.execute(query, params)
-            return cursor.fetchone()[0]
+            value = cursor.fetchone()
+            return None if value is None else value[0]
 
     def updateKeyVal(self, key: str, value):
 
@@ -80,7 +81,9 @@ class KeyValManager:
             query = f"SELECT {VALUE} FROM {TABLENAME} WHERE {KEY} = ?"
             params = (key, )
             cursor.execute(query, params)
-            value = cursor.fetchOne()[0]
+            value = cursor.fetchone()
+            if value is None: return None
+            value = value[0]
             query = f"UPDATE {TABLENAME} SET {VALUE} = ? WHERE {KEY} = ?"
             params = (value+1, key)
             cursor.execute(query, params)
