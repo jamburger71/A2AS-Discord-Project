@@ -43,7 +43,7 @@ def testGetAllCarClasses(testCarClassManager):
 def testUpdateCarClass(testCarClassManager):
 
     # ACT
-    testCarClassManager.insertCarClass((5, "original", "words"))
+    testCarClassManager.insertCarClass(CarClass.new((5, "original", "words")))
     fetchedCarClass = testCarClassManager.getCarClass(5)
     fetchedCarClass.name = "Edited"
     testCarClassManager.updateCarClass(fetchedCarClass)
@@ -54,8 +54,8 @@ def testUpdateCarClass(testCarClassManager):
 def testDeleteCarClass(testCarClassManager):
 
     # ACT
-    testCarClassManager.insertCarClass((21, "original", "words"))
-    testCarClassManager.insertCarClass((5, "original", "words"))
+    testCarClassManager.insertCarClass(CarClass.new((21, "original", "words")))
+    testCarClassManager.insertCarClass(CarClass.new((5, "original", "words")))
     testCarClassManager.deleteCarClass(21)
     deletedClass = testCarClassManager.getCarClass(21)
     notDeletedClass = testCarClassManager.getCarClass(5)
