@@ -36,3 +36,5 @@ class CarClassManager:
         with closing(self.databaseConnection.cursor()) as cursor:
             cursor.execute(f"SELECT * FROM {TABLENAME} WHERE {ID} = {classID} LIMIT 1")
             return CarClass(cursor.fetchone())
+
+    

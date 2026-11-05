@@ -1,3 +1,4 @@
+from ctypes.wintypes import POINT
 import logging
 import sqlite3
 import yaml
@@ -14,6 +15,8 @@ DATE = "Date"
 WEATHER = "Weather"
 QUALIDURATION = "QualiDuration"
 RACELENGTH = "RaceLength"
+POLEPOINT = "PolePoint"
+POINTSMODEL = "PointsModel"
 
 class EventManager:
 
@@ -22,7 +25,7 @@ class EventManager:
         self.databaseConnection = databaseConnection
         with closing(self.databaseConnection.cursor()) as cursor:
             cursor.execute(f"""
-                CREATE TABLE IF NOT EXISTS {TABLENAME} (
+            CREATE TABLE IF NOT EXISTS {TABLENAME} (
                 {SEASONNO} TINYINT,
                 {ROUNDNO} TINYINT,
                 {TITLE} TINYTEXT,
@@ -30,6 +33,8 @@ class EventManager:
                 {WEATHER} TEXT,
                 {QUALIDURATION} INT,
                 {RACELENGTH} SMALLINT,
+                {POLEPOINT} TINYINT,
+                {POINTSMODEL} TINYINT,
                 PRIMARY KEY({SEASONNO}, {ROUNDNO}))
             """)
             

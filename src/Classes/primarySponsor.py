@@ -1,5 +1,5 @@
 import helpers
-from sponsor import Sponsor
+from Classes.sponsor import Sponsor
 from enums import TargetType
 
 class PrimarySponsor(Sponsor):
