@@ -10,99 +10,74 @@ sys.path.append(str(src_path))
 sys.path.append(str(db_path))
 sys.path.append(str(class_path))
 
-from databaseManager import DatabaseManager
-from driverManager import DriverManager
+from Database.databaseManager import DatabaseManager
+from Database.driverManager import DriverManager
 import testdata
 from Classes.driver import Driver
 
 @pytest.fixture()
 def testDriverManager():
-    testDB = DatabaseManager("Test_DB.db")
+    testDB = DatabaseManager("Test_DB")
     testDrvrManager = DriverManager(testDB.DatabaseConnection)
     yield testDrvrManager
     testDB.deleteDatabase()
 
-@pytest.fixture()
-def driverDataSample():
-    return testdata.drivers
-
-def testAddDriverToDatabase(testDriverManager, driverDataSample):
+def testInsertGetDrivers(testDriverManager):
     # ACT
-    for driver in driverDataSample:
-        testDriverManager.insertDriverFromClass(driver)
-    allDrivers: list[Driver] = testDriverManager.getAllDrivers()
+    localDrivers: list[Driver] = []
+    for id in range(10):
+        newDriver = Driver.randomDriver(id)
+        localDrivers.append(newDriver)
+        testDriverManager.insertDriver(newDriver)
+    allDrivers: list[Driver] = testDriverManager.getDrivers()
+    print(allDrivers)
     # ASSERT
-    assert len(allDrivers) == 6
-    assert allDrivers[0].firstName == driverDataSample[0].firstName
-    assert allDrivers[1].firstName == driverDataSample[1].firstName
-    assert allDrivers[2].firstName == driverDataSample[2].firstName
-    assert allDrivers[3].firstName == driverDataSample[3].firstName
-    assert allDrivers[4].firstName == driverDataSample[4].firstName
-    assert allDrivers[5].firstName == driverDataSample[5].firstName
+    assert len(allDrivers) == 10
+    for id in range(10):
+        assert allDrivers[id].firstName == localDrivers[id].firstName
 
-def testGetDriverByIDAndCode(testDriverManager, driverDataSample):
+def testInsertGetDriver(testDriverManager):
     # ACT
-    for driver in driverDataSample:
-        testDriverManager.insertDriverFromClass(driver)
-    driverByID: Driver = testDriverManager.getDriver(2)
-    driverByCode: Driver = testDriverManager.getDriver("ALO")
+    newDriver = Driver.randomDriver(0)
+    testDriverManager.insertDriver(newDriver)
+    fetchedDriver: Driver = testDriverManager.getDriver(0)
     # ASSERT
-    assert driverByID.firstName == driverDataSample[2].firstName
-    assert driverByCode.firstName == driverDataSample[2].firstName
+    assert newDriver.firstName == fetchedDriver.firstName
 
-def testRemoveDriverFromDatabase(testDriverManager, driverDataSample):
+def testRemoveDriver(testDriverManager):
     # ACT
-    for driver in driverDataSample:
-        testDriverManager.insertDriverFromClass(driver)
-    driverCountBefore: int = len(testDriverManager.getAllDrivers())
-    testDriverManager.removeDriver("MSC")
+    for id in range(10):
+        newDriver = Driver.randomDriver(id)
+        testDriverManager.insertDriver(newDriver)
+    driverCountBefore: int = len(testDriverManager.getDrivers())
     testDriverManager.removeDriver(5)
-    driverCountAfter: int = len(testDriverManager.getAllDrivers())
+    driverCountAfter: int = len(testDriverManager.getDrivers())
     # ASSERT
-    assert driverCountBefore - 2 == driverCountAfter
-    assert testDriverManager.getDriver("MSC") is None
-    assert testDriverManager.getDriver(5) is None
-    assert testDriverManager.getDriver("DRI") is not None
-    assert testDriverManager.getDriver(4) is not None
+    assert driverCountBefore - 1 == driverCountAfter
+    print(testDriverManager.getDriver(5))
+    assert testDriverManager.getDriver(5) == None
 
-def testUpdateDriverInDatabase(testDriverManager, driverDataSample):
+def testUpdateDriver(testDriverManager):
     # ACT
-    for driver in driverDataSample:
-        testDriverManager.insertDriverFromClass(driver)
-    testDriverManager.updateDriverStats(1, won=False, podium=False)
-    testDriverManager.updateDriverStats(2, won=False, podium=True)
-    testDriverManager.updateDriverStats(3, won=True, podium=True)
-    updatedDriverFinished: Driver = testDriverManager.getDriver(1)
-    updatedDriverPodium: Driver = testDriverManager.getDriver(2)
-    updatedDriverWinner: Driver = testDriverManager.getDriver(3)
+    testDriverManager.insertDriver(Driver.randomDriver(0))
+    driverToUpdate: Driver = testDriverManager.getDriver(0)
+    driverToUpdate.firstName = "NewName"
+    driverToUpdate.qualiPace = 22
+    testDriverManager.updateDriver(driverToUpdate)
+    driverUpdated = testDriverManager.getDriver(0)
+    print(driverUpdated.firstName+driverUpdated.lastName)
     # ASSERT
-    assert updatedDriverFinished.races == 1
-    assert updatedDriverFinished.podiums == 0
-    assert updatedDriverFinished.wins == 0
-    assert updatedDriverPodium.races == 1
-    assert updatedDriverPodium.podiums == 1
-    assert updatedDriverPodium.wins == 0
-    assert updatedDriverWinner.races == 1
-    assert updatedDriverWinner.podiums == 1
-    assert updatedDriverWinner.wins == 1
-    assert updatedDriverWinner.isAvailable == True
+    assert driverUpdated.firstName == "NewName"
+    assert driverUpdated.qualiPace == 22
 
-def testToggleDriverAvailability(testDriverManager, driverDataSample):
+def testAgeAllDrivers(testDriverManager):
     # ACT
-    for driver in driverDataSample:
-        testDriverManager.insertDriverFromClass(driver)
-    testDriverManager.setDriverAvailability(1, False)
-    testDriverManager.setDriverAvailability(2, False)
-    availableDrivers: list[Driver] = testDriverManager.getAllDrivers(availableOnly=True)
+    localDrivers = []
+    for id in range(10):
+        newDriver = Driver.randomDriver(id)
+        localDrivers.append(newDriver)
+        testDriverManager.insertDriver(newDriver)
+    testDriverManager.ageAllDrivers()
+    agedDrivers: list[Driver] = testDriverManager.getDrivers()
     # ASSERT
-    assert len(availableDrivers) == 4
-    assert all(driver.id not in [1, 2] for driver in availableDrivers)
-
-def testAgeAllDrivers(testDriverManager, driverDataSample):
-    # ACT
-    for driver in driverDataSample:
-        testDriverManager.insertDriverFromClass(driver)
-    testDriverManager.ageAllDrivers(DiscordLogger(None, "Testing", None))
-    agedDrivers: list[Driver] = testDriverManager.getAllDrivers()
-    # ASSERT
-    assert all(driver.age == driverDataSample[index].age + 1 for index, driver in enumerate(agedDrivers))
+    assert all(driver.age == localDrivers[index].age + 1 for index, driver in enumerate(agedDrivers))
