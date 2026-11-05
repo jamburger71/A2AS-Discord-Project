@@ -1,8 +1,6 @@
 class Engine:
 
     def __init__(self, dboutput: tuple | None):
-
-        if dboutput is None: return
             
         self.model = dboutput[0]
         self.manufacturer = dboutput[1]
