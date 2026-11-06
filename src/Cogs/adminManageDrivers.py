@@ -2,15 +2,16 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 import logging
-from discordLogger import DiscordLogger
+  
 
+from Classes.myBot import MyBot
 from Classes.driver import Driver
 from areyousure import AreYouSure
 from enums import keyVals
 
 class AdminManageDrivers(commands.Cog):
 
-    def __init__(self, bot: "MyBot"): # type: ignore # noqa: F821
+    def __init__(self, bot: MyBot):
         self.bot = bot
 
     async def cog_load(self):
@@ -56,7 +57,7 @@ class DriverManageView(discord.ui.View):
             async def deny(args, interaction: discord.Interaction):
                 await interaction.response.send_message("Command Cancelled.")
                 
-            await interaction.response.send_message(view=AreYouSure(None, confirm, deny))
+            await interaction.response.send_message(view=AreYouSure(confirm, deny))
 
 
 class AddDriverModal(discord.ui.Modal, title="Add New Driver"):
@@ -101,6 +102,6 @@ class addRandomDriversModal(discord.ui.Modal):
             newDriver = Driver.randomDriver(driverID=driverID)
             self.bot.driverManager.insertDriver(newDriver)
 
-async def setup(bot: "MyBot"): # type: ignore # noqa: F821
+async def setup(bot: MyBot):
     print(f"Loading {AdminManageDrivers.__name__} cog...")
     await bot.add_cog(AdminManageDrivers(bot))

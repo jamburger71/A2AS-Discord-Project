@@ -22,7 +22,7 @@ class EventManager:
 
     def __init__(self, databaseConnection):
 
-        self.databaseConnection = databaseConnection
+        self.databaseConnection: sqlite3.Connection = databaseConnection
         with closing(self.databaseConnection.cursor()) as cursor:
             cursor.execute(f"""
             CREATE TABLE IF NOT EXISTS {TABLENAME} (
@@ -45,7 +45,7 @@ class EventManager:
                 INSERT INTO {TABLENAME}
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """, event.toTuple())
-            cursor.commit()
+            self.databaseConnection.commit()
     
     def getEvent(self, seasonNo: int, roundNo: int) -> Event:
         
@@ -86,7 +86,7 @@ class EventManager:
                 {RACELENGTH} = {event.raceLength},
                 WHERE {SEASONNO} = {event.seasonNo} 
                 AND {ROUNDNO} = {event.roundNo}""")
-            cursor.commit()
+            self.databaseConnection.commit()
 
     def deleteEvent(self, roundNo, seasonNo):
 
@@ -96,4 +96,4 @@ class EventManager:
                 WHERE {SEASONNO} = {seasonNo}
                 AND {ROUNDNO} = {roundNo}""", 
                 (roundNo, seasonNo))
-            cursor.commit()
+            self.databaseConnection.commit()

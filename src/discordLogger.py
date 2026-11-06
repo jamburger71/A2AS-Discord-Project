@@ -1,9 +1,11 @@
 import sys
 import os
 
+from Classes.myBot import MyBot
+
 class DiscordLogger:
 
-    def __init__(self, author, action: str, bot: "MyBot"): # type: ignore # noqa: F821
+    def __init__(self, author, action: str, bot: MyBot):
 
         self.GOOD = 0
         self.WARNING = 1

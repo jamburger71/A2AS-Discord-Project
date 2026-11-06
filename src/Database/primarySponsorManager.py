@@ -1,4 +1,4 @@
-from discordLogger import DiscordLogger
+  
 import logging
 import sqlite3
 import yaml
@@ -23,7 +23,7 @@ class PrimarySponsorManager:
 
     def __init__(self, databaseConnection):
 
-        self.databaseConnection = databaseConnection
+        self.databaseConnection: sqlite3.Connection = databaseConnection
         
         with closing(self.databaseConnection.cursor()) as cursor:
             cursor.execute(f"""

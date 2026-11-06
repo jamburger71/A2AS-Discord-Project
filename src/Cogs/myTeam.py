@@ -7,6 +7,7 @@ import logging
 from areyousure import AreYouSure
 import enums
 import helpers
+from Classes.myBot import MyBot
 from Classes.team import Team
 from Classes.driver import Driver
 from Classes.car import Car
@@ -18,7 +19,7 @@ from Classes.season import Season
 
 class MyTeam(commands.Cog):
 
-    def __init__(self, bot: "MyBot"): # type: ignore # noqa: F821
+    def __init__(self, bot: MyBot):  
         self.bot = bot
 
     async def cog_load(self):
@@ -27,7 +28,7 @@ class MyTeam(commands.Cog):
     @app_commands.command(name="myteam")
     async def myteam(self, interaction: discord.Interaction):
 
-        team: Team | None = self.bot.teamManager.getOwnerTeam(interaction.user.id)
+        team: Team | None = self.bot.teamManager.getTeamByOwner(interaction.user.id)
         if team is None:
             logging.info(f"No team found for user {interaction.user.id}")
             await interaction.response.send_message("You don't own a team!")
@@ -42,16 +43,16 @@ class MyTeam(commands.Cog):
         teamResults = self.bot.resultManager.getAllResultsForTeam(team.ID)
         myTeamEmbed = discord.Embed(
             title = team.name,
-            description = f"Entries: {len(teamResults)}\nWins: {len(teamResults.filter(filterWins))}\nPodiums: {len(teamResults.filter(filterPodiums))}"
+            description = f"Entries: {len(teamResults)}\nWins: {len([res for res in teamResults if res.racePosition == 1])}\nPodiums: {len([res for res in teamResults if res.racePosition <= 3])}\nPoles: {len([res for res in teamResults if res.qualiPosition == 1])}"
         )
 
         carText = "No Car"
-        if team.car != "":
+        if team.car != None:
             car: Car = self.bot.carManager.getCar(team.car)
             carText = f"{car.manufacturer} {car.name}"
             
         engineText = "No Engine"
-        if team.engine != "":
+        if team.engine != None:
             engine: Engine = self.bot.engineManager.getEngine(team.engine)
             engineText = f"{engine.manufacturer} {engine.model}"
             
@@ -61,14 +62,14 @@ class MyTeam(commands.Cog):
         )
 
         teamDriver1Text = "No Driver Signed"
-        if team.driverOne != "":
-            teamDriver1 = self.bot.driverManager.getDriver(team.driverOne)
-            teamDriver1Text = f"{teamDriver1.firstName} {teamDriver1.lastName} (Points: N/A)"
+        teamDriverOne = self.bot.driverManager.getDriver(team.driverOne)
+        if teamDriverOne is not None:
+            teamDriver1Text = f"{teamDriverOne.firstName} {teamDriverOne.lastName} (Points: N/A)"
 
         teamDriver2Text = "No Driver Signed"
-        if team.driverTwo != "":
-            teamDriver2 = self.bot.driverManager.getDriver(team.driverTwo)
-            teamDriver2Text = f"{teamDriver2.firstName} {teamDriver2.lastName} (Points: N/A)"
+        teamDriverTwo = self.bot.driverManager.getDriver(team.driverTwo)
+        if teamDriverTwo is not None:
+            teamDriver2Text = f"{teamDriverTwo.firstName} {teamDriverTwo.lastName} (Points: N/A)"
 
         myTeamEmbed.add_field(
             name = "Drivers",
@@ -131,7 +132,7 @@ class manageDriversButton(discord.ui.Button):
         seasonResults = self.bot.resultsManager.getResultsForSeason(currentSeason.seasonNo)
         seasonStandings: list[tuple] = helpers.getCurrentStandings(seasonResults, currentSeason.pointsModel, currentSeason.pointForPole)
         
-        if self.team.driverOne is not -1:
+        if self.team.driverOne is not None:
             driver1 = self.bot.driverManager.getDriver(self.team.driverOne)
             for index, driver in enumerate(seasonStandings):
                 if driver[0] == driver1.ID:
@@ -162,7 +163,7 @@ class manageDriversButton(discord.ui.Button):
                 value = "You can hire one with the button below."
             )
             driversView.add_item(hireDriverButton(1, self.team, self.bot))
-        if self.team.driverTwo is not -1:
+        if self.team.driverTwo is not None:
             driver2 = self.bot.driverManager.getDriver(self.team.driverTwo)
             for index, driver in enumerate(seasonStandings):
                 if driver[0] == driver2.ID:
@@ -290,9 +291,9 @@ class fireDriverButton(discord.ui.Button):
         )
         await interaction.response.send_message(embed = firedEmbed)
         if self.driverSlot == 1:
-            self.team.driverOne = -1
+            self.team.driverOne = None
         else:
-            self.team.driverTwo = -1
+            self.team.driverTwo = None
         self.bot.teamManager.updateTeam(self.team)
 
     async def dontFireDriver(self, interaction: discord.Interaction):
@@ -341,6 +342,6 @@ class manageTeamButton(discord.ui.Button):
         return
 
 
-async def setup(bot: "MyBot"): # type: ignore # noqa: F821
+async def setup(bot: MyBot):  
     logging.info("Loading MyTeam cog...")
     await bot.add_cog(MyTeam(bot))

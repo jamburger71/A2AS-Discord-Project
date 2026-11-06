@@ -17,7 +17,7 @@ from Database.keyValManager import KeyValManager
 def testKeyValManager():
     
     testDB = DatabaseManager("Test_DB.db")
-    testKVManager = KeyValManager(testDB.DatabaseConnection)
+    testKVManager = KeyValManager(testDB.databaseConnection)
     yield testKVManager
     testDB.deleteDatabase()
 

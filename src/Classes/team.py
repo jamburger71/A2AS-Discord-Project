@@ -11,8 +11,8 @@ class Team:
         self.ownerID: str = databaseData[4]
         self.engine: str = databaseData[5]
         self.car: str = databaseData[6]
-        self.driverOne: int = databaseData[7]
-        self.driverTwo: int = databaseData[8]
+        self.driverOne: int | None = databaseData[7]
+        self.driverTwo: int | None = databaseData[8]
         self.currentFunds: int = databaseData[9]
         self.dragUpgrades: int = databaseData[10]
         self.weightUpgrades: int = databaseData[11]
@@ -22,8 +22,8 @@ class Team:
         self.secondarySponsor3 = databaseData[15]
 
     @classmethod
-    def new(cls, ID: int, name: str, desc: str, nationality: str, ownerID: str, defaultCash: int):
-        return cls((ID, name, desc, nationality, ownerID, "", "", "", "", defaultCash, 0, 0, "", "", "", "", 0, 0, 0, 0))
+    def new(cls, ID: int, name: str, desc: str, nationality: str, ownerID: int, defaultCash: int):
+        return cls((ID, name, desc, nationality, ownerID, None, None, None, None, defaultCash, 0, 0, None, None, None, None))
     
     def toTuple(self) -> tuple:
         

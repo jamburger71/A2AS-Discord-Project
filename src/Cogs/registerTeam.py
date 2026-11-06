@@ -3,9 +3,12 @@ from discord import app_commands
 from discord.ext import commands
 import logging
 
+from Classes.myBot import MyBot
+from Classes.team import Team
+
 class RegisterTeamModal(discord.ui.Modal, title="Register Team"):
 
-    def __init__(self, bot):
+    def __init__(self, bot: MyBot):
 
         super().__init__()
         self.bot = bot
@@ -30,9 +33,10 @@ class RegisterTeamModal(discord.ui.Modal, title="Register Team"):
 
     async def on_submit(self, interaction: discord.Interaction):
         
-        teamID = self.bot.keyValManager.getKeyVal("NextTeamID")
-
-        self.bot.teamManager.registerTeam(interaction.user.id, self.name.value, self.description.value, self.nationality.value, teamID)
+        teamID: int = self.bot.keyValManager.getAndIterateKeyVal("NextTeamID")
+        startingCash: int = self.bot.keyValManager.getKeyVal("StartingCash")
+        team: Team = Team.new(teamID, self.name.value, self.description.value, self.nationality.value, interaction.user.id, startingCash)
+        self.bot.teamManager.insertTeam(team)
         await interaction.response.send_message("""Team Registered! Manage your team with /myteam.
         Until you have assigned your team a car, drivers, and an engine supplier, your team will not compete.
         You can assign these values using the commands in /myteam.""")
@@ -40,7 +44,7 @@ class RegisterTeamModal(discord.ui.Modal, title="Register Team"):
 
 class RegisterTeam(commands.Cog):
 
-    def __init__(self, bot: "MyBot"): # type: ignore # noqa: F821
+    def __init__(self, bot: MyBot):  
         self.bot = bot
 
     async def cog_load(self):
@@ -49,12 +53,12 @@ class RegisterTeam(commands.Cog):
     @app_commands.command(name="registerteam")
     @app_commands.describe()
     async def registerteam(self, interaction: discord.Interaction):
-        team = self.bot.teamManager.getOwnerTeam(interaction.user.id)
+        team = self.bot.teamManager.getTeamByOwner(interaction.user.id)
         if team != None:
             await interaction.response.send_message("You already own a team! To manager your team, use /myteam")
             return
         await interaction.response.send_modal(RegisterTeamModal(bot=self.bot))
 
-async def setup(bot: "MyBot"): # type: ignore # noqa: F821
+async def setup(bot: MyBot):  
     print("Loading RegisterTeam cog...")
     await bot.add_cog(RegisterTeam(bot))

@@ -1,4 +1,4 @@
-from discordLogger import DiscordLogger
+  
 import logging
 import sqlite3
 import yaml
@@ -27,7 +27,7 @@ class CarManager:
 
     def __init__(self, databaseConnection):
 
-        self.databaseConnection = databaseConnection
+        self.databaseConnection: sqlite3.Connection = databaseConnection
         with closing(self.databaseConnection.cursor()) as cursor:
             cursor.execute(f"""
                 CREATE TABLE IF NOT EXISTS {TABLENAME} (
@@ -53,7 +53,7 @@ class CarManager:
         with closing(self.databaseConnection.cursor()) as cursor:
             cursor.execute(f"INSERT INTO {TABLENAME} VALUES {str(car.toTuple())}")
 
-    def getCar(self, carID: int) -> Car:
+    def getCar(self, carID: str) -> Car:
 
         with closing(self.databaseConnection.cursor()) as cursor:
             cursor.execute(f"SELECT * FROM {TABLENAME} WHERE ID = {carID}")
@@ -94,10 +94,10 @@ class CarManager:
                 = {str(car.toTuple())}
                 WHERE ID = {car.id}
             """)
-            cursor.commit()
+            self.databaseConnection.commit()
 
-    def deleteCar(self, carID: int):
+    def deleteCar(self, carID: str):
 
         with closing(self.databaseConnection.cursor()) as cursor:
             cursor.execute(f"DELETE FROM {TABLENAME} WHERE {ID} = {carID}")
-            cursor.commit()
+            self.databaseConnection.commit()

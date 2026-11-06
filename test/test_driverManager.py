@@ -1,4 +1,3 @@
-from discordLogger import DiscordLogger
 from pathlib import Path
 
 import pytest
@@ -18,7 +17,7 @@ from Classes.driver import Driver
 @pytest.fixture()
 def testDriverManager():
     testDB = DatabaseManager("Test_DB")
-    testDrvrManager = DriverManager(testDB.DatabaseConnection)
+    testDrvrManager = DriverManager(testDB.databaseConnection)
     yield testDrvrManager
     testDB.deleteDatabase()
 

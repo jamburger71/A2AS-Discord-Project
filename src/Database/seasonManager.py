@@ -18,7 +18,7 @@ class SeasonManager:
 
     def __init__(self, databaseConnection):
 
-        self.databaseConnection = databaseConnection
+        self.databaseConnection: sqlite3.Connection = databaseConnection
 
         with closing(self.databaseConnection.cursor()) as cursor:
             cursor.execute(f"""
@@ -61,4 +61,4 @@ class SeasonManager:
                 UPDATE {TABLENAME} 
                 SET ({SEASONNO}, {NAME}, {CLASS}, {YEAR}, {POINTSMODEL}, {POINTFORPOLE}) = {str(season.toTuple())}
             """)
-            cursor.commit()
+            self.databaseConnection.commit()

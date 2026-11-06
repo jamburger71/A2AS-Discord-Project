@@ -28,7 +28,7 @@ class TeamManager:
 
     def __init__(self, databaseConnection):
 
-        self.databaseConnection = databaseConnection
+        self.databaseConnection: sqlite3.Connection = databaseConnection
 
         with closing(self.databaseConnection.cursor()) as cursor:
             cursor.execute(f"""

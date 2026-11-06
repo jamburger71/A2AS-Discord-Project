@@ -6,3 +6,4 @@ NextPrimarySponsorID: 0
 NextSecondarySponsorID: 0
 MinDriverAge: 18
 MaxDriverAge: 45
+StartingCash = 6000000
