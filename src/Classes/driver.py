@@ -105,8 +105,8 @@ localeWeights = {
     'cs_CZ': 2,    # Czech Republic
     'en_IN': 2,    # India
     'id_ID': 2,    # Indonesia
-    'ceb_PH': 1,   # Philippines
-    'tl_PH': 1,
+    'en_PH': 1,    # Philippines (English)
+    'tl_PH': 1,    # Philippines (Tagalog)
     'ar_AE': 1,    # UAE
     'ar_SA': 1,    # Saudi Arabia
     'ko_KR': 1,    # South Korea
