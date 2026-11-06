@@ -21,7 +21,7 @@ class CarClassManager:
         with closing(self.databaseConnection.cursor()) as cursor:
             cursor.execute(f"""
                 CREATE TABLE IF NOT EXISTS {TABLENAME} (
-                {ID} SMALLTEXT PRIMARY KEY,
+                {ID} INT PRIMARY KEY,
                 {NAME} SMALLTEXT,
                 {DESCRIPTION} TEXT
             )""")
