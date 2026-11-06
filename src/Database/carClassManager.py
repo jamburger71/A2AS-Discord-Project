@@ -34,7 +34,7 @@ class CarClassManager:
             cursor.execute(query, params)
             self.databaseConnection.commit()
     
-    def getCarClass(self, classID: int) -> CarClass:
+    def getCarClass(self, classID: str) -> CarClass | None:
         
         with closing(self.databaseConnection.cursor()) as cursor:
             query = f"SELECT * FROM {TABLENAME} WHERE {ID} = ?"
@@ -43,20 +43,20 @@ class CarClassManager:
             return CarClass.new(cursor.fetchone())
 
     def updateCarClass(self, carClass: CarClass):
-
+        
         with closing(self.databaseConnection.cursor()) as cursor:
             query = f"UPDATE {TABLENAME} SET ({ID}, {NAME}, {DESCRIPTION}) = (?, ?, ?) WHERE {ID} = ?"
             params = carClass.toTuple() + (carClass.id, )
             cursor.execute(query, params)
             self.databaseConnection.commit()
 
-    def getCarClasses(self) -> list[CarClass]:
+    def getCarClasses(self) -> list[CarClass | None]:
 
         with closing(self.databaseConnection.cursor()) as cursor:
             cursor.execute(f"SELECT * FROM {TABLENAME}")
             return [CarClass.new(carClass) for carClass in cursor.fetchall()]
 
-    def deleteCarClass(self, classID: int):
+    def deleteCarClass(self, classID: str):
 
         with closing(self.databaseConnection.cursor()) as cursor:
             query = f"DELETE FROM {TABLENAME} WHERE {ID} = ?"

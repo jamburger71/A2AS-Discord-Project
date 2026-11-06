@@ -23,17 +23,21 @@ def testCarClassManager():
 def testInsertAndGetCarClass(testCarClassManager):
 
     # ACT
-    testCarClass = CarClass.new((0, "TestClass", "Description"))
+    testCarClass = CarClass(("carClass12345", "TestClass", "Description"))
     testCarClassManager.insertCarClass(testCarClass)
     fetchedCarClass = testCarClassManager.getCarClass(testCarClass.id)
     # ASSERT
+    assert isinstance(fetchedCarClass, CarClass)
+    assert isinstance(testCarClass, CarClass)
+    assert fetchedCarClass.id == testCarClass.id
     assert fetchedCarClass.name == testCarClass.name
+    assert fetchedCarClass.description == testCarClass.description
 
 def testGetAllCarClasses(testCarClassManager):
 
     # ACT
     for i in range(10):
-        testCarClass = CarClass.new((i, f"test{i}", f"description {i}"))
+        testCarClass = CarClass.new((str(i), f"test{i}", f"description {i}"))
         testCarClassManager.insertCarClass(testCarClass)
     allClasses = testCarClassManager.getCarClasses()
     # ASSERT
@@ -43,8 +47,8 @@ def testGetAllCarClasses(testCarClassManager):
 def testUpdateCarClass(testCarClassManager):
 
     # ACT
-    testCarClassManager.insertCarClass(CarClass.new((5, "original", "words")))
-    fetchedCarClass = testCarClassManager.getCarClass(5)
+    testCarClassManager.insertCarClass(CarClass.new(("5", "original", "words")))
+    fetchedCarClass = testCarClassManager.getCarClass("5")
     fetchedCarClass.name = "Edited"
     testCarClassManager.updateCarClass(fetchedCarClass)
     editedCarClass = testCarClassManager.getCarClass(5)
@@ -54,11 +58,11 @@ def testUpdateCarClass(testCarClassManager):
 def testDeleteCarClass(testCarClassManager):
 
     # ACT
-    testCarClassManager.insertCarClass(CarClass.new((21, "original", "words")))
-    testCarClassManager.insertCarClass(CarClass.new((5, "original", "words")))
-    testCarClassManager.deleteCarClass(21)
-    deletedClass = testCarClassManager.getCarClass(21)
-    notDeletedClass = testCarClassManager.getCarClass(5)
+    testCarClassManager.insertCarClass(CarClass.new(("`21`", "original", "words")))
+    testCarClassManager.insertCarClass(CarClass.new(("5", "original", "words")))
+    testCarClassManager.deleteCarClass("21")
+    deletedClass = testCarClassManager.getCarClass("21")
+    notDeletedClass = testCarClassManager.getCarClass("5")
     # ASSERT
     assert deletedClass is None
     assert notDeletedClass is not None
