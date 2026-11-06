@@ -23,11 +23,15 @@ def testCarClassManager():
 def testInsertAndGetCarClass(testCarClassManager):
 
     # ACT
-    testCarClass = CarClass.new((0, "TestClass", "Description"))
+    testCarClass = CarClass((0, "TestClass", "Description"))
     testCarClassManager.insertCarClass(testCarClass)
     fetchedCarClass = testCarClassManager.getCarClass(testCarClass.id)
     # ASSERT
+    assert isinstance(fetchedCarClass, CarClass)
+    assert isinstance(testCarClass, CarClass)
+    assert fetchedCarClass.id == testCarClass.id
     assert fetchedCarClass.name == testCarClass.name
+    assert fetchedCarClass.description == testCarClass.description
 
 def testGetAllCarClasses(testCarClassManager):
 
