@@ -7,13 +7,19 @@ import os
 from dotenv import load_dotenv
 
 from Database.databaseManager import DatabaseManager
+from Database.carClassManager import CarClassManager
+from Database.carManager import CarManager
 from Database.driverManager import DriverManager
+from Database.engineManager import EngineManager
+from Database.eventManager import EventManager
 from Database.keyValManager import KeyValManager
 from Database.teamManager import TeamManager
-from Database.eventManager import EventManager
-from Database.carManager import CarManager
 from Database.primarySponsorManager import PrimarySponsorManager
+from Database.resultManager import ResultManager
+from Database.seasonManager import SeasonManager
 from Database.secondarySponsorManager import SecondarySponsorManager
+from Database.trackLayoutManager import TrackLayoutManager
+from Database.trackManager import TrackManager
 
 load_dotenv()
 
@@ -27,11 +33,20 @@ class MyBot(commands.Bot):
         super().__init__(command_prefix="/", description="A2AS Personal Assistant", intents=intents)
 
         self.databaseManager = DatabaseManager(databaseName=os.getenv("DB_NAME"+".db") or "GenericDB.db")
-        self.DatabaseConnection = self.databaseManager.DatabaseConnection
-        self.driverManager = DriverManager(self.DatabaseConnection)
-        self.teamManager = TeamManager(self.DatabaseConnection)
-        self.eventManager = EventManager(self.DatabaseConnection)
-        self.keyValManager = KeyValManager(self.DatabaseConnection)
+        self.databaseConnection = self.databaseManager.DatabaseConnection
+        self.carClassManager = CarClassManager(self.databaseConnection)
+        self.carManager = CarManager(self.databaseConnection)
+        self.driverManager = DriverManager(self.databaseConnection)
+        self.engineManager = EngineManager(self.databaseConnection)
+        self.eventManager = EventManager(self.databaseConnection)
+        self.keyValManager = KeyValManager(self.databaseConnection)
+        self.primarySponsorManager = PrimarySponsorManager(self.databaseConnection)
+        self.resultManager = ResultManager(self.databaseConnection)
+        self.seasonManager = SeasonManager(self.databaseConnection)
+        self.secondarySponsorManager = SecondarySponsorManager(self.databaseConnection)
+        self.teamManager = TeamManager(self.databaseConnection)
+        self.trackLayoutManager = TrackLayoutManager(self.databaseConnection)
+        self.trackManager = TrackManager(self.databaseConnection)
 
     async def setup_hook(self):
 
