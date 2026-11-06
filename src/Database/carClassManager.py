@@ -21,7 +21,7 @@ class CarClassManager:
         with closing(self.databaseConnection.cursor()) as cursor:
             cursor.execute(f"""
                 CREATE TABLE IF NOT EXISTS {TABLENAME} (
-                {ID} INT PRIMARY KEY,
+                {ID} SMALLTEXT PRIMARY KEY,
                 {NAME} SMALLTEXT,
                 {DESCRIPTION} TEXT
             )""")
@@ -34,7 +34,7 @@ class CarClassManager:
             cursor.execute(query, params)
             self.databaseConnection.commit()
     
-    def getCarClass(self, classID: int) -> CarClass | None:
+    def getCarClass(self, classID: str) -> CarClass | None:
         
         with closing(self.databaseConnection.cursor()) as cursor:
             query = f"SELECT * FROM {TABLENAME} WHERE {ID} = ?"
@@ -56,7 +56,7 @@ class CarClassManager:
             cursor.execute(f"SELECT * FROM {TABLENAME}")
             return [CarClass.new(carClass) for carClass in cursor.fetchall()]
 
-    def deleteCarClass(self, classID: int):
+    def deleteCarClass(self, classID: str):
 
         with closing(self.databaseConnection.cursor()) as cursor:
             query = f"DELETE FROM {TABLENAME} WHERE {ID} = ?"
