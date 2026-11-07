@@ -51,30 +51,35 @@ class CarManager:
     def insertCar(self, car: Car):
 
         with closing(self.databaseConnection.cursor()) as cursor:
-            cursor.execute(f"INSERT INTO {TABLENAME} VALUES {str(car.toTuple())}")
+            query = f"INSERT INTO {TABLENAME} VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ,?, ?, ?, ?)"
+            params = car.toTuple()
 
     def getCar(self, carID: str) -> Car:
 
         with closing(self.databaseConnection.cursor()) as cursor:
-            cursor.execute(f"SELECT * FROM {TABLENAME} WHERE ID = {carID}")
+            query = f"SELECT * FROM {TABLENAME} WHERE ID = ?"
+            params = (carID, )
+            cursor.execute(query, params)
             return Car(cursor.fetchone())
         
     def getCarsInClass(self, carClass: str) -> list[Car]:
         
         with closing(self.databaseConnection.cursor()) as cursor:
-            cursor.execute(f"SELECT * FROM {TABLENAME} WHERE {CLASS} = {carClass}")
+            query = f"SELECT * FROM {TABLENAME} WHERE {CLASS} = ?"
+            params = (carClass, )
+            cursor.execute(query, params)
             return list(map(Car, cursor.fetchall()))
     
     def getCars(self) -> list[Car]:
         
         with closing(self.databaseConnection.cursor()) as cursor:
             cursor.execute(f"SELECT * FROM {TABLENAME}")
-            return list(map(Car, cursor.fetchall()))
+            return [Car(car) for car in cursor.fetchall()]
     
     def updateCar(self, car: Car):
 
         with closing(self.databaseConnection.cursor()) as cursor:
-            cursor.execute(f"""
+            query = f"""
                 UPDATE CarData
                 SET
                 ({ID},
@@ -91,13 +96,17 @@ class CarManager:
                 {BASEDRAG},
                 {DRAGUPGRADESIZE},
                 {MAXDRAGUPGRADES})
-                = {str(car.toTuple())}
-                WHERE ID = {car.id}
-            """)
+                = (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                WHERE ID = ?
+            """
+            params = car.toTuple() + (car.id, )
+            cursor.execute(query, params)
             self.databaseConnection.commit()
 
     def deleteCar(self, carID: str):
 
         with closing(self.databaseConnection.cursor()) as cursor:
-            cursor.execute(f"DELETE FROM {TABLENAME} WHERE {ID} = {carID}")
+            query = f"DELETE FROM {TABLENAME} WHERE {ID} = ?"
+            params = (carID, )
+            cursor.execute(query, params)
             self.databaseConnection.commit()
