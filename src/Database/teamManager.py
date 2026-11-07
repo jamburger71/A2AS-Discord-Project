@@ -53,25 +53,29 @@ class TeamManager:
     def getTeamByOwner(self, ownerID: int) -> Team:
 
         with closing(self.databaseConnection.cursor()) as cursor:
-            cursor.execute(f"SELECT * FROM {TABLENAME} WHERE {OWNERID} = {ownerID}")
-            return Team(cursor.fetchone())
+            query = f"SELECT * FROM {TABLENAME} WHERE {OWNERID} = ?"
+            params = (ownerID, )
+            cursor.execute(query, params)
+            return Team.new(cursor.fetchone())
 
     def getTeamByID(self, teamID: int) -> Team:
 
         with closing(self.databaseConnection.cursor()) as cursor:
-            cursor.execute(f"SELECT * FROM {TABLENAME} WHERE {OWNERID} = {teamID}")
-            return Team(cursor.fetchone())
+            query = f"SELECT * FROM {TABLENAME} WHERE {ID} = ?"
+            params = (teamID, )
+            cursor.execute(query, params)
+            return Team.new(cursor.fetchone())
     
     def getTeams(self):
         
         with closing(self.databaseConnection.cursor()) as cursor:
             cursor.execute(f"SELECT * FROM {TABLENAME}")
-            return [Team(team) for team in cursor.fetchall()]
+            return [Team.new(team) for team in cursor.fetchall()]
     
     def updateTeam(self, team: Team) -> None:
     
         with closing(self.databaseConnection.cursor()) as cursor:
-            cursor.execute(f"""
+            query = f"""
                 UPDATE {TABLENAME}
                 SET (
                 {ID},
@@ -89,19 +93,24 @@ class TeamManager:
                 {SECONDARYSPONSOR1},
                 {SECONDARYSPONSOR2},
                 {SECONDARYSPONSOR3}
-                ) = {str(team.toTuple())}
-                WHERE {ID} = {team.ID}
-            """)
+                ) = (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                WHERE {ID} = ?
+            """
+            params = team.toTuple() + (team.ID, )
             self.databaseConnection.commit()
 
     def insertTeam(self, team: Team):
 
         with closing(self.databaseConnection.cursor()) as cursor:
-            cursor.execute(f"INSERT INTO {TABLENAME} VALUES {str(team.toTuple())}")
+            query = f"INSERT INTO {TABLENAME} VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+            params = team.toTuple()
+            cursor.execute(query, params)
             self.databaseConnection.commit()
 
     def deleteTeam(self, teamID: int):
 
         with closing(self.databaseConnection.cursor()) as cursor:
-            cursor.execute(f"DELETE FROM {TABLENAME} WHERE {ID} = {teamID}")
+            query = f"DELETE FROM {TABLENAME} WHERE {ID} = ?"
+            params = (teamID, )
+            cursor.execute(query, params)
             self.databaseConnection.commit()

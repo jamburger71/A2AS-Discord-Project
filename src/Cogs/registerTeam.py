@@ -35,7 +35,7 @@ class RegisterTeamModal(discord.ui.Modal, title="Register Team"):
         
         teamID: int = self.bot.keyValManager.getAndIterateKeyVal("NextTeamID")
         startingCash: int = self.bot.keyValManager.getKeyVal("StartingCash")
-        team: Team = Team.new(teamID, self.name.value, self.description.value, self.nationality.value, interaction.user.id, startingCash)
+        team: Team = Team.register(teamID, self.name.value, self.description.value, self.nationality.value, interaction.user.id, startingCash)
         self.bot.teamManager.insertTeam(team)
         await interaction.response.send_message("""Team Registered! Manage your team with /myteam.
         Until you have assigned your team a car, drivers, and an engine supplier, your team will not compete.

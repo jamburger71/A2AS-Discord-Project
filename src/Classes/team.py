@@ -22,7 +22,12 @@ class Team:
         self.secondarySponsor3 = databaseData[15]
 
     @classmethod
-    def new(cls, ID: int, name: str, desc: str, nationality: str, ownerID: int, defaultCash: int):
+    def new(cls, dbinput):
+        if dbinput is None: return None
+        return cls(dbinput)
+    
+    @classmethod
+    def register(cls, ID: int, name: str, desc: str, nationality: str, ownerID: int, defaultCash: int):
         return cls((ID, name, desc, nationality, ownerID, None, None, None, None, defaultCash, 0, 0, None, None, None, None))
     
     def toTuple(self) -> tuple:

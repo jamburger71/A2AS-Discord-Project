@@ -31,7 +31,11 @@ class MyTeam(commands.Cog):
         team: Team | None = self.bot.teamManager.getTeamByOwner(interaction.user.id)
         if team is None:
             logging.info(f"No team found for user {interaction.user.id}")
-            await interaction.response.send_message("You don't own a team!")
+            noTeamEmbed = discord.Embed(
+                title = "You don't own a team!",
+                description = "If there are available team slots, you cannl use /registerteam to set up your team."
+            )
+            await interaction.response.send_message(embed = noTeamEmbed)
             return
             
         def filterWins(result: Result):
