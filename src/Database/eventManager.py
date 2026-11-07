@@ -41,59 +41,50 @@ class EventManager:
     def insertEvent(self, event: Event):
             
         with closing(self.databaseConnection.cursor()) as cursor:
-            cursor.execute(f"""
+            query = f"""
                 INSERT INTO {TABLENAME}
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """, event.toTuple())
+                """
+            params = event.toTuple()
+            cursor.execute(query, params)
             self.databaseConnection.commit()
     
     def getEvent(self, seasonNo: int, roundNo: int) -> Event:
         
         with closing(self.databaseConnection.cursor()) as cursor:
-            cursor.execute(f"""
-                SELECT 1 FROM {TABLENAME}
-                WHERE {SEASONNO}  = {seasonNo}
-                AND {ROUNDNO} = {roundNo}""")
+            query = f"SELECT 1 FROM {TABLENAME} WHERE {SEASONNO}  = ? AND {ROUNDNO} = ?"
+            params = (seasonNo, roundNo)
+            cursor.execute(query, params)
             return Event(cursor.fetchone())
     
     def getEventsFromSeason(self, seasonNo: int) -> list[Event]:
         
         with closing(self.databaseConnection.cursor()) as cursor:
-            cursor.execute(f"""
-                SELECT * FROM {TABLENAME}
-                WHERE {SEASONNO} = {seasonNo}
-            """)
-            return list(map(Event, cursor.fetchall()))
+            query = f"SELECT * FROM {TABLENAME} WHERE {SEASONNO} = ?"
+            params = (seasonNo, )
+            return [Event(event) for event in cursor.fetchall()]
     
     def getEvents(self) -> list[Event]:
         
         with closing(self.databaseConnection.cursor()) as cursor:
             cursor.execute(f"SELECT * FROM {TABLENAME}")
-            return list(map(Event, cursor.fetchall()))
+            return [Event(event) for event in cursor.fetchall()]
     
     def updateEvent(self, event: Event):
         
         with closing(self.databaseConnection.cursor()) as cursor:
-            cursor.execute(f"""
-                UPDATE {TABLENAME}
-                SET 
-                {SEASONNO} = {event.seasonNo},
-                {ROUNDNO} = {event.roundNo},
-                {TITLE} = {event.title},
-                {DATE} = {event.date},
-                {WEATHER} = {event.weather},
-                {QUALIDURATION} = {event.qualiDuration},
-                {RACELENGTH} = {event.raceLength},
-                WHERE {SEASONNO} = {event.seasonNo} 
-                AND {ROUNDNO} = {event.roundNo}""")
+            query = f"""UPDATE {TABLENAME}
+                SET ({SEASONNO}, {ROUNDNO}, {TITLE}, {DATE}, {WEATHER}, {QUALIDURATION}, {RACELENGTH}, {POLEPOINT}, {POINTSMODEL})
+                = (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                WHERE {SEASONNO} = ?
+                AND {ROUNDNO} = ?"""
+            params = event.toTuple() + (event.seasonNo, event.roundNo)
             self.databaseConnection.commit()
 
     def deleteEvent(self, roundNo, seasonNo):
 
         with closing(self.databaseConnection.cursor()) as cursor:
-            cursor.execute(f"""
-                DELETE FROM {TABLENAME}
-                WHERE {SEASONNO} = {seasonNo}
-                AND {ROUNDNO} = {roundNo}""", 
-                (roundNo, seasonNo))
+            query = f"DELETE FROM {TABLENAME} WHERE {SEASONNO} = ? AND {ROUNDNO} = ?"
+            params = (roundNo, seasonNo)
+            cursor.execute(query, params)
             self.databaseConnection.commit()
