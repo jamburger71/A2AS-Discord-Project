@@ -34,12 +34,17 @@ class SeasonManager:
     def insertSeason(self, season: Season):
         
         with closing(self.databaseConnection.cursor()) as cursor:
-            cursor.execute(f"INSERT INTO {TABLENAME} VALUES {str(season.toTuple())}")
+            query = f"INSERT INTO {TABLENAME} VALUES (?, ?, ?, ?, ?, ?)"
+            params = season.toTuple()
+            cursor.execute(query, params)
+            self.databaseConnection.commit()
     
     def getSeason(self, seasonNo: int) -> Season:
 
         with closing(self.databaseConnection.cursor()) as cursor:
-            cursor.execute(f"SELECT * FROM {TABLENAME} WHERE {SEASONNO} = {seasonNo} LIMIT 1")
+            query = f"SELECT * FROM {TABLENAME} WHERE {SEASONNO} = ?"
+            params = (seasonNo, )
+            cursor.execute(query, params)
             return Season(cursor.fetchone())
 
     def getSeasons(self) -> list[Season]:
@@ -48,17 +53,23 @@ class SeasonManager:
             cursor.execute(f"SELECT * FROM {TABLENAME}")
             return [Season(season) for season in cursor.fetchall()]
 
-    def getCurrentSeason(self) -> Season:
-
-        with closing(self.databaseConnection.cursor()) as cursor:
-            cursor.execute(f"SELECT *, max({SEASONNO}) FROM {TABLENAME}")
-            return Season(cursor.fetchone())
-
     def updateSeason(self, season: Season):
 
         with closing(self.databaseConnection.cursor()) as cursor:
-            cursor.execute(f"""
+            query = f"""
                 UPDATE {TABLENAME} 
-                SET ({SEASONNO}, {NAME}, {CLASS}, {YEAR}, {POINTSMODEL}, {POINTFORPOLE}) = {str(season.toTuple())}
-            """)
+                SET ({SEASONNO}, {NAME}, {CLASS}, {YEAR}, {POINTSMODEL}, {POINTFORPOLE})
+                = (?, ?, ?, ?, ?, ?)
+                WHERE {SEASONNO} = ?
+            """
+            params = season.toTuple() + (season.seasonNo, )
+            cursor.execute(query, params)
             self.databaseConnection.commit()
+
+        def deleteSeason(self, seasonNo: int):
+
+            with closing(self.databaseConnection.cursor()) as cursor:
+                query = f"DELETE FROM {TABLENAME} WHERE {SEASONNO} = ?"
+                params = (seasonNo, )
+                cursor.execute(query, params)
+                self.databaseConnection.commit()
