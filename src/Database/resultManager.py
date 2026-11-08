@@ -42,75 +42,96 @@ class ResultManager:
     def insertResult(self, result: Result):
 
         with closing(self.databaseConnection.cursor()) as cursor:
-            cursor.execute(f"INSERT INTO {TABLENAME} VALUES {str(result.toTuple())}")
+            query = f"INSERT INTO {TABLENAME} VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+            params = result.toTuple()
+            cursor.execute(query, params)
 
     def getRoundResultForDriver(self, driverID: int, roundNo: int, seasonNo: int) -> Result:
 
         with closing(self.databaseConnection.cursor()) as cursor:
-            cursor.execute(f"""
-                SELECT 1 FROM {TABLENAME}
-                WHERE {DRIVER} = {driverID}
-                AND {ROUNDNO} = {roundNo}
-                AND {SEASONNO} = {seasonNo}
-            """)
+            query = f"SELECT * FROM {TABLENAME} WHERE {DRIVER} = ? AND {ROUNDNO} = ? AND {SEASONNO} = ?"
+            params = (driverID, roundNo, seasonNo)
+            cursor.execute(query, params)
             return Result(cursor.fetchone())
 
     def getSeasonResultsForDriver(self, driverID: int, seasonNo: int) -> list[Result]:
 
         with closing(self.databaseConnection.cursor()) as cursor:
-            cursor.execute(f"""
-                SELECT * FROM {TABLENAME}
-                WHERE {DRIVER} = {driverID}
-                AND {SEASONNO} = {seasonNo}
-            """)
+            query = f"SELECT * FROM {TABLENAME} WHERE {DRIVER} = ? AND {SEASONNO} = ?"
+            params = (driverID, seasonNo)
+            cursor.execute(query, params)
         return [Result(result) for result in cursor.fetchall()]
 
     def getAllResultsForDriver(self, driverID: int) -> list[Result]:
 
         with closing(self.databaseConnection.cursor()) as cursor:
-            cursor.execute(f"SELECT * FROM {TABLENAME} WHERE {DRIVER} = {driverID}")
+            query = f"SELECT * FROM {TABLENAME} WHERE {DRIVER} = ?"
+            params = (driverID, )
+            cursor.execute(query, params)
             return [Result(result) for result in cursor.fetchall()]
     
     def getRoundResultsForTeam(self, teamID: int, roundNo: int, seasonNo: int) -> list[Result]:
 
         with closing(self.databaseConnection.cursor()) as cursor:
-            cursor.execute(f"""
-                SELECT * FROM {TABLENAME}
-                WHERE {TEAM} = {teamID}
-                AND {ROUNDNO} = {roundNo}
-                AND {SEASONNO} = {seasonNo}
-            """)
+            query = f"SELECT * FROM {TABLENAME} WHERE {TEAM} = ? AND {ROUNDNO} = ? AND {SEASONNO} = ?"
+            params = (teamID, roundNo, seasonNo)
+            cursor.execute(query, params)
             return [Result(result) for result in cursor.fetchall()]
 
     def getSeasonResultsForTeam(self, teamID: int, seasonNo: int) -> list[Result]:
 
         with closing(self.databaseConnection.cursor()) as cursor:
-            cursor.execute(f"""
-                SELECT * FROM {TABLENAME}
-                WHERE {TEAM} = {teamID}
-                AND {SEASONNO} = {seasonNo}
-            """)
+            query = f"SELECT * FROM {TABLENAME} WHERE {TEAM} = ? AND {SEASONNO} = ?"
+            params = (teamID, seasonNo)
+            cursor.execute(query, params)
             return [Result(result) for result in cursor.fetchall()]
 
     def getAllResultsForTeam(self, teamID: int) -> list[Result]:
 
         with closing(self.databaseConnection.cursor()) as cursor:
-            cursor.execute(f"SELECT * FROM {TABLENAME} WHERE {TEAM} = {teamID}")
+            query = f"SELECT * FROM {TABLENAME} WHERE {TEAM} = ?"
+            params = (teamID, )
+            cursor.execute(query, params)
             return [Result(result) for result in cursor.fetchall()]
 
     def getResultsForEvent(self, seasonNo: int, roundNo: int) -> list[Result]:
 
         with closing(self.databaseConnection.cursor()) as cursor:
-            cursor.execute(f"""
-                SELECT * FROM {TABLENAME}
-                WHERE {ROUNDNO} = {roundNo}
-                AND {SEASONNO} = {seasonNo}
-                ORDER BY {RACEPOSITION}
-            """)
+            query = f"SELECT * FROM {TABLENAME} WHERE {ROUNDNO} = ? AND {SEASONNO} = ?"
+            params = (roundNo, seasonNo)
+            cursor.execute(query, params)
             return [Result(result) for result in cursor.fetchall()]
 
     def getResultsForSeason(self, seasonNo: int) -> list[Result]:
 
         with closing(self.databaseConnection.cursor()) as cursor:
-            cursor.execute(f"SELECT * FROM {TABLENAME} WHERE {SEASONNO} = {seasonNo}")
+            query = f"SELECT * FROM {TABLENAME} WHERE {SEASONNO} = ?"
+            params = (seasonNo, )
+            cursor.execute(query, params)
             return [Result(result) for result in cursor.fetchall()]
+
+    def getResults(self) -> list[Result]:
+
+        with closing(self.databaseConnection.cursor()) as cursor:
+            cursor.execute(f"SELECT * FROM {TABLENAME}")
+            return [Result(result) for result in cursor.fetchall()]
+
+    def updateResult(self, driverID, seasonNo, roundNo):
+
+        with closing(self.databaseConnection.cursor()) as cursor:
+            query = f"""UPDATE {TABLENAME}
+                SET ({SEASONNO}, {ROUNDNO}, {DRIVER}, {TEAM}, {QUALIPOSITION}, {QUALILAP}, {RACEPOSITION}, {RACEGAP}, {RACESTOPS}, {RACEFINISHSTATUS})
+                = (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                WHERE {DRIVER} = ? AND {SEASONNO} = ? AND {ROUNDNO} = ?
+            """
+            params = (driverID, seasonNo, roundNo)
+            cursor.execute(query, params)
+            self.databaseConnection.commit()
+
+    def deleteResult(self, driverID, seasonNo, roundNo):
+
+        with closing(self.databaseConnection.cursor()) as cursor:
+            query = f"DELETE FROM {TABLENAME} WHERE {DRIVER} = ? AND {SEASONNO} = ? AND {ROUNDNO} = ?"
+            params = (driverID, seasonNo, roundNo)
+            cursor.execute(query, params)
+            self.databaseConnection.commit()
