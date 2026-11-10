@@ -108,6 +108,7 @@ class TeamManager:
                 WHERE {ID} = ?
             """
             params = team.toTuple() + (team.ID, )
+            cursor.execute(query, params)
             self.databaseConnection.commit()
 
     def insertTeam(self, team: Team):
