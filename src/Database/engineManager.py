@@ -1,4 +1,4 @@
-from discordLogger import DiscordLogger
+  
 import logging
 import sqlite3
 import yaml
@@ -19,7 +19,7 @@ class EngineManager:
 
     def __init__(self, databaseConnection):
 
-        self.databaseConnection = databaseConnection
+        self.databaseConnection: sqlite3.Connection = databaseConnection
         
         with closing(self.databaseConnection.cursor()) as cursor:
             cursor.execute(f"""
@@ -35,45 +35,50 @@ class EngineManager:
     def insertEngine(self, engine: Engine):
         
         with closing(self.databaseConnection.cursor()) as cursor:
-            cursor.execute(f"""INSERT INTO {DATABASE_NAME} VALUES ({engine.toTuple()})
-            """)
+            query = f"INSERT INTO {DATABASE_NAME} VALUES (?, ?, ?, ?, ?, ?)"
+            params = engine.toTuple()
+            cursor.execute(query, params)
+            self.databaseConnection.commit()
     
     def updateEngine(self, engine: Engine):
         
-        with closing(self.databaseConnection.cursor) as cursor:
-            cursor.execute(f"""
+        with closing(self.databaseConnection.cursor()) as cursor:
+            query = f"""
                 UPDATE {DATABASE_NAME}
-                SET 
-                {MODEL} = {engine.model},
-                {MANUFACTURER} = {engine.manufacturer},
-                {YEAR} = {engine.year},
-                {POWER} = {engine.power},
-                {RELIABILITY} = {engine.reliability},
-                {PRICE} = {engine.price}
-                WHERE {MODEL} = {engine.model}
-            """)
+                SET ({MODEL}, {MANUFACTURER}, {YEAR}, {POWER}, {RELIABILITY}, {PRICE})
+                = (?, ?, ?, ?, ?, ?)
+                WHERE {MODEL} = ?
+            """
+            params, = engine.toTuple() + (engine.model, )
+            cursor.execute(query, params)
             self.databaseConnection.commit()
     
     def getEngine(self, engineModel: str) -> Engine:
         
-        with closing(self.databaseConnection.cursor) as cursor:
-            cursor.execute(f"SELECT 1 FROM {DATABASE_NAME} WHERE {MODEL} = {engineModel}")
+        with closing(self.databaseConnection.cursor()) as cursor:
+            query = f"SELECT * FROM {DATABASE_NAME} WHERE {MODEL} = ?"
+            params = (engineModel, )
+            cursor.execute(query, params)
             return Engine(cursor.fetchone())
     
     def getEnginesForYear(self, year: str) -> list[Engine]:
         
         with closing(self.databaseConnection.cursor()) as cursor:
-            cursor.execute(f"SELECT * FROM {DATABASE_NAME} WHERE {YEAR} = {year}")
-            return list(map(Engine, cursor.fetchall()))
+            query = f"SELECT * FROM {DATABASE_NAME} WHERE {YEAR} = ?"
+            params = (year, )
+            cursor.execute(query, params)
+            return [Engine(engine) for engine in cursor.fetchall()]
     
     def getEngines(self) -> list[Engine]:
         
         with closing(self.databaseConnection.cursor()) as cursor:
             cursor.execute(f"SELECT * FROM {DATABASE_NAME}")
-            return list(map(Engine, cursor.fetchall()))
+            return [Engine(engine) for engine in cursor.fetchall()]
     
     def deleteEngine(self, engineModel: str):
         
         with closing(self.databaseConnection.cursor()) as cursor:
-            cursor.execute(f"REMOVE FROM {DATABASE_NAME} WHERE {MODEL} = {engineModel}")
-            cursor.commit()
+            query = f"REMOVE FROM {DATABASE_NAME} WHERE {MODEL} = ?"
+            params = (engineModel, )
+            cursor.execute(query, params)
+            self.databaseConnection.commit()

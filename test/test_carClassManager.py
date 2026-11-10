@@ -16,7 +16,7 @@ from Classes.carClass import CarClass
 @pytest.fixture()
 def testCarClassManager():
     testDB = DatabaseManager("Test_DB")
-    testcarclassmanager = CarClassManager(testDB.DatabaseConnection)
+    testcarclassmanager = CarClassManager(testDB.databaseConnection)
     yield testcarclassmanager
     testDB.deleteDatabase()
 

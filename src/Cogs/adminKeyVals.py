@@ -3,15 +3,16 @@ import discord
 from discord import app_commands, Interaction
 from discord.ext import commands
 import logging
-from discordLogger import DiscordLogger
+  
 
+from Classes.myBot import MyBot
 from Classes.driver import Driver
 from areyousure import AreYouSure
 from enums import keyVals
 
 class AdminKeyVals(commands.Cog):
 
-    def __init__(self, bot: "MyBot"): # type: ignore # noqa: F821
+    def __init__(self, bot: MyBot): 
         self.bot = bot
 
     async def cog_load(self):
@@ -181,6 +182,6 @@ class updateKeyValModal(discord.ui.Modal):
         )
         await interaction.response.send_message(embed=successEmbed)
 
-async def setup(bot: "MyBot"): # type: ignore # noqa: F821
+async def setup(bot: MyBot):  
     print(f"Loading {AdminKeyVals.__name__} cog...")
     await bot.add_cog(AdminKeyVals(bot))

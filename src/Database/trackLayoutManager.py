@@ -1,4 +1,3 @@
-from discordLogger import DiscordLogger
 import logging
 import sqlite3
 import yaml
@@ -21,7 +20,7 @@ class TrackLayoutManager:
 
     def __init__(self, databaseConnection):
 
-        self.databaseConnection = databaseConnection
+        self.databaseConnection: sqlite3.Connection = databaseConnection
         
         with closing(self.databaseConnection.cursor()) as cursor:
             cursor.execute(f"""
@@ -38,31 +37,41 @@ class TrackLayoutManager:
     def insertTrackLayout(self, layout: TrackLayout):
 
         with closing(self.databaseConnection.cursor()) as cursor:
-            cursor.execute(f"INSERT INTO {TABLENAME} VALUES {str(layout.toTuple())}")
+            query = f"INSERT INTO {TABLENAME} VALUES (?, ?, ?, ?, ?, ?, ?)"
+            params = layout.toTuple()
+            cursor.execute(query, params)
+            self.databaseConnection.commit()
 
     def getTrackLayout(self, layoutID: str) -> TrackLayout:
 
         with closing(self.databaseConnection.cursor()) as cursor:
-            cursor.execute(f"SELECT 1 FROM {TABLENAME} WHERE {ID} = {layoutID}")
+            query = f"SELECT * FROM {TABLENAME} WHERE {ID} = ?"
+            params = (layoutID, )
+            cursor.execute(query, params)
             return TrackLayout(cursor.fetchone())
 
     def getTrackLayoutsForTrack(self, trackID: str):
 
         with closing(self.databaseConnection.cursor()) as cursor:
-            cursor.execute(f"SELECT * FROM {TABLENAME} WHERE {TRACK} = {trackID}")
+            query = f"SELECT * FROM {TABLENAME} WHERE {TRACK} = ?"
+            params = (trackID, )
+            cursor.execute(query, params)
             return [TrackLayout(output) for output in cursor.fetchall()]
 
     def updateTrackLayout(self, layout: TrackLayout):
 
         with closing(self.databaseConnection.cursor()) as cursor:
-            cursor.execute(f"""
-            UPDATE {TABLENAME}
-            SET ({ID}, {TRACK}, {NAME}, {DESCRIPTION}, {YEAR}, {LENGTH}, {CORNERS})
-            = {str(layout.toTuple())}""")
+            query = f"""
+                UPDATE {TABLENAME}
+                SET ({ID}, {TRACK}, {NAME}, {DESCRIPTION}, {YEAR}, {LENGTH}, {CORNERS})
+                = (?, ?, ?, ?, ?, ?, ?)"""
+            params = layout.toTuple() + (layout.id, )
             self.databaseConnection.commit()
 
     def deleteTrackLayout(self, layoutID: str):
 
         with closing(self.databaseConnection.cursor()) as cursor:
-            cursor.execute(f"DELETE FROM {TABLENAME} WHERE {ID} = {layoutID}")
+            query = f"DELETE FROM {TABLENAME} WHERE {ID} = ?"
+            params = (layoutID, )
+            cursor.execute(query, params)
             self.databaseConnection.commit()

@@ -3,9 +3,11 @@ from discord import app_commands
 from discord.ext import commands
 import logging
 
+from Classes.myBot import MyBot
+
 class HelpAdmin(commands.Cog):
 
-    def __init__(self, bot: "MyBot"): # type: ignore # noqa: F821
+    def __init__(self, bot: MyBot):  
         self.bot = bot
 
     async def cog_load(self):
@@ -43,6 +45,6 @@ class HelpAdmin(commands.Cog):
         )
         await interaction.response.send_message(embed = commandsEmbed)
 
-async def setup(bot: "MyBot"): # type: ignore # noqa: F821
+async def setup(bot: MyBot):  
     print("Loading HelpAdmin cog...")
     await bot.add_cog(HelpAdmin(bot))

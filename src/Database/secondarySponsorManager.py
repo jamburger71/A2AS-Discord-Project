@@ -1,4 +1,4 @@
-from discordLogger import DiscordLogger
+  
 import logging
 import sqlite3
 import yaml
@@ -19,7 +19,7 @@ class SecondarySponsorManager:
 
     def __init__(self, databaseConnection):
 
-        self.databaseConnection = databaseConnection
+        self.databaseConnection: sqlite3.Connection = databaseConnection
 
         with closing(self.databaseConnection.cursor()) as cursor:
             cursor.execute(f"""
@@ -34,30 +34,40 @@ class SecondarySponsorManager:
     def insertSponsor(self, sponsor: Sponsor):
 
         with closing(self.databaseConnection.cursor()) as cursor:
-            cursor.execute(f"INSERT INTO {TABLENAME} VALUES {str(sponsor.toTuple())}")
+            query = f"INSERT INTO {TABLENAME} VALUES (?, ?, ?, ?, ?)"
+            params = sponsor.toTuple()
+            cursor.execute(query, params)
 
     def getSponsor(self, sponsorID: int):
 
-        with closing(self.databaseConnection.cursor) as cursor:
-            cursor.execute(f"SELECT * FROM {TABLENAME} WHERE {ID} = {sponsorID}")
+        with closing(self.databaseConnection.cursor()) as cursor:
+            query = f"SELECT * FROM {TABLENAME} WHERE {ID} = ?"
+            params = (sponsorID, )
+            cursor.execute(query, params)
         return Sponsor(cursor.fetchone())
 
     def getSponsors(self) -> list[Sponsor]:
 
         with closing(self.databaseConnection.cursor()) as cursor:
             cursor.execute(f"SELECT * FROM {TABLENAME}")
-            return list(map(Sponsor, cursor.fetchall()))
+            return [Sponsor(sponsor) for sponsor in cursor.fetchall()]
 
     def updateSponsor(self, sponsor: Sponsor):
 
         with closing(self.databaseConnection.cursor()) as cursor:
-            cursor.execute(f"""
-                UPDATE {TABLENAME}
-                SET ({ID}, {NAME}, {CONTRACTLENGTH}, {SIGNINGPAY}, {RACEPAY}) = {str(sponsor.toTuple())}
-                WHERE {ID} = {sponsor.id}
-            """)
+            query = f"""UPDATE {TABLENAME}
+                SET ({ID}, {NAME}, {CONTRACTLENGTH}, {SIGNINGPAY}, {RACEPAY})
+                = (?, ?, ?, ?, ?)
+                WHERE {ID} = ?
+            """
+            params = sponsor.toTuple() + (sponsor.id, )
+            cursor.execute(query, params)
+            self.databaseConnection.commit()
     
     def deleteSponsor(self, sponsorID: int):
         
         with closing(self.databaseConnection.cursor()) as cursor:
-            cursor.execute(f"DELETE FROM {TABLENAME} WHERE {ID} = {sponsorID}")
+            query = f"DELETE FROM {TABLENAME} WHERE {ID} = ?"
+            params = (sponsorID, )
+            cursor.execute(query, params)
+            self.databaseConnection.commit()
