@@ -62,6 +62,7 @@ class EventManager:
         with closing(self.databaseConnection.cursor()) as cursor:
             query = f"SELECT * FROM {TABLENAME} WHERE {SEASONNO} = ?"
             params = (seasonNo, )
+            cursor.execute(query, params)
             return [Event(event) for event in cursor.fetchall()]
     
     def getEvents(self) -> list[Event]:
@@ -79,6 +80,7 @@ class EventManager:
                 WHERE {SEASONNO} = ?
                 AND {ROUNDNO} = ?"""
             params = event.toTuple() + (event.seasonNo, event.roundNo)
+            cursor.execute(query, params)
             self.databaseConnection.commit()
 
     def deleteEvent(self, roundNo, seasonNo):

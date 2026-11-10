@@ -33,7 +33,6 @@ class CurrentStandings(commands.Cog):
         lastEvent: Event = self.bot.eventManager.getEvent(seasonNo, roundNo-1)
         allDrivers = self.bot.driverManager.getDrivers()
         allTeams: list[Team] = self.bot.teamManager.getTeams()
-        seasonResults = self.bot.resultManager.getResultsForSeason(seasonNo)
         
         driverPosField = ""
         driverNamesField = ""
