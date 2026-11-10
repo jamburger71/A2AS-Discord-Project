@@ -9,17 +9,18 @@ class Team:
         self.desc: str = databaseData[2]
         self.nationality: str = databaseData[3]
         self.ownerID: str = databaseData[4]
-        self.engine: str = databaseData[5]
-        self.car: str = databaseData[6]
+        self.engine: str | None = databaseData[5]
+        self.car: str | None = databaseData[6]
         self.driverOne: int | None = databaseData[7]
         self.driverTwo: int | None = databaseData[8]
         self.currentFunds: int = databaseData[9]
         self.dragUpgrades: int = databaseData[10]
         self.weightUpgrades: int = databaseData[11]
-        self.primarySponsor = databaseData[12]
-        self.secondarySponsor1 = databaseData[13]
-        self.secondarySponsor2 = databaseData[14]
-        self.secondarySponsor3 = databaseData[15]
+        self.primarySponsor: int | None = databaseData[12]
+        self.secondarySponsor1: int | None = databaseData[13]
+        self.secondarySponsor2: int | None = databaseData[14]
+        self.secondarySponsor3: int | None = databaseData[15]
+        self.isActive: bool = databaseData[16]
 
     @classmethod
     def new(cls, dbinput):
@@ -28,7 +29,7 @@ class Team:
     
     @classmethod
     def register(cls, ID: int, name: str, desc: str, nationality: str, ownerID: int, defaultCash: int):
-        return cls((ID, name, desc, nationality, ownerID, None, None, None, None, defaultCash, 0, 0, None, None, None, None))
+        return cls((ID, name, desc, nationality, ownerID, None, None, None, None, defaultCash, 0, 0, None, None, None, None, True))
     
     def toTuple(self) -> tuple:
         
@@ -48,5 +49,6 @@ class Team:
             self.primarySponsor,
             self.secondarySponsor1,
             self.secondarySponsor2,
-            self.secondarySponsor3
+            self.secondarySponsor3,
+            self.isActive
         )

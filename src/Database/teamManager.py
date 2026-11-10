@@ -23,6 +23,7 @@ PRIMARYSPONSOR = "PrimarySponsor"
 SECONDARYSPONSOR1 = "SecondarySponsor1"
 SECONDARYSPONSOR2 = "SecondarySponsor2"
 SECONDARYSPONSOR3 = "SecondarySponsor3"
+ISACTIVE = "IsActive"
 
 class TeamManager:
 
@@ -47,7 +48,8 @@ class TeamManager:
                 {PRIMARYSPONSOR} SMALLINT,
                 {SECONDARYSPONSOR1} SMALLINT,
                 {SECONDARYSPONSOR2} SMALLINT,
-                {SECONDARYSPONSOR3} SMALLINT
+                {SECONDARYSPONSOR3} SMALLINT,
+                {ISACTIVE} TINYINT
             )""")
 
     def getTeamByOwner(self, ownerID: int) -> Team:
@@ -65,8 +67,16 @@ class TeamManager:
             params = (teamID, )
             cursor.execute(query, params)
             return Team.new(cursor.fetchone())
+
+    def getTeamByDriver(self, driverID: int) -> Team | None:
+
+        with closing(self.databaseConnection.cursor()) as cursor:
+            query = f"SELECT * FROM {TABLENAME} WHERE {DRIVERONE} = ? OR {DRIVERTWO} = ?"
+            params = (driverID, driverID)
+            cursor.execute(query, params)
+            return Team.new(cursor.fetchone())
     
-    def getTeams(self):
+    def getTeams(self) -> list[Team]:
         
         with closing(self.databaseConnection.cursor()) as cursor:
             cursor.execute(f"SELECT * FROM {TABLENAME}")
@@ -92,8 +102,9 @@ class TeamManager:
                 {PRIMARYSPONSOR},
                 {SECONDARYSPONSOR1},
                 {SECONDARYSPONSOR2},
-                {SECONDARYSPONSOR3}
-                ) = (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                {SECONDARYSPONSOR3},
+                {ISACTIVE}
+                ) = (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 WHERE {ID} = ?
             """
             params = team.toTuple() + (team.ID, )

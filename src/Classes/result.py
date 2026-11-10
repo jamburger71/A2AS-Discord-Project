@@ -1,4 +1,4 @@
-
+from Classes.season import Season
 
 class Result:
 
@@ -29,3 +29,20 @@ class Result:
             self.raceStops,
             self.raceFinishStatus
         )
+
+    points = [
+        [10, 8, 6, 5, 4, 3, 2, 1],
+        [25, 18, 15, 12, 10, 8, 6, 4, 2, 1],
+        [25, 20, 16, 13, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1],
+        [12, 9, 7, 6, 5, 4, 3, 2, 1],
+        [38, 27, 23, 18, 15, 12, 9, 6, 3, 2],
+        [50, 36, 30, 24, 20, 16, 12, 8, 4, 2],
+        [10, 6, 4, 3, 2, 1],
+        [8, 7, 6, 5, 4, 3, 2, 1]
+    ]
+    
+    def getPoints(self, season: Season) -> int:
+
+        polePoint = 1 if season.pointForPole and self.qualiPosition == 1 else 0
+        if self.racePosition > len(self.points[season.pointsModel.value-1]): return polePoint
+        return self.points[season.pointsModel.value-1][self.racePosition-1] + polePoint
