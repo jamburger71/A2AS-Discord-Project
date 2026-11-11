@@ -11,7 +11,6 @@ sys.path.append(str(class_path))
 
 from Database.databaseManager import DatabaseManager
 from Database.driverManager import DriverManager
-import testdata
 from Classes.driver import Driver
 
 @pytest.fixture()
