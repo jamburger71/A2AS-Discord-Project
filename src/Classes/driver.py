@@ -119,7 +119,6 @@ localeWeights = {
     'bg_BG': 1,    # Bulgaria
     'sk_SK': 1,    # Slovakia
     'hr_HR': 1,    # Croatia
-    'sr_RS': 1,    # Serbia
     'sl_SI': 1,    # Slovenia
     'et_EE': 1,    # Estonia
     'lt_LT': 1,    # Lithuania

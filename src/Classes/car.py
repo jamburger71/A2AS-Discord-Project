@@ -1,10 +1,8 @@
 class Car:
 
-    def __init__(self, dboutput: tuple | None):
-
-        if dboutput is None: return
+    def __init__(self, dboutput: tuple):
             
-        self.id = dboutput[0]
+        self.ID = dboutput[0]
         self.name = dboutput[1]
         self.description = dboutput[2]
         self.manufacturer = dboutput[3]
@@ -19,20 +17,27 @@ class Car:
         self.dragUpgradeSize = dboutput[12]
         self.maxDragUpgrades = dboutput[13]
 
+    @classmethod
+    def new(cls, dbinput: tuple | None):
+
+        if dbinput is None: return None
+        return cls(dboutput=dbinput)
+        
     def toTuple(self) -> tuple:
 
         return (
-            self.id, 
+            self.ID, 
             self.name, 
             self.description, 
             self.manufacturer, 
             self.year, 
-            self.maxTeams, 
             self.carClass,
+            self.maxTeams, 
             self.defaultWeight,
             self.baseWeight,
             self.weightUpgradeSize,
             self.maxWeightUpgrades,
             self.baseDrag,
-            self.dragUpgradeSize
+            self.dragUpgradeSize,
+            self.maxDragUpgrades
         )

@@ -35,7 +35,7 @@ class CarManager:
                 {NAME} SMALLTEXT,
                 {DESCRIPTION} TEXT,
                 {MANUFACTURER} SMALLTEXT,
-                {YEAR} TINYTEXT,
+                {YEAR} SMALLINT,
                 {CLASS} TEXT,
                 {MAXTEAMS} TINYINT,
                 {DEFAULTWEIGHT} INT,
@@ -51,8 +51,10 @@ class CarManager:
     def insertCar(self, car: Car):
 
         with closing(self.databaseConnection.cursor()) as cursor:
-            query = f"INSERT INTO {TABLENAME} VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ,?, ?, ?, ?)"
+            query = f"INSERT INTO {TABLENAME} VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
             params = car.toTuple()
+            cursor.execute(query, params)
+            self.databaseConnection.commit()
 
     def getCar(self, carID: str) -> Car:
 
@@ -60,7 +62,7 @@ class CarManager:
             query = f"SELECT * FROM {TABLENAME} WHERE ID = ?"
             params = (carID, )
             cursor.execute(query, params)
-            return Car(cursor.fetchone())
+            return Car.new(cursor.fetchone())
         
     def getCarsInClass(self, carClass: str) -> list[Car]:
         
@@ -68,13 +70,13 @@ class CarManager:
             query = f"SELECT * FROM {TABLENAME} WHERE {CLASS} = ?"
             params = (carClass, )
             cursor.execute(query, params)
-            return list(map(Car, cursor.fetchall()))
+            return [Car.new(car) for car in cursor.fetchall()]
     
     def getCars(self) -> list[Car]:
         
         with closing(self.databaseConnection.cursor()) as cursor:
             cursor.execute(f"SELECT * FROM {TABLENAME}")
-            return [Car(car) for car in cursor.fetchall()]
+            return [Car.new(car) for car in cursor.fetchall()]
     
     def updateCar(self, car: Car):
 
@@ -92,14 +94,14 @@ class CarManager:
                 {DEFAULTWEIGHT},
                 {BASEWEIGHT},
                 {WEIGHTUPGRADESIZE},
-                {MAXWEIGHTUPGRADES}
+                {MAXWEIGHTUPGRADES},
                 {BASEDRAG},
                 {DRAGUPGRADESIZE},
                 {MAXDRAGUPGRADES})
-                = (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                = (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 WHERE ID = ?
             """
-            params = car.toTuple() + (car.id, )
+            params = car.toTuple() + (car.ID, )
             cursor.execute(query, params)
             self.databaseConnection.commit()
 
