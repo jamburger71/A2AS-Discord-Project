@@ -26,7 +26,7 @@ class EngineManager:
                 CREATE TABLE IF NOT EXISTS {DATABASE_NAME} (
                 {MODEL} SMALLTEXT PRIMARY KEY,
                 {MANUFACTURER} SMALLTEXT,
-                {YEAR} TINYTEXT,
+                {YEAR} SMALLINT,
                 {POWER} TINYINT,
                 {RELIABILITY} TINYINT,
                 {PRICE} INT)
@@ -49,7 +49,7 @@ class EngineManager:
                 = (?, ?, ?, ?, ?, ?)
                 WHERE {MODEL} = ?
             """
-            params, = engine.toTuple() + (engine.model, )
+            params = engine.toTuple() + (engine.model, )
             cursor.execute(query, params)
             self.databaseConnection.commit()
     
@@ -59,26 +59,26 @@ class EngineManager:
             query = f"SELECT * FROM {DATABASE_NAME} WHERE {MODEL} = ?"
             params = (engineModel, )
             cursor.execute(query, params)
-            return Engine(cursor.fetchone())
+            return Engine.new(cursor.fetchone())
     
-    def getEnginesForYear(self, year: str) -> list[Engine]:
+    def getEnginesByYear(self, year: str) -> list[Engine]:
         
         with closing(self.databaseConnection.cursor()) as cursor:
             query = f"SELECT * FROM {DATABASE_NAME} WHERE {YEAR} = ?"
             params = (year, )
             cursor.execute(query, params)
-            return [Engine(engine) for engine in cursor.fetchall()]
+            return [Engine.new(engine) for engine in cursor.fetchall()]
     
     def getEngines(self) -> list[Engine]:
         
         with closing(self.databaseConnection.cursor()) as cursor:
             cursor.execute(f"SELECT * FROM {DATABASE_NAME}")
-            return [Engine(engine) for engine in cursor.fetchall()]
+            return [Engine.new(engine) for engine in cursor.fetchall()]
     
     def deleteEngine(self, engineModel: str):
         
         with closing(self.databaseConnection.cursor()) as cursor:
-            query = f"REMOVE FROM {DATABASE_NAME} WHERE {MODEL} = ?"
+            query = f"DELETE FROM {DATABASE_NAME} WHERE {MODEL} = ?"
             params = (engineModel, )
             cursor.execute(query, params)
             self.databaseConnection.commit()

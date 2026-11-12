@@ -1,6 +1,6 @@
 class Engine:
 
-    def __init__(self, dboutput: tuple | None):
+    def __init__(self, dboutput: tuple):
             
         self.model = dboutput[0]
         self.manufacturer = dboutput[1]
@@ -9,6 +9,12 @@ class Engine:
         self.reliability = dboutput[4]
         self.price = dboutput[5]
 
+    @classmethod
+    def new(cls, dbinput: tuple | None):
+
+        if dbinput is None: return None
+        return cls(dboutput=dbinput)
+    
     def toTuple(self):
 
         return (
