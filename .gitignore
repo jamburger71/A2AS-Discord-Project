@@ -5,3 +5,4 @@
 *.db-wal
 **/__pycache__/*
 discord.log
+axs-android-arm64
