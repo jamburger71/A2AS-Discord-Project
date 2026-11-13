@@ -50,7 +50,7 @@ class MyBot(commands.Bot):
 
     async def setup_hook(self):
 
-        cogsDirectory = Path(__file__).resolve().parent / "Cogs"
+        cogsDirectory = Path(__file__).resolve().parent.parent / "Cogs"
         logging.info(f"Loading cogs from {cogsDirectory.resolve()}")
         print(f"Loading cogs from {cogsDirectory.resolve()}")
         for root, _, files in os.walk(cogsDirectory):
