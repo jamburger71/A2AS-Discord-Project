@@ -1,4 +1,3 @@
-from ctypes.wintypes import POINT
 import logging
 import sqlite3
 import yaml
@@ -50,7 +49,7 @@ class EventManager:
     def getEvent(self, seasonNo: int, roundNo: int) -> Event:
         
         with closing(self.databaseConnection.cursor()) as cursor:
-            query = f"SELECT 1 FROM {TABLENAME} WHERE {SEASONNO}  = ? AND {ROUNDNO} = ?"
+            query = f"SELECT * FROM {TABLENAME} WHERE {SEASONNO}  = ? AND {ROUNDNO} = ?"
             params = (seasonNo, roundNo)
             cursor.execute(query, params)
             return Event.new(cursor.fetchone())
