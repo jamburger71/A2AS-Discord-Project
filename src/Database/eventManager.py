@@ -12,11 +12,10 @@ SEASONNO = "SeasonNo"
 ROUNDNO = "RoundNo"
 TITLE = "Title"
 DATE = "Date"
+TRACKLAYOUT = "TrackLayout"
 WEATHER = "Weather"
 QUALIDURATION = "QualiDuration"
 RACELENGTH = "RaceLength"
-POLEPOINT = "PolePoint"
-POINTSMODEL = "PointsModel"
 
 class EventManager:
 
@@ -29,12 +28,11 @@ class EventManager:
                 {SEASONNO} TINYINT,
                 {ROUNDNO} TINYINT,
                 {TITLE} TINYTEXT,
-                {DATE} DATE,
+                {DATE} SMALLTEXT,
+                {TRACKLAYOUT} SMALLTEXT,
                 {WEATHER} TEXT,
                 {QUALIDURATION} INT,
                 {RACELENGTH} SMALLINT,
-                {POLEPOINT} TINYINT,
-                {POINTSMODEL} TINYINT,
                 PRIMARY KEY({SEASONNO}, {ROUNDNO}))
             """)
             
@@ -43,7 +41,7 @@ class EventManager:
         with closing(self.databaseConnection.cursor()) as cursor:
             query = f"""
                 INSERT INTO {TABLENAME}
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 """
             params = event.toTuple()
             cursor.execute(query, params)
@@ -55,7 +53,7 @@ class EventManager:
             query = f"SELECT 1 FROM {TABLENAME} WHERE {SEASONNO}  = ? AND {ROUNDNO} = ?"
             params = (seasonNo, roundNo)
             cursor.execute(query, params)
-            return Event(cursor.fetchone())
+            return Event.new(cursor.fetchone())
     
     def getEventsFromSeason(self, seasonNo: int) -> list[Event]:
         
@@ -63,20 +61,28 @@ class EventManager:
             query = f"SELECT * FROM {TABLENAME} WHERE {SEASONNO} = ?"
             params = (seasonNo, )
             cursor.execute(query, params)
-            return [Event(event) for event in cursor.fetchall()]
+            return [Event.new(event) for event in cursor.fetchall()]
+
+    def getEventsOnLayout(self, layout: str) -> list[Event]:
+
+        with closing(self.databaseConnection.cursor()) as cursor:
+            query = f"SELECT * FROM {TABLENAME} WHERE {TRACKLAYOUT} = ?"
+            params = (layout, )
+            cursor.execute(query, params)
+            return [Event.new(event) for event in cursor.fetchall()]
     
     def getEvents(self) -> list[Event]:
         
         with closing(self.databaseConnection.cursor()) as cursor:
             cursor.execute(f"SELECT * FROM {TABLENAME}")
-            return [Event(event) for event in cursor.fetchall()]
+            return [Event.new(event) for event in cursor.fetchall()]
     
     def updateEvent(self, event: Event):
         
         with closing(self.databaseConnection.cursor()) as cursor:
             query = f"""UPDATE {TABLENAME}
-                SET ({SEASONNO}, {ROUNDNO}, {TITLE}, {DATE}, {WEATHER}, {QUALIDURATION}, {RACELENGTH}, {POLEPOINT}, {POINTSMODEL})
-                = (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                SET ({SEASONNO}, {ROUNDNO}, {TITLE}, {DATE}, {TRACKLAYOUT}, {WEATHER}, {QUALIDURATION}, {RACELENGTH})
+                = (?, ?, ?, ?, ?, ?, ?, ?)
                 WHERE {SEASONNO} = ?
                 AND {ROUNDNO} = ?"""
             params = event.toTuple() + (event.seasonNo, event.roundNo)

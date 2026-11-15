@@ -1,17 +1,19 @@
+from enums import PointsModel
+from datetime import datetime, timezone
 
 
 class Event:
 
     def __init__(self, databaseData: tuple):
 
-        self.seasonNo = databaseData[0]
-        self.roundNo = databaseData[1]
-        self.title = databaseData[2]
-        self.date = databaseData[3]
-        self.track = databaseData[4]
-        self.weather = databaseData[5]
-        self.qualiDuration = databaseData[6]
-        self.raceLength = databaseData[7]
+        self.seasonNo: int = databaseData[0]
+        self.roundNo: int = databaseData[1]
+        self.title: str = databaseData[2]
+        self.date: datetime = datetime.fromisoformat(databaseData[3])
+        self.trackLayout: str = databaseData[4]
+        self.weather: str | None = databaseData[5]
+        self.qualiDuration: int = databaseData[6]
+        self.raceLength: int = databaseData[7]
 
     def toTuple(self) -> tuple:
 
@@ -19,12 +21,14 @@ class Event:
             self.seasonNo,
             self.roundNo,
             self.title,
-            self.date,
+            self.date.isoformat(),
+            self.trackLayout,
             self.weather,
             self.qualiDuration,
-            self.raceLength,
+            self.raceLength
         )
 
     @classmethod
-    def new(cls, seasonNo, roundNo, title, date, track, qualiDuration, raceLength):
-        return cls((seasonNo, roundNo, title, date, track, "Unset", qualiDuration, raceLength))
+    def new(cls, dbinput):
+        if dbinput is None: return None
+        return cls(dbinput)
