@@ -1,5 +1,4 @@
-from enums import PointsModel
-from datetime import datetime, timezone
+from datetime import datetime
 
 
 class Event:
@@ -9,6 +8,7 @@ class Event:
         self.seasonNo: int = databaseData[0]
         self.roundNo: int = databaseData[1]
         self.title: str = databaseData[2]
+        print(type(databaseData[3]))
         self.date: datetime = datetime.fromisoformat(databaseData[3])
         self.trackLayout: str = databaseData[4]
         self.weather: str | None = databaseData[5]
@@ -29,6 +29,12 @@ class Event:
         )
 
     @classmethod
+    def create(cls, seasonNo, roundNo, title, date, trackLayout, weather, qualiDuration, raceLength):
+
+        return cls((seasonNo, roundNo, title, date.isoformat(), trackLayout, weather, qualiDuration, raceLength))
+
+    @classmethod
     def new(cls, dbinput):
-        if dbinput is None: return None
+        if dbinput is None:
+            return None
         return cls(dbinput)

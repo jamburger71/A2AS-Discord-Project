@@ -1,9 +1,8 @@
-from enums import PointsModel
 from pathlib import Path
-from datetime import datetime, date
-
+from datetime import datetime
 import pytest
 import sys
+
 src_path = Path(__file__).resolve().parent.parent / 'src'
 db_path = src_path / 'Database'
 class_path = src_path / 'Classes'
@@ -15,6 +14,7 @@ from Database.databaseManager import DatabaseManager
 from Database.eventManager import EventManager
 from Classes.event import Event
 
+
 @pytest.fixture()
 def testEventManager():
     testDB = DatabaseManager("Test_DB")
@@ -22,19 +22,21 @@ def testEventManager():
     yield testEvntManager
     testDB.deleteDatabase()
 
+
 @pytest.fixture()
 def eventSampleSet():
     set = []
-    set.append(Event((1, 1, "Race 1", datetime.today(), "long-beach_gp", None, 15, 80)))
-    set.append(Event((1, 2, "Race 2", datetime.today(), "nurburgring_gp", None, 15, 62)))
-    set.append(Event((1, 3, "Race 3", datetime.today(), "silverstone_2010-gp", None, 15, 55)))
-    set.append(Event((1, 4, "Race 4", datetime.today(), "monaco_gp", None, 15, 79)))
-    set.append(Event((2, 1, "Race 1", datetime.today(), "interlagos_gp", None, 15, 59)))
-    set.append(Event((2, 2, "Race 2", datetime.today(), "long-beach_gp", None, 15, 80)))
-    set.append(Event((2, 3, "Race 3", datetime.today(), "watkins-glen_gp", None, 15, 67)))
-    set.append(Event((3, 1, "Race 1", datetime.today(), "monaco_gp", None, 15, 79)))
-    
+    set.append(Event.create(1, 1, "Race 1", datetime.today(), "long-beach_gp", None, 15, 80))
+    set.append(Event.create(1, 2, "Race 2", datetime.today(), "nurburgring_gp", None, 15, 62))
+    set.append(Event.create(1, 3, "Race 3", datetime.today(), "silverstone_2010-gp", None, 15, 55))
+    set.append(Event.create(1, 4, "Race 4", datetime.today(), "monaco_gp", None, 15, 79))
+    set.append(Event.create(2, 1, "Race 1", datetime.today(), "interlagos_gp", None, 15, 59))
+    set.append(Event.create(2, 2, "Race 2", datetime.today(), "long-beach_gp", None, 15, 80))
+    set.append(Event.create(2, 3, "Race 3", datetime.today(), "watkins-glen_gp", None, 15, 67))
+    set.append(Event.create(3, 1, "Race 1", datetime.today(), "monaco_gp", None, 15, 79))
+
     return set
+
 
 def testInsertAndGetEvent(testEventManager, eventSampleSet):
 
@@ -45,6 +47,7 @@ def testInsertAndGetEvent(testEventManager, eventSampleSet):
     # ASSERT
     assert fetchedEvent.toTuple() == eventSampleSet[6].toTuple()
 
+
 def testGetEvents(testEventManager, eventSampleSet):
 
     # ACT
@@ -54,6 +57,7 @@ def testGetEvents(testEventManager, eventSampleSet):
     # ASSERT
     for i in range(len(eventSampleSet)):
         assert fetchedEvents[i].toTuple() == eventSampleSet[i].toTuple()
+
 
 def testGetEventsFromSeason(testEventManager, eventSampleSet):
 
@@ -67,6 +71,7 @@ def testGetEventsFromSeason(testEventManager, eventSampleSet):
     assert fetchedEvents[1].toTuple() == eventSampleSet[5].toTuple()
     assert fetchedEvents[2].toTuple() == eventSampleSet[6].toTuple()
 
+
 def testGetEventsOnLayout(testEventManager, eventSampleSet):
 
     # ACT
@@ -77,6 +82,7 @@ def testGetEventsOnLayout(testEventManager, eventSampleSet):
     assert len(fetchedEvents) == 2
     assert fetchedEvents[0].toTuple() == eventSampleSet[3].toTuple()
     assert fetchedEvents[1].toTuple() == eventSampleSet[7].toTuple()
+
 
 def testDeleteEvent(testEventManager, eventSampleSet):
 
