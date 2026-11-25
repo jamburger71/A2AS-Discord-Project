@@ -1,4 +1,3 @@
-from operator import not_
 from pathlib import Path
 import pytest
 import sys
@@ -13,13 +12,15 @@ sys.path.append(str(class_path))
 from Database.databaseManager import DatabaseManager
 from Database.keyValManager import KeyValManager
 
+
 @pytest.fixture()
 def testKeyValManager():
-    
+
     testDB = DatabaseManager("Test_DB.db")
     testKVManager = KeyValManager(testDB.databaseConnection)
     yield testKVManager
     testDB.deleteDatabase()
+
 
 def testInsertAndGetKeyVal(testKeyValManager):
 
@@ -32,6 +33,7 @@ def testInsertAndGetKeyVal(testKeyValManager):
     assert firstValue == "value"
     assert secondValue == 44
 
+
 def testUpdateKeyVal(testKeyValManager):
 
     # ACT
@@ -40,6 +42,7 @@ def testUpdateKeyVal(testKeyValManager):
     newValue = testKeyValManager.getKeyVal("Key")
     # ASSERT
     assert newValue == "aNewValue"
+
 
 def testDeleteKeyVal(testKeyValManager):
 
@@ -52,6 +55,7 @@ def testDeleteKeyVal(testKeyValManager):
     # ASSERT
     assert deletedValue is None
     assert notDeletedValue == 12
+
 
 def testGetAndIterateKeyVal(testKeyValManager):
 

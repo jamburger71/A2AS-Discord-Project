@@ -6,6 +6,8 @@ class TargetType(Enum):
     NODNFS = 3                  # Both cars finished the race
     MINSTOPS = 4                # At least this many stops on both cars
     MAXSTOPS = 5                # At most this many stops on both cars
+    QUALIPOS = 6
+    DOUBLEQUALIPOS = 7
 
 class RaceFinishStatus(Enum):
     FINISHED = 1

@@ -24,7 +24,7 @@ class PrimarySponsorManager:
     def __init__(self, databaseConnection):
 
         self.databaseConnection: sqlite3.Connection = databaseConnection
-        
+
         with closing(self.databaseConnection.cursor()) as cursor:
             cursor.execute(f"""
             CREATE TABLE IF NOT EXISTS {TABLENAME} (
@@ -32,7 +32,7 @@ class PrimarySponsorManager:
             {NAME} SMALLTEXT,
             {CONTRACTLENGTH} TINYINT,
             {SIGNINGPAY} INT,
-            {RACEPAY} INT
+            {RACEPAY} INT,
             {TARGET} SMALLINT,
             {TARGETTYPE} TINYINT,
             {TARGETREWARD} INT
@@ -52,29 +52,29 @@ class PrimarySponsorManager:
             query = f"SELECT * FROM {TABLENAME} WHERE {ID} = ?"
             params = (sponsorID, )
             cursor.execute(query, params)
-            return PrimarySponsor(cursor.fetchone())
+            return PrimarySponsor.new(cursor.fetchone())
 
     def getSponsors(self) -> list[PrimarySponsor]:
 
         with closing(self.databaseConnection.cursor()) as cursor:
             cursor.execute(f"SELECT * FROM {TABLENAME}")
-            return [PrimarySponsor(sponsor) for sponsor in cursor.fetchall()]
+            return [PrimarySponsor.new(sponsor) for sponsor in cursor.fetchall()]
 
     def updateSponsor(self, sponsor: PrimarySponsor):
 
         with closing(self.databaseConnection.cursor()) as cursor:
             query = f"""
                 UPDATE {TABLENAME}
-                SET ({ID}, {NAME}, {CONTRACTLENGTH}, {SIGNINGPAY}, {RACEPAY}, {TARGET}, {TARGETTYPE}, {TARGETREWARD}) 
+                SET ({ID}, {NAME}, {CONTRACTLENGTH}, {SIGNINGPAY}, {RACEPAY}, {TARGET}, {TARGETTYPE}, {TARGETREWARD})
                 = (?, ?, ?, ?, ?, ?, ?, ?)
                 WHERE {ID} = ?
             """
             params = sponsor.toTuple() + (sponsor.id, )
             cursor.execute(query, params)
             self.databaseConnection.commit()
-    
+
     def deleteSponsor(self, sponsorID: int):
-        
+
         with closing(self.databaseConnection.cursor()) as cursor:
             query = f"DELETE FROM {TABLENAME} WHERE {ID} = ?"
             params = (sponsorID, )

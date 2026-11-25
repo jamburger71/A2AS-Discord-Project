@@ -7,9 +7,8 @@ class Sponsor:
         self.id = dboutput[0]
         self.name = dboutput[1]
         self.contractLength = dboutput[2]
-        self.isAvailable = dboutput[3]
-        self.signingPay = dboutput[4]
-        self.racePay = dboutput[5]
+        self.signingPay = dboutput[3]
+        self.racePay = dboutput[4]
 
     def toTuple(self) -> tuple:
 
@@ -17,7 +16,12 @@ class Sponsor:
             self.id,
             self.name,
             self.contractLength,
-            self.isAvailable,
             self.signingPay,
             self.racePay
         )
+
+    @classmethod
+    def new(cls, dbinput: tuple | None):
+
+        if dbinput is None: return None
+        return cls(dboutput=dbinput)
