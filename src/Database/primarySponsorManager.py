@@ -1,8 +1,4 @@
-  
-import logging
 import sqlite3
-import yaml
-import os
 from contextlib import closing
 
 from Classes.primarySponsor import PrimarySponsor
