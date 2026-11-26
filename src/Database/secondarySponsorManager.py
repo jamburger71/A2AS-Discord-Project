@@ -44,13 +44,13 @@ class SecondarySponsorManager:
             query = f"SELECT * FROM {TABLENAME} WHERE {ID} = ?"
             params = (sponsorID, )
             cursor.execute(query, params)
-        return Sponsor(cursor.fetchone())
+            return Sponsor.new(cursor.fetchone())
 
     def getSponsors(self) -> list[Sponsor]:
 
         with closing(self.databaseConnection.cursor()) as cursor:
             cursor.execute(f"SELECT * FROM {TABLENAME}")
-            return [Sponsor(sponsor) for sponsor in cursor.fetchall()]
+            return [Sponsor.new(sponsor) for sponsor in cursor.fetchall()]
 
     def updateSponsor(self, sponsor: Sponsor):
 
